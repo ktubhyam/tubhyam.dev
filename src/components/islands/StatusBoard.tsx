@@ -21,11 +21,11 @@ interface Props {
 }
 
 const DEFAULT_ROWS: StatusRow[] = [
-  { name: "spectrakit", status: "passing", version: "v0.3.1", coverage: 94, tests: 142 },
-  { name: "spectral-fm", status: "building", version: "v0.1.0", coverage: 67, tests: 58 },
-  { name: "vibescope", status: "passing", version: "v1.2.0", coverage: 88, tests: 95 },
-  { name: "modal-theory", status: "passing", version: "v0.5.2", coverage: 91, tests: 73 },
-  { name: "qm9s-loader", status: "passing", version: "v2.0.0", coverage: 96, tests: 201 },
+  { name: "spectrakit", status: "building", version: "v0.1.0-dev", coverage: 42, tests: 18 },
+  { name: "spectral-fm", status: "building", version: "v0.1.0-alpha", coverage: 28, tests: 12 },
+  { name: "vibescope", status: "building", version: "v0.0.1-dev" },
+  { name: "tubhyam.dev", status: "passing", version: "v1.0.0", coverage: 0, tests: 0 },
+  { name: "qm9s-loader", status: "building", version: "v0.0.1-dev" },
 ];
 
 const STATUS_CONFIG = {
@@ -63,22 +63,22 @@ export default function StatusBoard({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-[#1a1a1a] overflow-hidden bg-[#0a0a0a] ${className}`}
+      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-[#1a1a1a]">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
         </div>
-        <span className="ml-2 text-[10px] font-mono text-[#444] select-none">{title}</span>
+        <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
       </div>
 
       {/* Table */}
       <div className="p-3">
         {/* Header */}
-        <div className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-1.5 text-[9px] font-mono text-[#555] uppercase tracking-wider">
+        <div className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-1.5 text-[9px] font-mono text-text-muted/70 uppercase tracking-wider">
           <span>Package</span>
           <span>Status</span>
           <span>Version</span>
@@ -97,7 +97,7 @@ export default function StatusBoard({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-colors"
             >
-              <span className="text-[11px] font-mono text-[#e0e0e0] flex items-center gap-2">
+              <span className="text-[11px] font-mono text-text-primary flex items-center gap-2">
                 <span
                   className={`w-[6px] h-[6px] rounded-full flex-shrink-0 ${row.status === "building" ? "animate-pulse" : ""}`}
                   style={{
@@ -110,13 +110,13 @@ export default function StatusBoard({
               <span className="text-[10px] font-mono" style={{ color: cfg.color }}>
                 {cfg.label}
               </span>
-              <span className="text-[10px] font-mono text-[#888]">
+              <span className="text-[10px] font-mono text-text-secondary">
                 {row.version}
               </span>
               <span className="text-[10px] font-mono">
                 {row.coverage != null && (
                   <span className="flex items-center gap-1.5">
-                    <span className="w-8 h-1 rounded-full bg-[#1a1a1a] overflow-hidden">
+                    <span className="w-8 h-1 rounded-full bg-border overflow-hidden">
                       <motion.span
                         className="block h-full rounded-full"
                         initial={{ width: 0 }}

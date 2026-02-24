@@ -11,7 +11,7 @@ import { SITE } from "@lib/constants";
 
 const pageTitle = title === SITE.title ? title : `${title} — ${SITE.title}`;
 const pageDescription = description ?? SITE.description;
-const ogImage = image ?? "/favicon.svg";
+const ogImage = image ?? "/og/default.png";
 const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 ---
 
@@ -59,10 +59,7 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   "affiliation": { "@type": "Organization", "name": "ICT Mumbai" },
 })} />
 
-<!-- Fonts: Bricolage Grotesque (headings) + Inter (body) + JetBrains Mono (code) -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-  rel="stylesheet"
-/>
+<!-- Fonts: self-hosted WOFF2 (preloaded for zero render-blocking) -->
+<link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />

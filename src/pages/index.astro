@@ -31,7 +31,7 @@ import RotatingText from "@components/islands/RotatingText";
 import SpotlightCard from "@components/islands/SpotlightCard";
 import DecryptedText from "@components/islands/DecryptedText";
 import GradientText from "@components/islands/GradientText";
-import StarBorder from "@components/islands/StarBorder";
+import StarBorder from "@components/ui/StarBorder.astro";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -95,7 +95,7 @@ import StarBorder from "@components/islands/StarBorder";
         class="mt-10 flex flex-wrap items-center gap-4 hero-fade"
         style="opacity: 0; animation: fade-up 0.5s ease-out 1.5s forwards;"
       >
-        <StarBorder client:idle as="a" href="#build" color="#C9A04A" speed="4s">
+        <StarBorder as="a" href="#build" color="#C9A04A" speed="4s">
           View Work
         </StarBorder>
         <GlassButton href="#contact" variant="secondary">Get in Touch</GlassButton>
@@ -426,11 +426,11 @@ import StarBorder from "@components/islands/StarBorder";
           />
         </div>
         <div class="mt-5 space-y-2.5">
-          <a href="/blog" class="block rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] p-3 hover:border-[#2a2a2a] transition-colors cursor-pointer">
+          <a href="/blog" class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-colors cursor-pointer">
             <p class="text-[10px] font-mono text-text-muted/50 mb-1">Coming Soon</p>
             <p class="text-xs text-text-secondary leading-snug">Information-Theoretic Limits of Spectroscopic Identification</p>
           </a>
-          <a href="/blog" class="block rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] p-3 hover:border-[#2a2a2a] transition-colors cursor-pointer">
+          <a href="/blog" class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-colors cursor-pointer">
             <p class="text-[10px] font-mono text-text-muted/50 mb-1">Coming Soon</p>
             <p class="text-xs text-text-secondary leading-snug">Building a Hybrid State-Space Transformer for Vibrational Spectroscopy</p>
           </a>
@@ -496,7 +496,7 @@ import StarBorder from "@components/islands/StarBorder";
           Built with Three.js and WebGL for real-time rendering.
         </p>
         <div class="mt-8">
-          <StarBorder client:visible as="a" href="/simulations" color="#C9A04A" speed="4s">
+          <StarBorder as="a" href="/simulations" color="#C9A04A" speed="4s">
             Launch VibeScope
           </StarBorder>
         </div>
@@ -701,7 +701,7 @@ import StarBorder from "@components/islands/StarBorder";
                 name="name"
                 placeholder="Name"
                 required
-                class="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
+                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
               />
             </div>
             <div>
@@ -712,7 +712,7 @@ import StarBorder from "@components/islands/StarBorder";
                 name="email"
                 placeholder="Email"
                 required
-                class="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
+                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
               />
             </div>
             <div>
@@ -721,7 +721,7 @@ import StarBorder from "@components/islands/StarBorder";
                 id="contact-reason"
                 name="reason"
                 required
-                class="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-muted focus:border-accent/40 focus:outline-none transition-colors appearance-none"
+                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-muted focus:border-accent/40 focus:outline-none transition-colors appearance-none"
               >
                 <option value="" disabled selected>What's this about?</option>
                 <option value="collaboration">Research Collaboration</option>
@@ -739,10 +739,10 @@ import StarBorder from "@components/islands/StarBorder";
                 placeholder="Tell me more..."
                 rows={4}
                 required
-                class="w-full bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors resize-none"
+                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors resize-none"
               ></textarea>
             </div>
-            <StarBorder client:visible as="button" color="#C9A04A" speed="4s">
+            <StarBorder as="button" color="#C9A04A" speed="4s">
               Send Message
             </StarBorder>
           </form>

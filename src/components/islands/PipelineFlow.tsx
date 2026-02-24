@@ -20,11 +20,11 @@ interface Props {
 }
 
 const DEFAULT_STAGES: Stage[] = [
-  { label: "Ingest", icon: "M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2l1.586-1.586a2 2 0 0 1 2.828 0L20 14", color: "#60A5FA", detail: "350K spectra" },
+  { label: "Ingest", icon: "M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2l1.586-1.586a2 2 0 0 1 2.828 0L20 14", color: "#60A5FA", detail: "QM9S + ChEMBL" },
   { label: "Preprocess", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15", color: "#4ECDC4", detail: "Wavelet + Norm" },
   { label: "Train", icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", color: "#C9A04A", detail: "4x RTX 5090" },
-  { label: "Evaluate", icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z", color: "#A78BFA", detail: "R² = 0.961" },
-  { label: "Deploy", icon: "M5 12h14M12 5l7 7-7 7", color: "#34D399", detail: "REST API" },
+  { label: "Evaluate", icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z", color: "#A78BFA", detail: "R², RMSEP" },
+  { label: "Deploy", icon: "M5 12h14M12 5l7 7-7 7", color: "#34D399", detail: "PyPI + API" },
 ];
 
 export default function PipelineFlow({
@@ -56,16 +56,16 @@ export default function PipelineFlow({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-[#1a1a1a] overflow-hidden bg-[#0a0a0a] ${className}`}
+      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-[#1a1a1a]">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
         </div>
-        <span className="ml-2 text-[10px] font-mono text-[#444] select-none">{title}</span>
+        <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
       </div>
 
       {/* Pipeline */}
@@ -124,7 +124,7 @@ export default function PipelineFlow({
 
                 {/* Connector line */}
                 {i < stages.length - 1 && (
-                  <div className="flex-1 h-[2px] mx-2 relative overflow-hidden rounded-full bg-[#1a1a1a]">
+                  <div className="flex-1 h-[2px] mx-2 relative overflow-hidden rounded-full bg-border">
                     <motion.div
                       className="absolute inset-y-0 left-0 rounded-full"
                       style={{ backgroundColor: stage.color }}

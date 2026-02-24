@@ -88,7 +88,7 @@ export default function SocialLinks({ className = "" }: Props) {
           initial={{ opacity: 0, y: 12 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.35, delay: 0.1 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="group flex items-center gap-3 rounded-xl border border-[#1a1a1a] bg-[#0a0a0a] px-4 py-3 hover:border-[#2a2a2a] hover:bg-[#0f0f0f] transition-all duration-200 cursor-pointer"
+          className="group flex items-center gap-3 rounded-xl border border-border bg-bg-secondary px-4 py-3 hover:border-border-hover hover:bg-surface transition-all duration-200 cursor-pointer"
           style={{
             boxShadow: "none",
           }}
@@ -107,7 +107,7 @@ export default function SocialLinks({ className = "" }: Props) {
             <path d={link.icon} />
           </svg>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-mono text-[#888] group-hover:text-[#ccc] transition-colors duration-200 truncate">
+            <span className="text-xs font-mono text-text-secondary group-hover:text-[#ccc] transition-colors duration-200 truncate">
               {link.label}
             </span>
             <span

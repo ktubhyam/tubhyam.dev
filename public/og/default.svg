@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="glow1" cx="30%" cy="45%" r="35%">
+      <stop offset="0%" stop-color="#C9A04A" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="75%" cy="55%" r="30%">
+      <stop offset="0%" stop-color="#4ECDC4" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent-line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="30%" stop-color="#C9A04A" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#4ECDC4" stop-opacity="0.4"/>
+      <stop offset="70%" stop-color="#A78BFA" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="2" fill="url(#accent-line)"/>
+
+  <!-- Bottom border -->
+  <rect x="0" y="628" width="1200" height="2" fill="#1a1a1a"/>
+
+  <!-- Orbital rings (decorative, right side) -->
+  <g transform="translate(850, 315)" opacity="0.15">
+    <ellipse cx="0" cy="0" rx="140" ry="80" fill="none" stroke="#C9A04A" stroke-width="0.8"/>
+    <ellipse cx="0" cy="0" rx="140" ry="80" fill="none" stroke="#4ECDC4" stroke-width="0.8" transform="rotate(60)"/>
+    <ellipse cx="0" cy="0" rx="140" ry="80" fill="none" stroke="#A78BFA" stroke-width="0.8" transform="rotate(-60)"/>
+    <circle cx="0" cy="0" r="4" fill="#C9A04A" opacity="0.4"/>
+  </g>
+
+  <!-- TK monogram -->
+  <text x="120" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="120" font-weight="700" fill="#C9A04A" letter-spacing="-0.04em">TK</text>
+  <circle cx="310" cy="290" r="8" fill="#C9A04A"/>
+
+  <!-- Separator -->
+  <line x1="120" y1="330" x2="360" y2="330" stroke="#333" stroke-width="1"/>
+
+  <!-- Name -->
+  <text x="120" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="600" fill="#fafafa" letter-spacing="-0.02em">Tubhyam Karthikeyan</text>
+
+  <!-- Subtitle -->
+  <text x="120" y="415" font-family="ui-monospace, monospace" font-size="16" fill="#767676">Computational Chemist &amp; ML Researcher</text>
+
+  <!-- Tags -->
+  <g font-family="ui-monospace, monospace" font-size="12" fill="#555">
+    <text x="120" y="460">spectroscopy</text>
+    <text x="240" y="460">deep learning</text>
+    <text x="370" y="460">open source</text>
+    <text x="490" y="460">cheminformatics</text>
+  </g>
+
+  <!-- URL -->
+  <text x="120" y="560" font-family="ui-monospace, monospace" font-size="14" fill="#C9A04A" opacity="0.6">tubhyam.dev</text>
+</svg>

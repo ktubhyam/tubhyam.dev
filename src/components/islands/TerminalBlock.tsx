@@ -164,16 +164,16 @@ export default function TerminalBlock({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-[#1a1a1a] overflow-hidden bg-[#0a0a0a] relative ${className}`}
+      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary relative ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-[#1a1a1a]">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
         </div>
-        <span className="ml-2 text-[10px] font-mono text-[#444] select-none">{title}</span>
+        <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
         {!isDone && visibleChars > 0 && (
           <span className="ml-auto flex items-center gap-1.5 text-[10px] font-mono text-[#C9A04A]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C9A04A] animate-pulse" />

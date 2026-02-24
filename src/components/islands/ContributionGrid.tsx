@@ -29,7 +29,7 @@ const COLORS = [
 export default function ContributionGrid({
   className = "",
   weeks = 26,
-  title = "activity — last 6 months",
+  title = "coding patterns — generative",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
@@ -56,9 +56,9 @@ export default function ContributionGrid({
     return data;
   }, [weeks]);
 
-  // Total contributions
-  const totalContributions = useMemo(() => {
-    return grid.flat().filter(v => v > 0).length * 3 + 127;
+  // Active cells count
+  const activeCells = useMemo(() => {
+    return grid.flat().filter(v => v > 0).length;
   }, [grid]);
 
   useEffect(() => {
@@ -83,23 +83,23 @@ export default function ContributionGrid({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-[#1a1a1a] overflow-hidden bg-[#0a0a0a] ${className}`}
+      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-[#1a1a1a]">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
         </div>
-        <span className="ml-2 text-[10px] font-mono text-[#444] select-none">{title}</span>
+        <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
       </div>
 
       <div className="p-4">
         {/* Summary */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] font-mono text-[#888]">
-            <span className="text-[#e0e0e0]">{totalContributions}</span> contributions in the last 6 months
+          <span className="text-[11px] font-mono text-text-secondary">
+            <span className="text-text-primary">{activeCells}</span> active cells — procedurally generated
           </span>
         </div>
 
@@ -109,7 +109,7 @@ export default function ContributionGrid({
           <div className="flex flex-col gap-[3px] mr-1 flex-shrink-0">
             {dayLabels.map((label, i) => (
               <div key={i} className="w-6 h-[11px] flex items-center">
-                <span className="text-[8px] font-mono text-[#444]">{label}</span>
+                <span className="text-[8px] font-mono text-text-muted/60">{label}</span>
               </div>
             ))}
           </div>
@@ -136,7 +136,7 @@ export default function ContributionGrid({
 
         {/* Legend */}
         <div className="flex items-center gap-1.5 mt-3 justify-end">
-          <span className="text-[8px] font-mono text-[#555]">Less</span>
+          <span className="text-[8px] font-mono text-text-muted/70">Less</span>
           {COLORS.map((color, i) => (
             <div
               key={i}
@@ -147,7 +147,7 @@ export default function ContributionGrid({
               }}
             />
           ))}
-          <span className="text-[8px] font-mono text-[#555]">More</span>
+          <span className="text-[8px] font-mono text-text-muted/70">More</span>
         </div>
       </div>
     </motion.div>

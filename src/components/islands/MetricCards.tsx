@@ -23,34 +23,34 @@ interface Props {
 
 const DEFAULT_METRICS: Metric[] = [
   {
-    label: "Model R²",
-    value: 0.961,
+    label: "Target R²",
+    value: 0.95,
     color: "#34D399",
-    sparkline: [0.3, 0.45, 0.52, 0.61, 0.72, 0.79, 0.85, 0.91, 0.94, 0.961],
+    sparkline: [0.0, 0.0, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.95],
     trend: "up",
   },
   {
-    label: "Molecules",
-    value: 350,
+    label: "QM9S Dataset",
+    value: 130,
     suffix: "K",
     color: "#4ECDC4",
-    sparkline: [0.1, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 1.0],
+    sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.8, 1.0],
     trend: "up",
   },
   {
-    label: "Latency",
-    value: 12,
-    suffix: "ms",
+    label: "GPU Hours",
+    value: 0,
+    suffix: "",
     color: "#C9A04A",
-    sparkline: [0.9, 0.85, 0.7, 0.65, 0.55, 0.45, 0.35, 0.25, 0.18, 0.12],
-    trend: "down",
+    sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    trend: "stable",
   },
   {
-    label: "Test Coverage",
-    value: 94,
-    suffix: "%",
+    label: "Papers WIP",
+    value: 2,
+    suffix: "",
     color: "#A78BFA",
-    sparkline: [0.6, 0.65, 0.7, 0.75, 0.78, 0.82, 0.86, 0.9, 0.92, 0.94],
+    sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0],
     trend: "up",
   },
 ];
@@ -133,11 +133,11 @@ export default function MetricCards({
             initial={{ opacity: 0, y: 12 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="rounded-xl border border-[#1a1a1a] bg-[#0a0a0a] p-4 flex flex-col gap-3"
+            className="rounded-xl border border-border bg-bg-secondary p-4 flex flex-col gap-3"
           >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <span className="text-[9px] font-mono text-[#555] uppercase tracking-wider">{metric.label}</span>
+              <span className="text-[9px] font-mono text-text-muted/70 uppercase tracking-wider">{metric.label}</span>
               <span className="text-[9px] font-mono" style={{ color: metric.color }}>
                 {trendIcon} {trendLabel}
               </span>

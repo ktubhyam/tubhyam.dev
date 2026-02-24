@@ -167,7 +167,7 @@ export default function SideNav() {
                 <svg viewBox="0 0 24 24" className="w-[5px] h-[5px] flex-shrink-0 text-[#333] group-hover:text-[#666] transition-colors" fill="none" stroke="currentColor" strokeWidth="3">
                   <path d="M7 17L17 7M17 7H7M17 7v10" />
                 </svg>
-                <span className="text-[10px] font-mono uppercase tracking-[0.12em] whitespace-nowrap select-none text-[#444] opacity-50 group-hover:text-[#666] group-hover:opacity-80 transition-all duration-200">
+                <span className="text-[10px] font-mono uppercase tracking-[0.12em] whitespace-nowrap select-none text-text-muted/60 opacity-50 group-hover:text-[#666] group-hover:opacity-80 transition-all duration-200">
                   {link.label}
                 </span>
               </a>

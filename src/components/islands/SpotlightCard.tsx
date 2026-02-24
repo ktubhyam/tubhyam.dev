@@ -33,7 +33,7 @@ export default function SpotlightCard({
       onBlur={() => { setIsFocused(false); setOpacity(0); }}
       onMouseEnter={() => setOpacity(0.6)}
       onMouseLeave={() => setOpacity(0)}
-      className={`relative rounded-2xl border border-[#1a1a1a] bg-[#111111] overflow-hidden p-6 cursor-pointer transition-colors duration-300 hover:border-[#2a2a2a] ${className}`}
+      className={`relative rounded-2xl border border-border bg-surface overflow-hidden p-6 cursor-pointer transition-colors duration-300 hover:border-border-hover ${className}`}
     >
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-500 ease-in-out"

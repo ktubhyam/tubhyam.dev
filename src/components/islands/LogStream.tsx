@@ -84,16 +84,16 @@ export default function LogStream({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-[#1a1a1a] overflow-hidden bg-[#0a0a0a] ${className}`}
+      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-[#0f0f0f] border-b border-[#1a1a1a]">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
         </div>
-        <span className="ml-2 text-[10px] font-mono text-[#444] select-none">{title}</span>
+        <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
         {visibleLines > 0 && visibleLines < TRAINING_LOG.length && (
           <span className="ml-auto flex items-center gap-1.5 text-[10px] font-mono text-[#34D399]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
@@ -111,7 +111,7 @@ export default function LogStream({
       <div ref={containerRef} className="p-4 font-mono text-[11px] leading-[1.8] max-h-[220px] overflow-y-auto scrollbar-thin">
         {/* Header */}
         {visibleLines > 0 && (
-          <div className="text-[#555] mb-1">
+          <div className="text-text-muted/70 mb-1">
             <span className="text-[#C9A04A]">SpectralFM</span> v0.3.1 — 4x RTX 5090 — mixed precision
           </div>
         )}
@@ -124,18 +124,18 @@ export default function LogStream({
             transition={{ duration: 0.2 }}
             className="flex flex-wrap gap-x-2"
           >
-            <span className="text-[#555]">
+            <span className="text-text-muted/70">
               [{String(entry.epoch).padStart(2, "0")}/{TRAINING_LOG.length}]
             </span>
-            <span className="text-[#888]">loss:</span>
+            <span className="text-text-secondary">loss:</span>
             <span style={{ color: getLossColor(entry.loss) }}>
               {entry.loss.toFixed(3)}
             </span>
-            <span className="text-[#888]">R²:</span>
+            <span className="text-text-secondary">R²:</span>
             <span style={{ color: getR2Color(entry.r2) }}>
               {entry.r2.toFixed(3)}
             </span>
-            <span className="text-[#888]">lr:</span>
+            <span className="text-text-secondary">lr:</span>
             <span className="text-[#A78BFA]">{entry.lr}</span>
             {entry.extra && (
               <span className="text-[#4ECDC4]">

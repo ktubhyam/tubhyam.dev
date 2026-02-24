@@ -51,7 +51,7 @@ export default function MagneticCard({ children, className = "", href }: Props) 
     >
       <Tag
         {...(href ? { href } : {})}
-        className="block relative z-10 bg-[#111] border border-[#1a1a1a] rounded-2xl p-6 transition-colors duration-300 group-hover:border-[#2a2a2a] group-hover:bg-[#161616] cursor-pointer"
+        className="block relative z-10 bg-surface border border-border rounded-2xl p-6 transition-colors duration-300 group-hover:border-border-hover group-hover:bg-surface-hover cursor-pointer"
       >
         {children}
       </Tag>

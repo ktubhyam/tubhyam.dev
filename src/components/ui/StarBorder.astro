@@ -1,0 +1,45 @@
+---
+/**
+ * StarBorder — Animated glowing border with traveling star effect.
+ * Pure CSS — no React runtime needed.
+ */
+interface Props {
+  as?: "button" | "a" | "div";
+  class?: string;
+  color?: string;
+  speed?: string;
+  thickness?: number;
+  href?: string;
+  [key: string]: unknown;
+}
+
+const {
+  as: Tag = "button",
+  class: className = "",
+  color = "#C9A04A",
+  speed = "6s",
+  thickness = 1,
+  href,
+  ...rest
+} = Astro.props;
+
+const tagProps = Tag === "a" ? { href, ...rest } : rest;
+---
+
+<Tag
+  class:list={["star-border relative inline-block overflow-hidden rounded-full", className]}
+  style={`padding: ${thickness}px 0;`}
+  {...tagProps}
+>
+  <div
+    class="absolute w-[300%] h-[50%] opacity-70 bottom-[-11px] right-[-250%] rounded-full animate-star-movement-bottom z-0"
+    style={`background: radial-gradient(circle, ${color}, transparent 10%); animation-duration: ${speed};`}
+  />
+  <div
+    class="absolute w-[300%] h-[50%] opacity-70 top-[-10px] left-[-250%] rounded-full animate-star-movement-top z-0"
+    style={`background: radial-gradient(circle, ${color}, transparent 10%); animation-duration: ${speed};`}
+  />
+  <div class="relative z-10 bg-[#0a0a0a] border border-[#1a1a1a] text-[#fafafa] text-center text-sm font-heading font-medium py-3 px-6 rounded-full">
+    <slot />
+  </div>
+</Tag>
