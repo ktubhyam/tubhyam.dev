@@ -80,7 +80,7 @@ const DEFAULT_PROJECTS: Project[] = [
 function TypewriterDescription({ text }: { text: string }) {
   const { displayed, done } = useTypewriter(text, 18);
   return (
-    <p className="mt-5 text-sm font-mono text-text-muted leading-relaxed max-w-xl">
+    <p className="mt-5 text-sm text-text-muted leading-relaxed max-w-xl">
       {displayed}
       {!done && <span className="animate-blink text-text-muted/70">▌</span>}
     </p>
@@ -165,7 +165,7 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-mono font-medium text-text-primary tracking-tight">
+                  <h3 className="text-lg font-heading font-semibold text-text-primary tracking-tight">
                     {project.title}
                   </h3>
                   <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: project.color }}>
