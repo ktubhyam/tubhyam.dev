@@ -5,6 +5,29 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
+/** Typewriter hook — types out text character by character, resets on change. */
+function useTypewriter(text: string, speed = 25) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed("");
+    setDone(false);
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) {
+        setDone(true);
+        clearInterval(id);
+      }
+    }, speed);
+    return () => clearInterval(id);
+  }, [text, speed]);
+
+  return { displayed, done };
+}
+
 interface Project {
   title: string;
   description: string;
@@ -53,6 +76,16 @@ const DEFAULT_PROJECTS: Project[] = [
     status: "In Development",
   },
 ];
+
+function TypewriterDescription({ text }: { text: string }) {
+  const { displayed, done } = useTypewriter(text, 18);
+  return (
+    <p className="mt-5 text-sm font-mono text-text-muted leading-relaxed max-w-xl">
+      {displayed}
+      {!done && <span className="animate-blink text-text-muted/70">▌</span>}
+    </p>
+  );
+}
 
 export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className = "" }: Props) {
   const [active, setActive] = useState(0);
@@ -109,12 +142,6 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
     <div className={`relative ${className}`}>
       {/* Main card */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-bg-secondary min-h-[340px] md:min-h-[300px]">
-        {/* Accent glow */}
-        <div
-          className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.06] blur-3xl pointer-events-none transition-colors duration-700"
-          style={{ backgroundColor: project.color }}
-        />
-
         <AnimatePresence custom={direction} mode="wait">
           <motion.div
             key={active}
@@ -138,7 +165,7 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-heading font-bold text-text-primary tracking-tight">
+                  <h3 className="text-lg font-mono font-medium text-text-primary tracking-tight">
                     {project.title}
                   </h3>
                   <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: project.color }}>
@@ -153,20 +180,8 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
               </span>
             </div>
 
-            {/* Description with staggered word reveal */}
-            <p className="mt-5 text-sm text-text-muted leading-relaxed max-w-xl">
-              {project.description.split(" ").map((word, i) => (
-                <motion.span
-                  key={`${active}-${i}`}
-                  className="inline-block mr-[0.3em]"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 + i * 0.02, duration: 0.3 }}
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </p>
+            {/* Description with terminal typewriter */}
+            <TypewriterDescription key={active} text={project.description} />
 
             {/* Tags */}
             <div className="mt-5 flex flex-wrap gap-2">
@@ -229,7 +244,6 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
                 style={{
                   width: i === active ? 32 : 12,
                   backgroundColor: i === active ? p.color : "rgba(255,255,255,0.1)",
-                  boxShadow: i === active ? `0 0 8px ${p.color}40` : "none",
                 }}
               />
             </button>
