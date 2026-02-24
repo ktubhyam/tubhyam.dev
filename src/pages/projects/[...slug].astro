@@ -1,0 +1,45 @@
+---
+import ProseLayout from "@layouts/ProseLayout.astro";
+import Badge from "@components/ui/Badge.astro";
+import GlassButton from "@components/ui/GlassButton.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const statusColors = {
+  active: "green" as const,
+  completed: "cyan" as const,
+  archived: "orange" as const,
+};
+---
+
+<ProseLayout title={project.data.title} description={project.data.description}>
+  <header class="mb-12 not-prose">
+    <Badge variant={statusColors[project.data.status]}>
+      {project.data.status}
+    </Badge>
+    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
+      {project.data.title}
+    </h1>
+    <p class="mt-2 text-text-secondary">{project.data.description}</p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      {project.data.github && (
+        <GlassButton href={project.data.github}>GitHub</GlassButton>
+      )}
+      {project.data.demo && (
+        <GlassButton href={project.data.demo} variant="secondary">Live Demo</GlassButton>
+      )}
+    </div>
+  </header>
+
+  <Content />
+</ProseLayout>

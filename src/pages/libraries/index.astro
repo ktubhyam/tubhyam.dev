@@ -1,0 +1,75 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import GlassCard from "@components/cards/GlassCard.astro";
+import Badge from "@components/ui/Badge.astro";
+import { getCollection } from "astro:content";
+
+import BlurReveal from "@components/islands/BlurReveal";
+import StaggerReveal from "@components/islands/StaggerReveal";
+
+const libraries = (await getCollection("libraries"))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<PageLayout title="Libraries" description="Open-source libraries for spectroscopy, molecular analysis, and more.">
+  <section class="py-12">
+    <BlurReveal
+      client:idle
+      text="Libraries"
+      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      as="h1"
+    />
+    <p
+      class="text-text-muted mb-10"
+      style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
+    >
+      Open-source tools for computational science. Install, use, contribute.
+    </p>
+
+    <StaggerReveal client:visible className="grid grid-cols-1 md:grid-cols-2 gap-4" stagger={0.08}>
+      {
+        libraries.map((lib) => (
+          <GlassCard href={`/libraries/${lib.id}`} class="group" padding="lg">
+            <div class="flex items-center gap-2 mb-3">
+              <Badge>{lib.data.language}</Badge>
+              <Badge variant="outline">{lib.data.status}</Badge>
+            </div>
+            <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+              {lib.data.title}
+            </h2>
+            <p class="mt-2 text-sm text-text-muted line-clamp-2">
+              {lib.data.description}
+            </p>
+            {lib.data.pypi && (
+              <div class="mt-4 bg-bg-secondary rounded-lg px-3 py-2 border border-border">
+                <code class="text-xs text-text-secondary font-mono">
+                  pip install {lib.data.pypi}
+                </code>
+              </div>
+            )}
+            {lib.data.npm && (
+              <div class="mt-4 bg-bg-secondary rounded-lg px-3 py-2 border border-border">
+                <code class="text-xs text-text-secondary font-mono">
+                  npm install {lib.data.npm}
+                </code>
+              </div>
+            )}
+          </GlassCard>
+        ))
+      }
+
+      {libraries.length === 0 && (
+        <div class="card rounded-2xl p-12 text-center col-span-full">
+          <p class="text-text-muted">Libraries coming soon.</p>
+        </div>
+      )}
+    </StaggerReveal>
+  </section>
+</PageLayout>
+
+<style>
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

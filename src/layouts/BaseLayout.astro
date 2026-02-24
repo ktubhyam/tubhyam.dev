@@ -1,0 +1,33 @@
+---
+import BaseHead from "@components/layout/BaseHead.astro";
+import GlassNav from "@components/layout/GlassNav.astro";
+import GlassFooter from "@components/layout/GlassFooter.astro";
+import AnimatedBackground from "@components/layout/AnimatedBackground.astro";
+import ChatWidget from "@components/islands/ChatWidget.tsx";
+import "@/styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  hideNav?: boolean;
+}
+
+const { title, description, image, hideNav = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} image={image} />
+  </head>
+  <body class="min-h-screen">
+    <AnimatedBackground />
+    {!hideNav && <GlassNav />}
+    <main class={hideNav ? "" : "pt-24"}>
+      <slot />
+    </main>
+    <GlassFooter />
+    <ChatWidget client:idle />
+  </body>
+</html>

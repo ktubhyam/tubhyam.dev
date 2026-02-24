@@ -1,17 +1,883 @@
 ---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import GlassButton from "@components/ui/GlassButton.astro";
+import Badge from "@components/ui/Badge.astro";
+import { SITE } from "@lib/constants";
 
+// Custom animated islands
+import TextRevealHighlight from "@components/islands/TextRevealHighlight";
+import AtomOrbit3D from "@components/islands/AtomOrbit3D";
+import StaggerReveal from "@components/islands/StaggerReveal";
+import ParallaxText from "@components/islands/ParallaxText";
+import MagneticCard from "@components/islands/MagneticCard";
+import SideNav from "@components/islands/SideNav";
+import TerminalBlock from "@components/islands/TerminalBlock";
+import SpectrumViz from "@components/islands/SpectrumViz";
+import LogStream from "@components/islands/LogStream";
+import StatusBoard from "@components/islands/StatusBoard";
+import PipelineFlow from "@components/islands/PipelineFlow";
+import ContributionGrid from "@components/islands/ContributionGrid";
+import FileTree from "@components/islands/FileTree";
+import EquationReveal from "@components/islands/EquationReveal";
+import CodeComparison from "@components/islands/CodeComparison";
+import MetricCards from "@components/islands/MetricCards";
+import MoleculeCard from "@components/islands/MoleculeCard";
+import AvailabilityStatus from "@components/islands/AvailabilityStatus";
+import SocialLinks from "@components/islands/SocialLinks";
+
+// React Bits components
+import RotatingText from "@components/islands/RotatingText";
+import ShinyText from "@components/islands/ShinyText";
+import SpotlightCard from "@components/islands/SpotlightCard";
+import DecryptedText from "@components/islands/DecryptedText";
+import GradientText from "@components/islands/GradientText";
+import StarBorder from "@components/islands/StarBorder";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={SITE.title} hideNav>
+  <!-- Side navigation -->
+  <SideNav client:idle />
+
+  <!-- ══════════════════════════════════════════════
+       SCROLL PROGRESS BAR — thin accent line at top
+       ══════════════════════════════════════════════ -->
+  <div class="fixed top-0 left-0 w-full h-[2px] z-[100]">
+    <div id="scroll-progress" class="h-full bg-accent origin-left" style="transform: scaleX(0);"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 1: HERO — GradientText + RotatingText
+       ══════════════════════════════════════════════ -->
+  <section class="relative min-h-screen flex flex-col items-center justify-center px-6">
+    <div class="max-w-4xl w-full">
+      <GradientText
+        client:load
+        colors={["#C9A04A", "#fafafa", "#C9A04A", "#fafafa"]}
+        animationSpeed={6}
+        className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
+      >
+        Tubhyam Karthikeyan
+      </GradientText>
+
+      <div class="mt-8 max-w-lg h-12 overflow-hidden">
+        <RotatingText
+          client:load
+          texts={[
+            "Computational Chemist",
+            "ML Researcher",
+            "Open Source Builder",
+            "ICT Mumbai '30",
+          ]}
+          rotationInterval={3000}
+          staggerDuration={0.02}
+          staggerFrom="first"
+          mainClassName="text-lg sm:text-xl font-mono text-text-muted tracking-tight"
+          elementLevelClassName="text-text-muted"
+          transition={{ type: "spring", damping: 30, stiffness: 200 }}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+        />
+      </div>
+
+      <div
+        class="mt-6 flex flex-wrap gap-3 hero-fade"
+        style="opacity: 0; animation: fade-up 0.6s ease-out 1.2s forwards;"
+      >
+        {["spectroscopy", "deep learning", "open source", "cheminformatics"].map((tag) => (
+          <span class="text-xs font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-accent/30 transition-colors duration-200">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div
+        class="mt-10 flex flex-wrap items-center gap-4 hero-fade"
+        style="opacity: 0; animation: fade-up 0.5s ease-out 1.5s forwards;"
+      >
+        <StarBorder client:idle as="a" href="#build" color="#C9A04A" speed="4s">
+          View Work
+        </StarBorder>
+        <GlassButton href="#contact" variant="secondary">Get in Touch</GlassButton>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div
+      class="absolute bottom-8 left-1/2 -translate-x-1/2 hero-fade"
+      style="opacity: 0; animation: fade-up 0.5s ease-out 2s forwards;"
+    >
+      <div class="animate-bounce text-text-muted">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 3: RESEARCH — Orbit + Featured Papers
+       ══════════════════════════════════════════════ -->
+  <section data-nav-section="research" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+    <div class="flex items-center gap-3 mb-6 justify-center">
+      <ShinyText
+        client:visible
+        text="What I Research"
+        speed={3}
+        color="#555555"
+        shineColor="#C9A04A"
+        className="text-sm md:text-base font-mono uppercase tracking-[0.2em]"
+      />
+    </div>
+
+    <AtomOrbit3D
+      client:visible
+      nodes={[
+        { label: "Vibrational Spectroscopy", icon: "M2 12h3l2-6 4 12 4-12 2 6h3", color: "#C9A04A", description: "Predicting and interpreting *IR, Raman, and UV-Vis* spectra with deep learning" },
+        { label: "Molecular Rep. Learning", icon: "M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4zM9 7h6M9 17h6M7 9v6M17 9v6", color: "#4ECDC4", description: "Learning *transferable molecular embeddings* from spectral and graph data" },
+        { label: "Reaction Engineering", icon: "M10 2v8l-6 12h16l-6-12V2M8 2h8", color: "#FF6B6B", description: "Surrogate modeling of *reactor dynamics* using neural ODEs and PINNs" },
+        { label: "Information-Theoretic Chemistry", icon: "M1 12s4-8 11-8 7 0 11 8 11 8s-4 8-11 8-11-8-11-8z", color: "#A78BFA", description: "Bounding what spectra *can and cannot reveal* about molecular structure" },
+        { label: "Physics-Informed ML", icon: "M12 12m-2 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1", color: "#34D399", description: "Encoding *conservation laws and symmetries* as inductive biases in neural networks" },
+        { label: "ML Infrastructure", icon: "M2 17l10 5 10-5M2 12l10 5 10-5M12 2l10 5-10 5L2 7z", color: "#F59E0B", description: "Multi-GPU *training pipelines*, benchmarking tools, and reproducible workflows" },
+      ]}
+    />
+
+    <!-- Featured Papers — 2×2 grid -->
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5 match-cut-group">
+      <div class="match-cut-left">
+      <MagneticCard client:visible href="/research">
+        <div class="flex items-center gap-2 mb-3">
+          <Badge variant="outline">In Progress</Badge>
+          <span class="text-[10px] font-mono text-text-muted">2026</span>
+        </div>
+        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
+          Information-Theoretic Limits of Spectroscopic Molecular Identification
+        </h4>
+        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
+          A group-theoretic and information-theoretic framework for bounding what vibrational spectra can reveal about molecular structure. Establishes fundamental limits on spectroscopic identifiability using representation theory and rate-distortion theory.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          {["information theory", "group theory", "identifiability"].map((t) => (
+            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+          ))}
+        </div>
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
+        </div>
+      </MagneticCard>
+      </div>
+
+      <div class="match-cut-right">
+      <MagneticCard client:visible href="/research">
+        <div class="flex items-center gap-2 mb-3">
+          <Badge variant="outline">In Progress</Badge>
+          <span class="text-[10px] font-mono text-text-muted">2026</span>
+        </div>
+        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
+          Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy
+        </h4>
+        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
+          Hybrid state-space and attention architecture combining wavelet-domain embeddings, selective state-space sequence modeling, Mixture of Experts routing, and Variational Information Bottleneck for multi-task prediction across IR, Raman, and mass spectrometry.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          {["state space models", "spectroscopy", "mixture of experts"].map((t) => (
+            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+          ))}
+        </div>
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
+        </div>
+      </MagneticCard>
+      </div>
+
+      <div class="match-cut-left">
+      <MagneticCard client:visible href="/research">
+        <div class="flex items-center gap-2 mb-3">
+          <Badge variant="outline">Planned</Badge>
+          <span class="text-[10px] font-mono text-text-muted">2026</span>
+        </div>
+        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
+          Beyond Ground State: Benchmarking Equivariant GNNs for Excited-State Property Prediction
+        </h4>
+        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
+          Systematic evaluation of eight equivariant graph neural network architectures on excited-state molecular properties including singlet/triplet energies, oscillator strengths, and fluorescence wavelengths, with transfer learning and scaling analysis.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          {["graph neural networks", "excited states", "benchmarking"].map((t) => (
+            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+          ))}
+        </div>
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
+        </div>
+      </MagneticCard>
+      </div>
+
+      <div class="match-cut-right">
+      <MagneticCard client:visible href="/research">
+        <div class="flex items-center gap-2 mb-3">
+          <Badge variant="outline">Planned</Badge>
+          <span class="text-[10px] font-mono text-text-muted">2026</span>
+        </div>
+        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
+          InvyrA: Conditional Molecular Graph Generation from Vibrational Signatures
+        </h4>
+        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
+          A conditional generative framework that inverts the spectroscopy problem — given an input IR or Raman spectrum, generates candidate molecular graphs using SPECTRE latent embeddings and an equivariant graph diffusion decoder, with calibrated uncertainty over the combinatorial solution space.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          {["inverse problems", "molecular generation", "diffusion models"].map((t) => (
+            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+          ))}
+        </div>
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
+        </div>
+      </MagneticCard>
+      </div>
+    </div>
+
+    <!-- Research visuals: Spectrum + Equation + Terminal -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
+      <SpectrumViz client:visible title="IR Spectrum — Benzaldehyde" />
+      <TerminalBlock
+        client:visible
+        title="research — preprocessing.py"
+        typingSpeed={25}
+        lines={[
+          { prompt: ">>> ", spans: [
+            { text: "from ", color: "purple" },
+            { text: "spectrakit ", color: "white" },
+            { text: "import ", color: "purple" },
+            { text: "load, Pipeline", color: "teal" },
+          ]},
+          { prompt: ">>> ", spans: [
+            { text: "from ", color: "purple" },
+            { text: "spectrakit.preprocessing ", color: "white" },
+            { text: "import ", color: "purple" },
+            { text: "AsLS, SNV", color: "teal" },
+          ]},
+          { prompt: ">>> ", spans: [
+            { text: "spec ", color: "white" },
+            { text: "= ", color: "red" },
+            { text: "load", color: "amber" },
+            { text: "(", color: "white" },
+            { text: "\"benzaldehyde.jdx\"", color: "green" },
+            { text: ")", color: "white" },
+          ]},
+          { prompt: ">>> ", spans: [
+            { text: "pipe ", color: "white" },
+            { text: "= ", color: "red" },
+            { text: "Pipeline", color: "amber" },
+            { text: "([", color: "white" },
+            { text: "AsLS", color: "teal" },
+            { text: "(), ", color: "white" },
+            { text: "SNV", color: "teal" },
+            { text: "()])", color: "white" },
+          ]},
+          { prompt: ">>> ", spans: [
+            { text: "clean ", color: "white" },
+            { text: "= ", color: "red" },
+            { text: "pipe", color: "white" },
+            { text: ".transform", color: "amber" },
+            { text: "(spec)", color: "white" },
+          ]},
+        ]}
+      />
+    </div>
+
+    <!-- Equation reveal -->
+    <div class="mt-6 max-w-2xl mx-auto">
+      <EquationReveal client:visible />
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 4: TEXT REVEAL — "I build open-source tools..."
+       ══════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-4xl px-6 py-24 section-fade">
+    <TextRevealHighlight
+      client:visible
+      parts={[
+        { text: "I build" },
+        { text: "open-source tools", highlight: true },
+        { text: "for computational chemistry — from" },
+        { text: "spectral analysis libraries", highlight: true },
+        { text: "to" },
+        { text: "neural network architectures", highlight: true },
+        { text: "to" },
+        { text: "interactive simulations.", highlight: true },
+      ]}
+    />
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 5: PROJECTS & WRITING — Three cards
+       ══════════════════════════════════════════════ -->
+  <section id="build" data-nav-section="build" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 match-cut-group">
+      <!-- SpectraKit -->
+      <SpotlightCard client:visible className="match-cut-left" spotlightColor="rgba(78, 205, 196, 0.12)">
+        <Badge>Python Library</Badge>
+        <h3 class="mt-4 text-lg font-heading font-semibold text-text-primary">
+          SpectraKit
+        </h3>
+        <div class="mt-3">
+          <TextRevealHighlight
+            client:visible
+            parts={[
+              { text: "Unified" },
+              { text: "spectroscopy toolkit", highlight: true },
+              { text: "for IR, Raman, UV-Vis." },
+            ]}
+            className="[&_span]:text-sm [&_span]:md:text-base"
+          />
+        </div>
+        <div class="mt-4 flex items-center gap-3 text-xs text-text-muted font-mono">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            Python 3.10+
+          </span>
+          <span>MIT</span>
+        </div>
+        <div class="mt-5">
+          <TerminalBlock
+            client:visible
+            title="pip"
+            typingSpeed={35}
+            lines={[
+              { prompt: "$ ", spans: [
+                { text: "pip install ", color: "white" },
+                { text: "spectrakit", color: "green" },
+              ]},
+              { spans: [
+                { text: "Successfully installed ", color: "muted" },
+                { text: "spectrakit-0.1.0", color: "teal" },
+              ]},
+            ]}
+          />
+        </div>
+        <div class="mt-4">
+          <a href="/libraries" class="text-xs font-mono text-accent/70 hover:text-accent transition-colors duration-200">
+            View docs &rarr;
+          </a>
+        </div>
+      </SpotlightCard>
+
+      <!-- SPECTRE -->
+      <div class="match-cut-center">
+      <MagneticCard client:visible href="/projects">
+        <Badge variant="outline">ML Model</Badge>
+        <h3 class="mt-4 text-lg font-heading font-semibold text-text-primary">
+          SPECTRE
+        </h3>
+        <p class="mt-3 text-sm text-text-muted leading-relaxed">
+          Hybrid Mamba-Transformer for vibrational spectroscopy. Wavelet embeddings, MoE routing, and VIB disentanglement.
+        </p>
+        <div class="mt-4 flex items-center gap-3 text-xs text-text-muted font-mono">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#FF6B6B]"></span>
+            PyTorch
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+            CUDA
+          </span>
+        </div>
+        <div class="mt-5">
+          <TerminalBlock
+            client:visible
+            title="eval"
+            typingSpeed={35}
+            lines={[
+              { prompt: "$ ", spans: [
+                { text: "python ", color: "white" },
+                { text: "evaluate.py ", color: "green" },
+                { text: "--dataset ", color: "purple" },
+                { text: "nist_ir", color: "amber" },
+              ]},
+              { spans: [
+                { text: "R² = ", color: "muted" },
+                { text: "0.961", color: "teal" },
+                { text: "  RMSEP = ", color: "muted" },
+                { text: "0.028", color: "teal" },
+              ]},
+            ]}
+          />
+        </div>
+        <div class="mt-4">
+          <span class="text-xs font-mono text-accent/70 group-hover:text-accent transition-colors duration-200">
+            View project &rarr;
+          </span>
+        </div>
+      </MagneticCard>
+      </div>
+
+      <!-- Blog -->
+      <SpotlightCard client:visible className="match-cut-right" spotlightColor="rgba(167, 139, 250, 0.12)">
+        <Badge variant="outline">Latest Writing</Badge>
+        <h3 class="mt-4 text-lg font-heading font-semibold text-text-primary">
+          From the Blog
+        </h3>
+        <div class="mt-3">
+          <TextRevealHighlight
+            client:visible
+            parts={[
+              { text: "Writing on" },
+              { text: "computational chemistry", highlight: true },
+              { text: ", ML, and" },
+              { text: "open source", highlight: true },
+              { text: "." },
+            ]}
+            className="[&_span]:text-sm [&_span]:md:text-base"
+          />
+        </div>
+        <div class="mt-5 space-y-2.5">
+          <a href="/blog" class="block rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] p-3 hover:border-[#2a2a2a] transition-colors cursor-pointer">
+            <p class="text-[10px] font-mono text-text-muted/50 mb-1">Coming Soon</p>
+            <p class="text-xs text-text-secondary leading-snug">Information-Theoretic Limits of Spectroscopic Identification</p>
+          </a>
+          <a href="/blog" class="block rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] p-3 hover:border-[#2a2a2a] transition-colors cursor-pointer">
+            <p class="text-[10px] font-mono text-text-muted/50 mb-1">Coming Soon</p>
+            <p class="text-xs text-text-secondary leading-snug">Building a Hybrid State-Space Transformer for Vibrational Spectroscopy</p>
+          </a>
+        </div>
+        <div class="mt-5">
+          <a href="/blog" class="text-xs font-mono text-accent/70 hover:text-accent transition-colors duration-200">
+            Read all posts &rarr;
+          </a>
+        </div>
+      </SpotlightCard>
+    </div>
+
+    <!-- Build visuals: File Tree + Training Log + Code Diff -->
+    <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+      <FileTree client:visible />
+      <LogStream client:visible speed={350} />
+      <CodeComparison client:visible />
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 6: TEXT REVEAL — "Explore interactive simulations..."
+       ══════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-4xl px-6 py-24 section-fade">
+    <TextRevealHighlight
+      client:visible
+      parts={[
+        { text: "Explore" },
+        { text: "interactive simulations", highlight: true },
+        { text: "that bring" },
+        { text: "molecular physics", highlight: true },
+        { text: "to life in your browser." },
+      ]}
+    />
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 7: SIMULATIONS — VibeScope + previews
+       ══════════════════════════════════════════════ -->
+  <section data-nav-section="simulate" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+    <!-- VibeScope feature -->
+    <StaggerReveal client:visible className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" stagger={0.1}>
+      <div>
+        <Badge>Interactive Simulation</Badge>
+        <h3 class="mt-4 text-2xl md:text-3xl font-heading font-bold text-text-primary tracking-tight">
+          VibeScope
+        </h3>
+        <div class="mt-4">
+          <TextRevealHighlight
+            client:visible
+            parts={[
+              { text: "Real-time" },
+              { text: "3D visualization", highlight: true },
+              { text: "of how" },
+              { text: "atoms move", highlight: true },
+              { text: "— explore molecular vibrations interactively." },
+            ]}
+            className="[&_span]:text-base [&_span]:md:text-lg"
+          />
+        </div>
+        <p class="mt-4 text-sm text-text-muted leading-relaxed">
+          Select a molecule, pick a vibrational mode, and watch atoms oscillate in real time.
+          Built with Three.js and WebGL for real-time rendering.
+        </p>
+        <div class="mt-8">
+          <StarBorder client:visible as="a" href="/simulations" color="#C9A04A" speed="4s">
+            Launch VibeScope
+          </StarBorder>
+        </div>
+      </div>
+
+      <div>
+        <TerminalBlock
+          client:visible
+          title="vibescope — simulation.ts"
+          typingSpeed={28}
+          lines={[
+            { prompt: "  ", spans: [
+              { text: "const ", color: "purple" },
+              { text: "sim ", color: "white" },
+              { text: "= ", color: "red" },
+              { text: "new ", color: "purple" },
+              { text: "VibeScope", color: "amber" },
+              { text: "({", color: "white" },
+            ]},
+            { prompt: "    ", spans: [
+              { text: "molecule: ", color: "white" },
+              { text: "\"benzene\"", color: "green" },
+              { text: ",", color: "white" },
+            ]},
+            { prompt: "    ", spans: [
+              { text: "mode: ", color: "white" },
+              { text: "7", color: "teal" },
+              { text: ",", color: "white" },
+            ]},
+            { prompt: "    ", spans: [
+              { text: "renderer: ", color: "white" },
+              { text: "\"webgl\"", color: "green" },
+              { text: ",", color: "white" },
+            ]},
+            { prompt: "    ", spans: [
+              { text: "fps: ", color: "white" },
+              { text: "60", color: "teal" },
+            ]},
+            { prompt: "  ", spans: [
+              { text: "});", color: "white" },
+            ]},
+            { prompt: "  ", spans: [
+              { text: "sim", color: "white" },
+              { text: ".animate", color: "amber" },
+              { text: "();", color: "white" },
+              { text: " // ", color: "muted" },
+              { text: "atoms start moving", color: "muted" },
+            ]},
+          ]}
+        />
+        <div class="mt-4 flex items-center gap-3 text-xs text-text-muted font-mono">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+            WebGL
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#4ECDC4]"></span>
+            Three.js
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
+            Real-Time
+          </span>
+        </div>
+      </div>
+    </StaggerReveal>
+
+    <!-- More simulations with MoleculeCard preview -->
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5 match-cut-group">
+      <div class="match-cut-left">
+      <MagneticCard client:visible href="/simulations">
+        <MoleculeCard client:visible className="mb-3 border-0 bg-transparent" />
+        <div class="flex items-center gap-2 mb-2">
+          <h4 class="text-sm font-heading font-semibold text-text-primary">Normal Mode Explorer</h4>
+          <span class="text-[10px] font-mono text-[#4ECDC4]/60 bg-[#4ECDC4]/5 rounded-full px-2 py-0.5">Beginner</span>
+        </div>
+        <p class="text-xs text-text-muted leading-relaxed">
+          Visualize and decompose molecular vibrations into individual normal modes. Animate each mode in real time.
+        </p>
+        <div class="mt-3 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Try it &rarr;
+        </div>
+      </MagneticCard>
+      </div>
+
+      <div class="match-cut-right">
+      <MagneticCard client:visible href="/simulations">
+        <SpectrumViz client:visible className="mb-3 border-0 bg-transparent" title="Predicted Spectrum" />
+        <div class="flex items-center gap-2 mb-2">
+          <h4 class="text-sm font-heading font-semibold text-text-primary">Spectrum-to-Structure</h4>
+          <span class="text-[10px] font-mono text-[#A78BFA]/60 bg-[#A78BFA]/5 rounded-full px-2 py-0.5">Advanced</span>
+        </div>
+        <p class="text-xs text-text-muted leading-relaxed">
+          Input a vibrational spectrum and watch as the model predicts the most likely molecular structure in 3D.
+        </p>
+        <div class="mt-3 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+          Try it &rarr;
+        </div>
+      </MagneticCard>
+      </div>
+    </div>
+
+    <!-- Pipeline flow -->
+    <div class="mt-10">
+      <PipelineFlow client:visible />
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 8: TECH STACK — Orbit + Stats
+       ══════════════════════════════════════════════ -->
+  <section data-nav-section="stack" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+    <div class="flex items-center gap-3 mb-4 justify-center">
+      <ShinyText
+        client:visible
+        text="Tools & Languages"
+        speed={3}
+        color="#555555"
+        shineColor="#C9A04A"
+        className="text-[10px] font-mono uppercase tracking-[0.2em]"
+      />
+    </div>
+
+    <AtomOrbit3D
+      client:visible
+      nodes={[
+        { label: "Python", icon: "M16 18l6-6-6-6M8 6l-6 6 6 6", color: "#4ECDC4", description: "*Scientific computing* and ML pipeline development" },
+        { label: "PyTorch", icon: "M12 2c-5 6 1 9 2 11a5 5 0 1 1-4-4c-1-3 0-5 2-7", color: "#FF6B6B", description: "Building *deep learning* models for spectral analysis" },
+        { label: "CUDA", icon: "M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m14 0h2M3 15h2m14 0h2M7 7h10v10H7z", color: "#34D399", description: "GPU-accelerated *parallel computing* for large-scale training" },
+        { label: "RDKit", icon: "M12 2l8 5v10l-8 5-8-5V7z", color: "#A78BFA", description: "*Cheminformatics* toolkit for molecular descriptors and fingerprints" },
+        { label: "Docker", icon: "M2 17l10 5 10-5M2 12l10 5 10-5M12 2l10 5-10 5L2 7z", color: "#60A5FA", description: "Containerized *reproducible* research environments" },
+        { label: "AWS / GCP", icon: "M3 15a4 4 0 0 1 4-4 6 6 0 0 1 11.3-.7A4 4 0 0 1 21 15z", color: "#F59E0B", description: "*Cloud infrastructure* for distributed training and deployment" },
+        { label: "Mamba / SSMs", icon: "M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0", color: "#C9A04A", description: "Efficient *state space models* for long sequence processing" },
+        { label: "Graph Neural Nets", icon: "M12 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM5 10a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM19 10a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 17a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 7v10M6.5 11.5l5-5M17.5 11.5l-5-5M6.5 11.5l5 7M17.5 11.5l-5 7", color: "#FB7185", description: "*Message-passing* architectures for molecular graph learning" },
+      ]}
+    />
+
+    <!-- Metric cards with sparklines -->
+    <div class="mt-12">
+      <MetricCards client:visible />
+    </div>
+
+    <!-- Status board + Contribution grid -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+      <StatusBoard client:visible />
+      <ContributionGrid client:visible />
+    </div>
+  </section>
+
+  <!-- ─── Parallax marquee ─── -->
+  <div class="py-8 opacity-[0.15]">
+    <ParallaxText
+      client:visible
+      text="SPECTROSCOPY  &bull;  DEEP LEARNING  &bull;  OPEN SOURCE  &bull;  CHEMINFORMATICS  &bull;  GROUP THEORY"
+      baseVelocity={1.5}
+      className="[&_span]:text-[clamp(2rem,5vw,4rem)] [&_span]:font-heading [&_span]:font-medium [&_span]:tracking-tight [&_span]:text-white/80"
+    />
+  </div>
+
+  <!-- ─── Separator ─── -->
+  <div class="mx-auto max-w-5xl px-6">
+    <div class="separator"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCENE 9: CTA — Contact form + socials + availability
+       ══════════════════════════════════════════════ -->
+  <section id="contact" data-nav-section="contact" class="mx-auto max-w-5xl px-6 py-32">
+    <!-- Section header -->
+    <div class="text-center mb-16 section-fade">
+      <TextRevealHighlight
+        client:visible
+        parts={[
+          { text: "Let's" },
+          { text: "build", highlight: true },
+          { text: "something" },
+          { text: "together.", highlight: true },
+        ]}
+        className="text-3xl sm:text-4xl md:text-5xl [&_span]:text-3xl [&_span]:sm:text-4xl [&_span]:md:text-5xl"
+      />
+      <div class="mt-6 max-w-md mx-auto">
+        <DecryptedText
+          client:visible
+          text="Open to research collaborations, open-source projects, and interesting conversations about computational chemistry."
+          speed={40}
+          sequential={true}
+          revealDirection="center"
+          className="text-text-muted text-sm"
+          encryptedClassName="text-accent/30"
+          animateOn="view"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Left: Contact form -->
+      <StaggerReveal client:visible className="flex flex-col gap-6" stagger={0.04} direction="up">
+        <div class="card p-8">
+          <h4 class="text-sm font-mono text-[#666] uppercase tracking-wider mb-5">Send a message</h4>
+          <form class="flex flex-col gap-4" action="mailto:takarthikeyan25@gmail.com" method="POST" enctype="text/plain">
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              required
+              class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              required
+              class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
+            />
+            <select
+              name="reason"
+              class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-muted focus:border-accent/40 focus:outline-none transition-colors appearance-none"
+            >
+              <option value="collaboration">Research Collaboration</option>
+              <option value="open-source">Open Source Project</option>
+              <option value="internship">Internship</option>
+              <option value="fellowship">Fellowship</option>
+              <option value="hello">Just Saying Hi</option>
+            </select>
+            <textarea
+              name="message"
+              placeholder="Tell me more..."
+              rows={4}
+              class="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors resize-none"
+            ></textarea>
+            <StarBorder client:visible as="button" color="#C9A04A" speed="4s">
+              Send Message
+            </StarBorder>
+          </form>
+        </div>
+      </StaggerReveal>
+
+      <!-- Right: Availability + Socials -->
+      <div class="flex flex-col gap-6">
+        <AvailabilityStatus client:visible />
+        <SocialLinks client:visible />
+        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+          <GlassButton href="/projects" variant="secondary">All Projects</GlassButton>
+          <GlassButton href="/blog" variant="secondary">Read the Blog</GlassButton>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ─── Match-cut rapid transitions ─── */
+  .match-cut-left,
+  .match-cut-right,
+  .match-cut-center {
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .match-cut-left {
+    transform: translateX(-30px) scale(0.96);
+  }
+
+  .match-cut-right {
+    transform: translateX(30px) scale(0.96);
+  }
+
+  .match-cut-center {
+    transform: translateY(20px) scale(0.96);
+  }
+
+  .match-cut-left.revealed {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.25s ease-out;
+  }
+
+  .match-cut-center.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s,
+                opacity 0.25s ease-out 0.06s;
+  }
+
+  .match-cut-right.revealed {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s,
+                opacity 0.25s ease-out 0.12s;
+  }
+
+  /* ─── Section scroll fade-in ─── */
+  .section-fade {
+    opacity: 0;
+    transform: translateY(24px);
+    will-change: transform, opacity;
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .section-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-fade,
+    .match-cut-left,
+    .match-cut-right,
+    .match-cut-center,
+    .section-fade {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  // ─── Match-cut intersection observer ───
+  const matchGroups = document.querySelectorAll('.match-cut-group');
+  if (matchGroups.length > 0) {
+    const cutObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.match-cut-left, .match-cut-right, .match-cut-center').forEach((el) => {
+              el.classList.add('revealed');
+            });
+            cutObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    matchGroups.forEach((group) => cutObserver.observe(group));
+  }
+
+  // Section fade-in observer
+  const sectionFades = document.querySelectorAll('.section-fade');
+  if (sectionFades.length > 0) {
+    const fadeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '-20px' }
+    );
+    sectionFades.forEach((el) => fadeObserver.observe(el));
+  }
+
+  // Scroll progress bar
+  const bar = document.getElementById('scroll-progress');
+  if (bar) {
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      bar.style.transform = `scaleX(${Math.min(pct, 1)})`;
+    }, { passive: true });
+  }
+</script>

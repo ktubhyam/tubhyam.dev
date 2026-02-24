@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+/* ============================================
+   DESIGN SYSTEM — Exaggerated Minimalism
+   Tubhyam Karthikeyan Portfolio
+   Black + white + warm amber accent
+   ============================================ */
+
+@theme {
+  --color-bg: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-surface: #111111;
+  --color-surface-hover: #191919;
+  --color-border: #1a1a1a;
+  --color-border-hover: #2a2a2a;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #888888;
+  --color-text-muted: #555555;
+  --color-accent: #C9A04A;
+  --color-accent-soft: rgba(201, 160, 74, 0.15);
+  --color-accent-glow: rgba(201, 160, 74, 0.25);
+
+  --font-heading: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* --- Base Styles --- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    color: var(--color-text-secondary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  code, pre {
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-text-primary);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* --- Utility Classes --- */
+@layer utilities {
+  /* Card surface */
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-interactive {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .card-interactive:hover {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-hover);
+  }
+
+  /* Nav — full state */
+  .nav-bar {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+  }
+
+  .nav-bar-scrolled {
+    background: rgba(0, 0, 0, 0.95);
+    border-color: var(--color-border-hover);
+  }
+
+  /* Accent text */
+  .text-accent {
+    color: var(--color-accent);
+  }
+
+  /* Subtle text shimmer for hero */
+  .text-shimmer {
+    background: linear-gradient(
+      110deg,
+      var(--color-text-primary) 35%,
+      rgba(201, 160, 74, 0.6) 50%,
+      var(--color-text-primary) 65%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* Dot grid background pattern */
+  .dot-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Fade mask for sections */
+  .fade-mask-b {
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+
+  /* Separator line */
+  .separator {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-border-hover) 50%,
+      transparent
+    );
+  }
+
+  /* Accent glow */
+  .glow-accent {
+    box-shadow: 0 0 20px var(--color-accent-glow), 0 0 60px rgba(201, 160, 74, 0.08);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 250% center; }
+  100% { background-position: -250% center; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* --- StarBorder animations (React Bits) --- */
+@keyframes star-movement-bottom {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+
+@keyframes star-movement-top {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+
+.animate-star-movement-bottom {
+  animation: star-movement-bottom linear infinite alternate;
+}
+
+.animate-star-movement-top {
+  animation: star-movement-top linear infinite alternate;
+}
+
+/* --- Side Nav Pill --- */
+@property --side-nav-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0turn;
+}
+
+.side-nav-pill {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)) padding-box,
+    conic-gradient(
+      from var(--side-nav-angle),
+      transparent 30%,
+      rgba(201, 160, 74, 0.3) 45%,
+      rgba(78, 205, 196, 0.2) 55%,
+      transparent 70%
+    ) border-box;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  animation: side-nav-spin 8s linear infinite;
+}
+
+@keyframes side-nav-spin {
+  to { --side-nav-angle: 1turn; }
+}
+
+/* --- Scroll Progress Bar --- */
+#scroll-progress {
+  transition: none;
+  will-change: transform;
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Prose styling for blog posts --- */
+.prose {
+  --tw-prose-body: var(--color-text-secondary);
+  --tw-prose-headings: var(--color-text-primary);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-code: var(--color-accent);
+  --tw-prose-pre-bg: var(--color-surface);
+  --tw-prose-pre-code: var(--color-text-secondary);
+  --tw-prose-quotes: var(--color-text-muted);
+  --tw-prose-bold: var(--color-text-primary);
+}
+
+.prose a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-accent-soft);
+  transition: border-color 200ms ease;
+}
+
+.prose a:hover {
+  border-color: var(--color-accent);
+}
+
+.prose pre {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.prose code:not(pre code) {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* --- Form Input Focus Glow --- */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(201, 160, 74, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(201, 160, 74, 0.08), 0 0 16px rgba(201, 160, 74, 0.06);
+  outline: none;
+}
