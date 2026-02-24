@@ -39,13 +39,6 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <SideNav client:idle />
 
   <!-- ══════════════════════════════════════════════
-       SCROLL PROGRESS BAR — thin accent line at top
-       ══════════════════════════════════════════════ -->
-  <div class="fixed top-0 left-0 w-full h-[2px] z-[100]">
-    <div id="scroll-progress" class="h-full origin-left" style="transform: scaleX(0); background: linear-gradient(90deg, var(--color-teal), var(--color-accent), var(--color-violet));"></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════
        SCENE 1: HERO — GradientText + RotatingText
        ══════════════════════════════════════════════ -->
   <section aria-label="Hero" class="relative min-h-screen flex flex-col items-center justify-center px-6">
@@ -874,12 +867,4 @@ import StarBorder from "@components/ui/StarBorder.astro";
     sectionFades.forEach((el) => fadeObserver.observe(el));
   }
 
-  // Scroll progress bar
-  const bar = document.getElementById('scroll-progress');
-  if (bar) {
-    window.addEventListener('scroll', () => {
-      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-      bar.style.transform = `scaleX(${Math.min(pct, 1)})`;
-    }, { passive: true });
-  }
 </script>
