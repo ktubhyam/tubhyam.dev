@@ -1,0 +1,38 @@
+---
+title: "Can You Hear the Shape of a Molecule? An Introduction to Spectral Identifiability"
+date: 2026-02-15
+description: "A gentle introduction to the mathematical question of whether vibrational spectra uniquely determine molecular structure — and what group theory has to say about it."
+tags: ["spectroscopy", "group-theory", "information-theory", "research"]
+draft: false
+---
+
+In 1966, mathematician Mark Kac asked a famous question: *"Can one hear the shape of a drum?"* — that is, can you reconstruct a drum's geometry just from its resonant frequencies? The answer turned out to be **no** in general (Gordon, Webb, and Wolpert found counterexamples in 1992), but the question opened up deep connections between geometry and spectral theory.
+
+I've been asking an analogous question for chemistry: **Can one determine a molecule's structure from its vibrational spectrum?**
+
+## The Forward Problem
+
+Every molecule vibrates. When you shine infrared light on a molecule or scatter laser light off it (Raman spectroscopy), you excite specific vibrational modes. The frequencies and intensities of these modes depend on the molecule's geometry and bonding — its force constants.
+
+The forward map is well-understood: given a molecular structure, we can compute the IR and Raman spectrum using the Wilson GF method. But the *inverse* problem — going from spectrum back to structure — is much harder.
+
+## Why Symmetry Matters
+
+Molecular symmetry creates fundamental blind spots. If a molecule has a center of inversion (like CO2 or benzene), the mutual exclusion principle says that IR-active modes are Raman-inactive and vice versa. No single technique sees everything.
+
+We quantify this with the **Information Completeness Ratio** R(G,N), which measures what fraction of a molecule's vibrational degrees of freedom are observable via combined IR + Raman. For most organic molecules (low symmetry), R = 1.0 and everything is observable. But for highly symmetric molecules like cubane (Oh symmetry), R drops to 0.45 — over half the vibrational information is hidden.
+
+## What the Math Says
+
+Our analysis of 130,831 molecules from the QM9 dataset shows that 99.9% have all modes observable. The "hard" molecules — those with silent modes — are rare but include important cases like benzene and methane.
+
+More excitingly, Jacobian rank analysis on 999 real molecular geometries shows that the combined IR + Raman forward map has **full rank at every tested point**, with a 4:1 overdetermination ratio. This is strong numerical evidence that the inverse problem generically has a unique solution (up to symmetry equivalence).
+
+## Implications for ML
+
+This theory has direct implications for machine learning models in spectroscopy:
+- Models should perform worse on high-symmetry molecules (lower R)
+- Combining IR and Raman inputs should help most for centrosymmetric molecules
+- The 4:1 overdetermination suggests the learning problem is well-conditioned
+
+We're testing these predictions with a symmetry-stratified evaluation framework. Early results are encouraging — stay tuned for the full paper.

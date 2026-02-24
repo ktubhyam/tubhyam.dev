@@ -1,0 +1,29 @@
+---
+title: "Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy"
+date: 2026-01-15
+authors: ["Tubhyam Karthikeyan"]
+venue: "In preparation"
+status: "in-progress"
+abstract: "We introduce SPECTRE, a hybrid state-space and attention architecture for multi-task vibrational spectroscopy. The model combines wavelet-domain embeddings with selective state-space sequence modeling (Mamba), Mixture of Experts routing, and a Variational Information Bottleneck for disentangling chemical and instrumental information. Pretrained on 60K+ spectra from RRUFF and OpenSpecy, SPECTRE achieves competitive calibration transfer on the corn and tablet benchmark datasets with as few as 10 labeled transfer samples."
+tags: ["deep-learning", "spectroscopy", "state-space-models", "transformer"]
+---
+
+## Architecture
+
+SPECTRE uses a multi-stage encoder:
+
+1. **Wavelet Embedding:** Daubechies-4 DWT decomposes spectra into multi-scale coefficients, followed by 1D CNN patching and wavenumber-aware positional encoding.
+
+2. **Mamba Backbone:** 4 selective SSM blocks process the sequence with O(n) complexity, capturing long-range spectral dependencies.
+
+3. **Mixture of Experts:** Top-2 gating routes tokens to specialized expert networks, with optional KAN activations.
+
+4. **Transformer Encoder:** 2 global attention blocks with 8 heads for cross-position reasoning.
+
+5. **VIB Head:** Variational Information Bottleneck splits the latent into z_chem (transferable chemistry) and z_inst (discardable instrument signature).
+
+## Results
+
+- Pretraining loss: 1.29 → 0.90 in first 20 steps (corpus of 61K spectra)
+- Classical baseline comparison: Direct Standardization R² = 0.69 on corn moisture
+- Target: R² > 0.95 with ≤10 transfer samples (outperforming LoRA-CT)

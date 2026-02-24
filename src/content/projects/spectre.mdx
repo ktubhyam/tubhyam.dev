@@ -1,0 +1,33 @@
+---
+title: "SPECTRE"
+date: 2026-01-20
+description: "A hybrid Mamba-Transformer foundation model for vibrational spectroscopy with wavelet embeddings, MoE routing, and VIB disentanglement."
+tags: ["pytorch", "deep-learning", "spectroscopy", "foundation-model"]
+status: "active"
+github: "https://github.com/ktubhyam/SpectralFM"
+featured: true
+---
+
+SPECTRE is a self-supervised foundation model for vibrational spectroscopy that achieves few-shot calibration transfer across instruments and modalities.
+
+## Architecture
+
+- **Wavelet Embedding** — Daubechies-4 DWT with learnable 1D CNN patching
+- **Mamba Backbone** — Selective state-space models for O(n) sequence processing
+- **Mixture of Experts** — Top-2 gating with optional KAN activations
+- **Transformer Encoder** — Global attention for cross-position reasoning
+- **VIB Head** — Disentangles chemistry (z_chem) from instrument signature (z_inst)
+
+## Key Features
+
+- Multi-task pretraining: masked reconstruction + contrastive + denoising
+- LoRA-based fine-tuning for efficient transfer
+- Test-Time Training for zero-shot instrument adaptation
+- Physics-informed losses: Beer-Lambert, non-negativity, smoothness
+
+## Training Infrastructure
+
+- 4x RTX 5090 GPUs with DataParallel
+- Mixed precision (AMP) training
+- W&B experiment tracking
+- 61K+ spectra pretraining corpus

@@ -1,0 +1,39 @@
+---
+title: "SpectraKit"
+date: 2026-02-20
+description: "A unified spectroscopy toolkit for IR, Raman, and UV-Vis analysis with a clean Pythonic API."
+language: "python"
+github: "https://github.com/tkart25/spectrakit"
+pypi: "spectrakit"
+status: "alpha"
+tags: ["python", "spectroscopy", "preprocessing", "open-source"]
+---
+
+SpectraKit provides a unified `Spectrum` object for working with IR, Raman, and UV-Vis data. It handles the entire workflow from file parsing to publication-quality plots.
+
+## Core Features
+
+- **Multi-format I/O:** JCAMP-DX, CSV, SPC, Bruker OPUS
+- **Preprocessing pipeline:** Composable transforms including ALS baseline correction, Savitzky-Golay smoothing, SNV and MSC normalization
+- **Peak analysis:** Detection, fitting (Gaussian, Lorentzian, Voigt), and deconvolution
+- **Spectral matching:** Cosine similarity, Pearson correlation, and Euclidean distance for library search
+- **Visualization:** Matplotlib-based plotting with sensible defaults for publications
+
+## Quick Start
+
+```python
+from spectrakit import load, Pipeline
+from spectrakit.preprocessing import AsLS, SNV
+
+spec = load("benzaldehyde.jdx")
+pipe = Pipeline([AsLS(), SNV()])
+clean = pipe.transform(spec)
+clean.plot()
+```
+
+## Design Principles
+
+- **Consistent API** across all spectral types (IR, Raman, UV-Vis)
+- **Composable preprocessing** via scikit-learn-style Pipeline
+- **Lazy loading** for large spectral datasets
+- **Type-safe** with full type hints and runtime validation

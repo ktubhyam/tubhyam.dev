@@ -50,7 +50,7 @@ export default function ParallaxText({ text, baseVelocity = 2, className = "" }:
   return (
     <div className={`overflow-hidden whitespace-nowrap ${className}`}>
       <motion.div className="inline-block" style={{ x }}>
-        <span className="inline-block text-[clamp(2rem,6vw,5rem)] font-heading font-medium tracking-tight text-[#1a1a1a]">
+        <span className="inline-block text-[clamp(2rem,6vw,5rem)] font-heading font-medium tracking-tight">
           {repeated}
         </span>
       </motion.div>

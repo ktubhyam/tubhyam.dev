@@ -1,0 +1,30 @@
+---
+title: "Information-Theoretic Limits of Spectroscopic Molecular Identification"
+date: 2026-02-01
+authors: ["Tubhyam Karthikeyan"]
+venue: "In preparation"
+status: "in-progress"
+abstract: "We present a group-theoretic and information-theoretic framework for bounding what vibrational spectra can reveal about molecular structure. Using representation theory, we define the Information Completeness Ratio R(G,N) that quantifies the fraction of vibrational degrees of freedom observable via IR and Raman spectroscopy for molecules with point group G and N atoms. We prove that for centrosymmetric molecules, IR and Raman provide complementary (non-overlapping) vibrational information, and conjecture — with strong numerical evidence from Jacobian rank analysis on 999 QM9 molecules — that the combined forward map is generically injective up to symmetry equivalence."
+tags: ["information-theory", "group-theory", "spectroscopy", "identifiability"]
+---
+
+## Key Contributions
+
+1. **Information Completeness Ratio R(G,N):** A provable quantification of how much vibrational information is observable via combined IR and Raman spectroscopy, derived from character tables and selection rules.
+
+2. **Modal Complementarity Theorem:** For centrosymmetric molecules, IR-active and Raman-active modes are disjoint (mutual exclusion principle), meaning combined spectra strictly increase observable degrees of freedom.
+
+3. **Generic Identifiability Conjecture:** Supported by full-rank Jacobian analysis on 999 real molecular geometries from QM9, showing 4x overdetermination and zero rank-deficient cases.
+
+## Theoretical Framework
+
+The forward map from molecular force constants to vibrational spectra is G-invariant — symmetry-equivalent structures produce identical spectra. Our framework quantifies:
+- How much information is lost due to symmetry (silent modes)
+- How complementary IR and Raman are for different point groups
+- Under what conditions the inverse problem (spectrum → structure) has a unique solution
+
+## Computational Evidence
+
+- **130,831 QM9 molecules analyzed:** 99.9% have R(G,N) = 1.0 (all modes observable)
+- **999 Jacobian rank tests:** 100% full rank, median condition number 6,474
+- **Confusable pair analysis:** 82.1% of spectrally similar pairs resolved by combining IR + Raman

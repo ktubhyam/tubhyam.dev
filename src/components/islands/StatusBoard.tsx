@@ -46,15 +46,18 @@ export default function StatusBoard({
   useEffect(() => {
     if (!isInView) return;
     let current = 0;
+    let interval: ReturnType<typeof setInterval>;
     const timer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         current++;
         setVisibleRows(current);
         if (current >= rows.length) clearInterval(interval);
       }, 200);
-      return () => clearInterval(interval);
     }, 400);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [isInView, rows.length]);
 
   return (
@@ -76,9 +79,9 @@ export default function StatusBoard({
       </div>
 
       {/* Table */}
-      <div className="p-3">
+      <div className="p-3 overflow-x-auto">
         {/* Header */}
-        <div className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-1.5 text-[9px] font-mono text-text-muted/70 uppercase tracking-wider">
+        <div className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-1.5 text-[9px] font-mono text-text-muted/70 uppercase tracking-wider min-w-[380px]">
           <span>Package</span>
           <span>Status</span>
           <span>Version</span>
@@ -95,7 +98,7 @@ export default function StatusBoard({
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-colors"
+              className="grid grid-cols-[1fr_80px_60px_60px_50px] gap-2 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-colors min-w-[380px]"
             >
               <span className="text-[11px] font-mono text-text-primary flex items-center gap-2">
                 <span

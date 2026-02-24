@@ -61,18 +61,21 @@ export default function CodeComparison({
     if (!isInView) return;
     let bCount = 0;
     let aCount = 0;
+    let bInterval: ReturnType<typeof setInterval>;
+    let aInterval: ReturnType<typeof setInterval>;
+    let phase2Timer: ReturnType<typeof setTimeout>;
 
     const timer = setTimeout(() => {
       // Phase 1: reveal before
-      const bInterval = setInterval(() => {
+      bInterval = setInterval(() => {
         bCount++;
         setVisibleBefore(bCount);
         if (bCount >= before.length) {
           clearInterval(bInterval);
           // Phase 2: reveal after
-          setTimeout(() => {
+          phase2Timer = setTimeout(() => {
             setPhase("after");
-            const aInterval = setInterval(() => {
+            aInterval = setInterval(() => {
               aCount++;
               setVisibleAfter(aCount);
               if (aCount >= after.length) {
@@ -85,7 +88,12 @@ export default function CodeComparison({
       }, 150);
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(phase2Timer);
+      clearInterval(bInterval);
+      clearInterval(aInterval);
+    };
   }, [isInView, before.length, after.length]);
 
   function renderLines(lines: DiffLine[], visible: number) {

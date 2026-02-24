@@ -9,10 +9,16 @@ import { formatDate } from "@lib/utils";
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   const projects = await getCollection("projects");
+  const research = await getCollection("research");
+  const simulations = await getCollection("simulations");
+  const libraries = await getCollection("libraries");
 
   const allTags = new Set<string>();
   posts.forEach((post) => post.data.tags.forEach((tag) => allTags.add(tag)));
   projects.forEach((project) => project.data.tags.forEach((tag) => allTags.add(tag)));
+  research.forEach((item) => item.data.tags.forEach((tag) => allTags.add(tag)));
+  simulations.forEach((item) => item.data.tags.forEach((tag) => allTags.add(tag)));
+  libraries.forEach((item) => item.data.tags.forEach((tag) => allTags.add(tag)));
 
   return Array.from(allTags).map((tag) => ({
     params: { tag },
@@ -20,11 +26,15 @@ export async function getStaticPaths() {
       tag,
       posts: posts.filter((p) => p.data.tags.includes(tag)),
       projects: projects.filter((p) => p.data.tags.includes(tag)),
+      research: research.filter((p) => p.data.tags.includes(tag)),
+      simulations: simulations.filter((p) => p.data.tags.includes(tag)),
+      libraries: libraries.filter((p) => p.data.tags.includes(tag)),
     },
   }));
 }
 
-const { tag, posts, projects } = Astro.props;
+const { tag, posts, projects, research, simulations, libraries } = Astro.props;
+const totalItems = posts.length + projects.length + research.length + simulations.length + libraries.length;
 ---
 
 <PageLayout title={`#${tag}`} description={`Content tagged with "${tag}"`}>
@@ -33,7 +43,7 @@ const { tag, posts, projects } = Astro.props;
       <span class="text-text-muted">#</span>{tag}
     </h1>
     <p class="text-text-muted mb-10">
-      {posts.length + projects.length} items tagged with "{tag}"
+      {totalItems} items tagged with "{tag}"
     </p>
 
     <div class="grid gap-4">
@@ -53,6 +63,33 @@ const { tag, posts, projects } = Astro.props;
             {project.data.title}
           </h2>
           <p class="mt-1 text-sm text-text-muted">{project.data.description}</p>
+        </GlassCard>
+      ))}
+      {research.map((item: CollectionEntry<"research">) => (
+        <GlassCard href={`/research/${item.id}`} class="group" padding="md">
+          <Badge variant="outline">Research</Badge>
+          <h2 class="mt-2 text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+            {item.data.title}
+          </h2>
+          <p class="mt-1 text-sm text-text-muted">{item.data.abstract.slice(0, 120)}...</p>
+        </GlassCard>
+      ))}
+      {simulations.map((item: CollectionEntry<"simulations">) => (
+        <GlassCard href={`/simulations/${item.id}`} class="group" padding="md">
+          <Badge variant="outline">Simulation</Badge>
+          <h2 class="mt-2 text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+            {item.data.title}
+          </h2>
+          <p class="mt-1 text-sm text-text-muted">{item.data.description}</p>
+        </GlassCard>
+      ))}
+      {libraries.map((item: CollectionEntry<"libraries">) => (
+        <GlassCard href={`/libraries/${item.id}`} class="group" padding="md">
+          <Badge variant="outline">Library</Badge>
+          <h2 class="mt-2 text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+            {item.data.title}
+          </h2>
+          <p class="mt-1 text-sm text-text-muted">{item.data.description}</p>
         </GlassCard>
       ))}
     </div>

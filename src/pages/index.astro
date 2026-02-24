@@ -48,10 +48,10 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 1: HERO — GradientText + RotatingText
        ══════════════════════════════════════════════ -->
-  <section class="relative min-h-screen flex flex-col items-center justify-center px-6">
+  <section aria-label="Hero" class="relative min-h-screen flex flex-col items-center justify-center px-6">
     <div class="max-w-4xl w-full">
       <GradientText
-        client:load
+        client:idle
         colors={["#4ECDC4", "#fafafa", "#C9A04A", "#fafafa", "#A78BFA", "#fafafa"]}
         animationSpeed={6}
         className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
@@ -61,7 +61,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
 
       <div class="mt-8 max-w-lg h-12 overflow-hidden">
         <RotatingText
-          client:load
+          client:idle
           texts={[
             "Computational Chemist",
             "ML Researcher",
@@ -123,7 +123,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 3: RESEARCH — Orbit + Featured Papers
        ══════════════════════════════════════════════ -->
-  <section data-nav-section="research" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+  <section aria-label="Research" data-nav-section="research" class="mx-auto max-w-5xl px-6 py-16 section-fade">
     <div class="flex items-center gap-3 mb-6 justify-center">
       <span class="text-shimmer text-sm md:text-base font-mono uppercase tracking-[0.2em]">What I Research</span>
     </div>
@@ -293,7 +293,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 4: TEXT REVEAL — "I build open-source tools..."
        ══════════════════════════════════════════════ -->
-  <section class="mx-auto max-w-4xl px-6 py-24 section-fade">
+  <section aria-label="What I build" class="mx-auto max-w-4xl px-6 py-24 section-fade">
     <TextRevealHighlight
       client:visible
       parts={[
@@ -312,7 +312,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 5: PROJECTS & WRITING — Three cards
        ══════════════════════════════════════════════ -->
-  <section id="build" data-nav-section="build" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+  <section aria-label="Projects and writing" id="build" data-nav-section="build" class="mx-auto max-w-5xl px-6 py-16 section-fade">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 match-cut-group">
       <!-- SpectraKit -->
       <SpotlightCard client:visible className="match-cut-left" spotlightColor="rgba(78, 205, 196, 0.12)">
@@ -459,7 +459,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 6: TEXT REVEAL — "Explore interactive simulations..."
        ══════════════════════════════════════════════ -->
-  <section class="mx-auto max-w-4xl px-6 py-24 section-fade">
+  <section aria-label="Simulations intro" class="mx-auto max-w-4xl px-6 py-24 section-fade">
     <TextRevealHighlight
       client:visible
       parts={[
@@ -475,7 +475,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 7: SIMULATIONS — VibeScope + previews
        ══════════════════════════════════════════════ -->
-  <section data-nav-section="simulate" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+  <section aria-label="Simulations" data-nav-section="simulate" class="mx-auto max-w-5xl px-6 py-16 section-fade">
     <!-- VibeScope feature -->
     <StaggerReveal client:visible className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" stagger={0.1}>
       <div>
@@ -613,7 +613,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 8: TECH STACK — Orbit + Stats
        ══════════════════════════════════════════════ -->
-  <section data-nav-section="stack" class="mx-auto max-w-5xl px-6 py-16 section-fade">
+  <section aria-label="Tech stack" data-nav-section="stack" class="mx-auto max-w-5xl px-6 py-16 section-fade">
     <div class="flex items-center gap-3 mb-4 justify-center">
       <span class="text-shimmer text-[10px] font-mono uppercase tracking-[0.2em]">Tools & Languages</span>
     </div>
@@ -662,7 +662,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
   <!-- ══════════════════════════════════════════════
        SCENE 9: CTA — Contact form + socials + availability
        ══════════════════════════════════════════════ -->
-  <section id="contact" data-nav-section="contact" class="mx-auto max-w-5xl px-6 py-32">
+  <section aria-label="Contact" id="contact" data-nav-section="contact" class="mx-auto max-w-5xl px-6 py-32">
     <!-- Section header -->
     <div class="text-center mb-16 section-fade">
       <TextRevealHighlight
@@ -696,7 +696,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
           <h4 class="text-sm font-mono text-[#666] uppercase tracking-wider mb-5">Send a message</h4>
           <form class="flex flex-col gap-4" action="https://formsubmit.co/takarthikeyan25@gmail.com" method="POST">
             <input type="hidden" name="_subject" value="New contact from tubhyam.dev" />
-            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_captcha" value="true" />
             <input type="hidden" name="_next" value="https://tubhyam.dev/#contact" />
             <div>
               <label for="contact-name" class="sr-only">Your name</label>

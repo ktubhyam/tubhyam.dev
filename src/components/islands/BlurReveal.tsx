@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function BlurReveal({ text, className = "", delay = 0, as: Tag = "h1" }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const words = text.split(" ");

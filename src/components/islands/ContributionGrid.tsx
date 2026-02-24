@@ -64,15 +64,18 @@ export default function ContributionGrid({
   useEffect(() => {
     if (!isInView) return;
     let col = -1;
+    let interval: ReturnType<typeof setInterval>;
     const timer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         col++;
         setRevealCol(col);
         if (col >= weeks) clearInterval(interval);
       }, 40);
-      return () => clearInterval(interval);
     }, 300);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [isInView, weeks]);
 
   const dayLabels = ["Mon", "", "Wed", "", "Fri", "", ""];

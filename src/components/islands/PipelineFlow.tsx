@@ -39,15 +39,18 @@ export default function PipelineFlow({
   useEffect(() => {
     if (!isInView) return;
     let current = -1;
+    let interval: ReturnType<typeof setInterval>;
     const timer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         current++;
         setActiveStage(current);
         if (current >= stages.length - 1) clearInterval(interval);
       }, 500);
-      return () => clearInterval(interval);
     }, 300);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [isInView, stages.length]);
 
   return (
