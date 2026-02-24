@@ -1,0 +1,22 @@
+---
+title: "VibeScope"
+date: 2026-02-20
+description: "Real-time 3D molecular vibration visualization. Select a molecule, pick a vibrational mode, and watch atoms oscillate."
+tags: ["three.js", "webgl", "molecular-dynamics", "visualization"]
+difficulty: "beginner"
+physics: ["normal modes", "harmonic oscillator", "Wilson GF method"]
+component: "VibeScope"
+---
+
+VibeScope lets you explore molecular vibrations in 3D. Select a molecule from the library, choose a vibrational mode, and watch atoms oscillate in real time.
+
+## How It Works
+
+Molecular geometries and normal modes are pre-computed using quantum chemistry (B3LYP/def2-TZVP). The Wilson GF method gives eigenvalues (frequencies) and eigenvectors (displacement vectors). Three.js renders the molecule and animates atoms along displacement vectors.
+
+## Features
+
+- Interactive 3D molecule rendering
+- Normal mode animation with adjustable amplitude and speed
+- IR and Raman spectrum overlay with mode highlighting
+- Molecule library with common organic and inorganic molecules

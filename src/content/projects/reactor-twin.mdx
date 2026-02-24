@@ -1,0 +1,37 @@
+---
+title: "ReactorTwin"
+date: 2026-02-10
+description: "Surrogate digital twin for industrial chemical reactors using neural ODEs and physics-informed neural networks."
+tags: ["pytorch", "neural-odes", "pinns", "chemical-engineering", "digital-twin"]
+status: "active"
+github: "https://github.com/ktubhyam/reactor-twin"
+featured: true
+---
+
+ReactorTwin creates fast, accurate surrogate models of chemical reactors that run 1000x faster than traditional CFD simulations while preserving physical constraints.
+
+## Architecture
+
+```
+Process Data (T, P, C, F)
+    → Feature Engineering (residence time, Da, Pe)
+    → Neural ODE Encoder (physics-constrained)
+    → Latent State z(t)
+    → Decoder: concentration, temperature, conversion profiles
+```
+
+## Key Features
+
+- **Neural ODE reactor models** — Learn reactor dynamics from process data
+- **Physics-informed training** — Enforce mass balance, energy balance, thermodynamic constraints
+- **Real-time dashboard** — Live visualization of reactor state with D3.js
+- **What-if analysis** — Predict outcomes of operating condition changes
+- **Anomaly detection** — Flag deviations from expected behavior
+- **Multi-reactor support** — CSTR, PFR, batch, semi-batch
+
+## Tech Stack
+
+- PyTorch + torchdiffeq for neural ODEs
+- Cantera for thermodynamics
+- Next.js + D3.js for the monitoring dashboard
+- FastAPI + Docker for model serving

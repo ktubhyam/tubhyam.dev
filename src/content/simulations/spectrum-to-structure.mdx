@@ -1,0 +1,26 @@
+---
+title: "Spectrum-to-Structure"
+date: 2026-02-15
+description: "Input a vibrational spectrum and watch as an ML model predicts the most likely molecular structure in 3D."
+tags: ["machine-learning", "spectroscopy", "inverse-problem", "deep-learning"]
+difficulty: "advanced"
+physics: ["inverse vibrational problem", "VIB", "retrieval decoding"]
+component: "SpectrumToStructure"
+---
+
+The inverse problem of spectroscopy: given a spectrum, what molecule produced it? This simulation uses the SPECTRE encoder to embed spectra into a chemical latent space and retrieve the most likely molecular candidates.
+
+## How It Works
+
+1. Upload, paste, or draw a spectrum (IR or Raman)
+2. The SPECTRE encoder processes it through CNN tokenizer → Transformer → VIB head
+3. The z_chem latent vector is compared against a molecular database
+4. Top-k candidate structures are displayed in 3D with confidence scores
+5. Conformal prediction provides calibrated uncertainty bounds
+
+## Features
+
+- Interactive spectrum drawing canvas
+- Real-time ML inference (ONNX Runtime in browser)
+- 3D molecular structure visualization
+- Confidence scores and uncertainty quantification
