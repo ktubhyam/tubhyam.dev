@@ -42,7 +42,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
        SCROLL PROGRESS BAR — thin accent line at top
        ══════════════════════════════════════════════ -->
   <div class="fixed top-0 left-0 w-full h-[2px] z-[100]">
-    <div id="scroll-progress" class="h-full bg-accent origin-left" style="transform: scaleX(0);"></div>
+    <div id="scroll-progress" class="h-full origin-left" style="transform: scaleX(0); background: linear-gradient(90deg, var(--color-teal), var(--color-accent), var(--color-violet));"></div>
   </div>
 
   <!-- ══════════════════════════════════════════════
@@ -52,7 +52,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
     <div class="max-w-4xl w-full">
       <GradientText
         client:load
-        colors={["#C9A04A", "#fafafa", "#C9A04A", "#fafafa"]}
+        colors={["#4ECDC4", "#fafafa", "#C9A04A", "#fafafa", "#A78BFA", "#fafafa"]}
         animationSpeed={6}
         className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
       >
@@ -84,8 +84,13 @@ import StarBorder from "@components/ui/StarBorder.astro";
         class="mt-6 flex flex-wrap gap-3 hero-fade"
         style="opacity: 0; animation: fade-up 0.6s ease-out 1.2s forwards;"
       >
-        {["spectroscopy", "deep learning", "open source", "cheminformatics"].map((tag) => (
-          <span class="text-xs font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-accent/30 transition-colors duration-200">
+        {[
+          { tag: "spectroscopy", hoverColor: "hover:border-teal/30 hover:text-teal/80" },
+          { tag: "deep learning", hoverColor: "hover:border-accent/30 hover:text-accent/80" },
+          { tag: "open source", hoverColor: "hover:border-violet/30 hover:text-violet/80" },
+          { tag: "cheminformatics", hoverColor: "hover:border-teal/30 hover:text-teal/80" },
+        ].map(({ tag, hoverColor }) => (
+          <span class={`text-xs font-mono text-text-muted border border-border rounded-full px-3 py-1 transition-colors duration-200 ${hoverColor}`}>
             {tag}
           </span>
         ))}
@@ -553,7 +558,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
             WebGL
           </span>
           <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#4ECDC4]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-teal"></span>
             Three.js
           </span>
           <span class="flex items-center gap-1.5">
@@ -571,7 +576,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
         <MoleculeCard client:visible className="mb-3 border-0 bg-transparent" />
         <div class="flex items-center gap-2 mb-2">
           <h4 class="text-sm font-heading font-semibold text-text-primary">Normal Mode Explorer</h4>
-          <span class="text-[10px] font-mono text-[#4ECDC4]/60 bg-[#4ECDC4]/5 rounded-full px-2 py-0.5">Beginner</span>
+          <span class="text-[10px] font-mono text-teal/60 bg-teal/5 rounded-full px-2 py-0.5">Beginner</span>
         </div>
         <p class="text-xs text-text-muted leading-relaxed">
           Visualize and decompose molecular vibrations into individual normal modes. Animate each mode in real time.
@@ -587,7 +592,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
         <SpectrumViz client:visible className="mb-3 border-0 bg-transparent" title="Predicted Spectrum" />
         <div class="flex items-center gap-2 mb-2">
           <h4 class="text-sm font-heading font-semibold text-text-primary">Spectrum-to-Structure</h4>
-          <span class="text-[10px] font-mono text-[#A78BFA]/60 bg-[#A78BFA]/5 rounded-full px-2 py-0.5">Advanced</span>
+          <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">Advanced</span>
         </div>
         <p class="text-xs text-text-muted leading-relaxed">
           Input a vibrational spectrum and watch as the model predicts the most likely molecular structure in 3D.

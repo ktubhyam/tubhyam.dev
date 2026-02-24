@@ -49,6 +49,14 @@
   --color-accent-soft: rgba(201, 160, 74, 0.15);
   --color-accent-glow: rgba(201, 160, 74, 0.25);
 
+  --color-teal: #4ECDC4;
+  --color-teal-soft: rgba(78, 205, 196, 0.15);
+  --color-teal-glow: rgba(78, 205, 196, 0.25);
+
+  --color-violet: #A78BFA;
+  --color-violet-soft: rgba(167, 139, 250, 0.15);
+  --color-violet-glow: rgba(167, 139, 250, 0.25);
+
   --font-heading: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
@@ -147,15 +155,17 @@
   .text-shimmer {
     background: linear-gradient(
       110deg,
-      var(--color-text-primary) 35%,
-      rgba(201, 160, 74, 0.6) 50%,
-      var(--color-text-primary) 65%
+      var(--color-text-primary) 25%,
+      var(--color-teal) 40%,
+      var(--color-accent) 50%,
+      var(--color-violet) 60%,
+      var(--color-text-primary) 75%
     );
-    background-size: 250% 100%;
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmer 3s ease-in-out infinite;
+    animation: shimmer 4s ease-in-out infinite;
   }
 
   /* Dot grid background pattern */
@@ -176,7 +186,9 @@
     background: linear-gradient(
       90deg,
       transparent,
-      var(--color-border-hover) 50%,
+      var(--color-teal-glow) 30%,
+      var(--color-accent-glow) 50%,
+      var(--color-violet-glow) 70%,
       transparent
     );
   }
@@ -184,6 +196,14 @@
   /* Accent glow */
   .glow-accent {
     box-shadow: 0 0 20px var(--color-accent-glow), 0 0 60px rgba(201, 160, 74, 0.08);
+  }
+
+  .glow-teal {
+    box-shadow: 0 0 20px var(--color-teal-glow), 0 0 60px rgba(78, 205, 196, 0.08);
+  }
+
+  .glow-violet {
+    box-shadow: 0 0 20px var(--color-violet-glow), 0 0 60px rgba(167, 139, 250, 0.08);
   }
 }
 
@@ -232,10 +252,11 @@
     linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)) padding-box,
     conic-gradient(
       from var(--side-nav-angle),
-      transparent 30%,
-      rgba(201, 160, 74, 0.3) 45%,
-      rgba(78, 205, 196, 0.2) 55%,
-      transparent 70%
+      transparent 20%,
+      rgba(78, 205, 196, 0.3) 33%,
+      rgba(201, 160, 74, 0.35) 50%,
+      rgba(167, 139, 250, 0.3) 67%,
+      transparent 80%
     ) border-box;
   border: 1px solid transparent;
   border-radius: 20px;
@@ -307,8 +328,8 @@
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: rgba(201, 160, 74, 0.4) !important;
-  box-shadow: 0 0 0 3px rgba(201, 160, 74, 0.08), 0 0 16px rgba(201, 160, 74, 0.06);
+  border-color: rgba(78, 205, 196, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.08), 0 0 16px rgba(78, 205, 196, 0.06);
   outline: none;
 }
 

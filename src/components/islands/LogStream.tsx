@@ -136,9 +136,9 @@ export default function LogStream({
               {entry.r2.toFixed(3)}
             </span>
             <span className="text-text-secondary">lr:</span>
-            <span className="text-[#A78BFA]">{entry.lr}</span>
+            <span className="text-violet">{entry.lr}</span>
             {entry.extra && (
-              <span className="text-[#4ECDC4]">
+              <span className="text-teal">
                 — {entry.extra}
               </span>
             )}

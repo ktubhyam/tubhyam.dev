@@ -9,14 +9,16 @@ import { motion, AnimatePresence } from "motion/react";
 interface Section {
   id: string;
   label: string;
+  color: string;
+  glow: string;
 }
 
 const SECTIONS: Section[] = [
-  { id: "research", label: "Research" },
-  { id: "build", label: "Build" },
-  { id: "simulate", label: "Simulate" },
-  { id: "stack", label: "Stack" },
-  { id: "contact", label: "Contact" },
+  { id: "research", label: "Research", color: "#4ECDC4", glow: "rgba(78, 205, 196, 0.5)" },
+  { id: "build", label: "Build", color: "#C9A04A", glow: "rgba(201, 160, 74, 0.5)" },
+  { id: "simulate", label: "Simulate", color: "#A78BFA", glow: "rgba(167, 139, 250, 0.5)" },
+  { id: "stack", label: "Stack", color: "#4ECDC4", glow: "rgba(78, 205, 196, 0.5)" },
+  { id: "contact", label: "Contact", color: "#C9A04A", glow: "rgba(201, 160, 74, 0.5)" },
 ];
 
 export default function SideNav() {
@@ -127,9 +129,9 @@ export default function SideNav() {
                     animate={{
                       width: isActive ? 7 : 5,
                       height: isActive ? 7 : 5,
-                      backgroundColor: isActive ? "#C9A04A" : isHovered ? "#666" : "#333",
+                      backgroundColor: isActive ? section.color : isHovered ? "#666" : "#333",
                       boxShadow: isActive
-                        ? "0 0 8px rgba(201, 160, 74, 0.5)"
+                        ? `0 0 8px ${section.glow}`
                         : "none",
                     }}
                     transition={{ duration: 0.2 }}
@@ -139,7 +141,7 @@ export default function SideNav() {
                   <motion.span
                     className="hidden md:block text-[10px] font-mono uppercase tracking-[0.12em] whitespace-nowrap select-none"
                     animate={{
-                      color: isActive ? "#C9A04A" : isHovered ? "#666" : "#444",
+                      color: isActive ? section.color : isHovered ? "#666" : "#444",
                       opacity: isActive ? 1 : isHovered ? 0.8 : 0.5,
                     }}
                     transition={{ duration: 0.2 }}

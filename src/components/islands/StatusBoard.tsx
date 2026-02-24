@@ -131,7 +131,7 @@ export default function StatusBoard({
                   </span>
                 )}
               </span>
-              <span className="text-[10px] font-mono text-[#4ECDC4]">
+              <span className="text-[10px] font-mono text-teal">
                 {row.tests}
               </span>
             </motion.div>
