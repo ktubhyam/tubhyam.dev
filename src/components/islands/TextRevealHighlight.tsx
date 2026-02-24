@@ -15,25 +15,35 @@ import { motion, useScroll, useTransform, type MotionValue } from "motion/react"
 interface TextPart {
   text: string;
   highlight?: boolean;
+  highlightColor?: string;
 }
 
 interface Props {
   parts: TextPart[];
   className?: string;
+  highlightColor?: string;
 }
 
-export default function TextRevealHighlight({ parts, className = "" }: Props) {
+const DEFAULT_HIGHLIGHT = "rgba(201, 160, 74, 0.2)";
+
+export default function TextRevealHighlight({ parts, className = "", highlightColor }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start 0.8", "end 0.3"],
   });
 
-  // Flatten all words with their highlight status
-  const allWords: { word: string; highlight: boolean }[] = [];
+  const defaultColor = highlightColor ?? DEFAULT_HIGHLIGHT;
+
+  // Flatten all words with their highlight status and color
+  const allWords: { word: string; highlight: boolean; color: string }[] = [];
   parts.forEach((part) => {
     part.text.split(" ").filter(Boolean).forEach((word) => {
-      allWords.push({ word, highlight: !!part.highlight });
+      allWords.push({
+        word,
+        highlight: !!part.highlight,
+        color: part.highlightColor ?? defaultColor,
+      });
     });
   });
 
@@ -48,6 +58,7 @@ export default function TextRevealHighlight({ parts, className = "" }: Props) {
               key={i}
               word={item.word}
               highlight={item.highlight}
+              highlightColor={item.color}
               range={[start, end]}
               progress={scrollYProgress}
             />
@@ -61,11 +72,13 @@ export default function TextRevealHighlight({ parts, className = "" }: Props) {
 function Word({
   word,
   highlight,
+  highlightColor,
   range,
   progress,
 }: {
   word: string;
   highlight: boolean;
+  highlightColor: string;
   range: [number, number];
   progress: MotionValue<number>;
 }) {
@@ -83,7 +96,7 @@ function Word({
           style={{
             scaleX: highlightScale,
             opacity: highlightOpacity,
-            background: "rgba(201, 160, 74, 0.2)",
+            background: highlightColor,
           }}
         />
       )}

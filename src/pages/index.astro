@@ -179,10 +179,10 @@ import StarBorder from "@components/ui/StarBorder.astro";
         </p>
         <div class="mt-3 flex flex-wrap gap-1.5">
           {["state space models", "spectroscopy", "mixture of experts"].map((t) => (
-            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+            <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">{t}</span>
           ))}
         </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
           Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
         </div>
       </MagneticCard>
@@ -202,10 +202,10 @@ import StarBorder from "@components/ui/StarBorder.astro";
         </p>
         <div class="mt-3 flex flex-wrap gap-1.5">
           {["graph neural networks", "excited states", "benchmarking"].map((t) => (
-            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+            <span class="text-[10px] font-mono text-teal/60 bg-teal/5 rounded-full px-2 py-0.5">{t}</span>
           ))}
         </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-teal/50 group-hover:text-teal transition-colors">
           Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
         </div>
       </MagneticCard>
@@ -225,10 +225,10 @@ import StarBorder from "@components/ui/StarBorder.astro";
         </p>
         <div class="mt-3 flex flex-wrap gap-1.5">
           {["inverse problems", "molecular generation", "diffusion models"].map((t) => (
-            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+            <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">{t}</span>
           ))}
         </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
           Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
         </div>
       </MagneticCard>
@@ -298,13 +298,13 @@ import StarBorder from "@components/ui/StarBorder.astro";
       client:visible
       parts={[
         { text: "I build" },
-        { text: "open-source tools", highlight: true },
+        { text: "open-source tools", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
         { text: "for computational chemistry — from" },
-        { text: "spectral analysis libraries", highlight: true },
+        { text: "spectral analysis libraries", highlight: true, highlightColor: "rgba(201, 160, 74, 0.2)" },
         { text: "to" },
-        { text: "neural network architectures", highlight: true },
+        { text: "neural network architectures", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
         { text: "to" },
-        { text: "interactive simulations.", highlight: true },
+        { text: "interactive simulations.", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
       ]}
     />
   </section>
@@ -325,7 +325,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
             client:visible
             parts={[
               { text: "Unified" },
-              { text: "spectroscopy toolkit", highlight: true },
+              { text: "spectroscopy toolkit", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
               { text: "for IR, Raman, UV-Vis." },
             ]}
             className="[&_span]:text-sm [&_span]:md:text-base"
@@ -333,7 +333,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
         </div>
         <div class="mt-4 flex items-center gap-3 text-xs text-text-muted font-mono">
           <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-teal"></span>
             Python 3.10+
           </span>
           <span>MIT</span>
@@ -356,7 +356,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
           />
         </div>
         <div class="mt-4">
-          <a href="/libraries" class="text-xs font-mono text-accent/70 hover:text-accent transition-colors duration-200">
+          <a href="/libraries" class="text-xs font-mono text-teal/70 hover:text-teal transition-colors duration-200">
             View docs &rarr;
           </a>
         </div>
@@ -422,9 +422,9 @@ import StarBorder from "@components/ui/StarBorder.astro";
             client:visible
             parts={[
               { text: "Writing on" },
-              { text: "computational chemistry", highlight: true },
+              { text: "computational chemistry", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
               { text: ", ML, and" },
-              { text: "open source", highlight: true },
+              { text: "open source", highlight: true, highlightColor: "rgba(201, 160, 74, 0.2)" },
               { text: "." },
             ]}
             className="[&_span]:text-sm [&_span]:md:text-base"
@@ -441,7 +441,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
           </a>
         </div>
         <div class="mt-5">
-          <a href="/blog" class="text-xs font-mono text-accent/70 hover:text-accent transition-colors duration-200">
+          <a href="/blog" class="text-xs font-mono text-violet/70 hover:text-violet transition-colors duration-200">
             Read all posts &rarr;
           </a>
         </div>
@@ -464,9 +464,9 @@ import StarBorder from "@components/ui/StarBorder.astro";
       client:visible
       parts={[
         { text: "Explore" },
-        { text: "interactive simulations", highlight: true },
+        { text: "interactive simulations", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
         { text: "that bring" },
-        { text: "molecular physics", highlight: true },
+        { text: "molecular physics", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
         { text: "to life in your browser." },
       ]}
     />
@@ -488,9 +488,9 @@ import StarBorder from "@components/ui/StarBorder.astro";
             client:visible
             parts={[
               { text: "Real-time" },
-              { text: "3D visualization", highlight: true },
+              { text: "3D visualization", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
               { text: "of how" },
-              { text: "atoms move", highlight: true },
+              { text: "atoms move", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
               { text: "— explore molecular vibrations interactively." },
             ]}
             className="[&_span]:text-base [&_span]:md:text-lg"
@@ -501,7 +501,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
           Built with Three.js and WebGL for real-time rendering.
         </p>
         <div class="mt-8">
-          <StarBorder as="a" href="/simulations" color="#C9A04A" speed="4s">
+          <StarBorder as="a" href="/simulations" color="#A78BFA" speed="4s">
             Launch VibeScope
           </StarBorder>
         </div>
@@ -581,7 +581,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
         <p class="text-xs text-text-muted leading-relaxed">
           Visualize and decompose molecular vibrations into individual normal modes. Animate each mode in real time.
         </p>
-        <div class="mt-3 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+        <div class="mt-3 text-xs font-mono text-teal/50 group-hover:text-teal transition-colors">
           Try it &rarr;
         </div>
       </MagneticCard>
@@ -597,7 +597,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
         <p class="text-xs text-text-muted leading-relaxed">
           Input a vibrational spectrum and watch as the model predicts the most likely molecular structure in 3D.
         </p>
-        <div class="mt-3 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
+        <div class="mt-3 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
           Try it &rarr;
         </div>
       </MagneticCard>
@@ -669,9 +669,9 @@ import StarBorder from "@components/ui/StarBorder.astro";
         client:visible
         parts={[
           { text: "Let's" },
-          { text: "build", highlight: true },
+          { text: "build", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
           { text: "something" },
-          { text: "together.", highlight: true },
+          { text: "together.", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
         ]}
         className="text-3xl sm:text-4xl md:text-5xl [&_span]:text-3xl [&_span]:sm:text-4xl [&_span]:md:text-5xl"
       />
@@ -747,7 +747,7 @@ import StarBorder from "@components/ui/StarBorder.astro";
                 class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors resize-none"
               ></textarea>
             </div>
-            <StarBorder as="button" color="#C9A04A" speed="4s">
+            <StarBorder as="button" color="#4ECDC4" speed="4s">
               Send Message
             </StarBorder>
           </form>
