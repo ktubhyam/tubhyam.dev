@@ -1,0 +1,38 @@
+---
+import ProseLayout from "@layouts/ProseLayout.astro";
+import Badge from "@components/ui/Badge.astro";
+import GlassButton from "@components/ui/GlassButton.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const libraries = await getCollection("libraries");
+  return libraries.map((lib) => ({
+    params: { slug: lib.id },
+    props: { lib },
+  }));
+}
+
+const { lib } = Astro.props;
+const { Content } = await render(lib);
+---
+
+<ProseLayout title={lib.data.title} description={lib.data.description}>
+  <header class="mb-12 not-prose">
+    <div class="flex items-center gap-2">
+      <Badge>{lib.data.language}</Badge>
+      <Badge variant="outline">{lib.data.status}</Badge>
+    </div>
+    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
+      {lib.data.title}
+    </h1>
+    <p class="mt-2 text-text-secondary">{lib.data.description}</p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <GlassButton href={lib.data.github}>GitHub</GlassButton>
+      {lib.data.docs && (
+        <GlassButton href={lib.data.docs} variant="secondary">Docs</GlassButton>
+      )}
+    </div>
+  </header>
+
+  <Content />
+</ProseLayout>

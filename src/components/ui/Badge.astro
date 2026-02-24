@@ -1,6 +1,6 @@
 ---
 interface Props {
-  variant?: "default" | "outline";
+  variant?: "default" | "outline" | "green" | "cyan" | "orange";
   class?: string;
 }
 
@@ -9,6 +9,9 @@ const { variant = "default", class: className } = Astro.props;
 const variantStyles = {
   default: "bg-white/[0.06] text-text-secondary border-transparent",
   outline: "bg-transparent text-text-muted border-border",
+  green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
 };
 ---
 

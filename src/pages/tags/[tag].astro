@@ -3,6 +3,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import { formatDate } from "@lib/utils";
 
 export async function getStaticPaths() {
@@ -36,7 +37,7 @@ const { tag, posts, projects } = Astro.props;
     </p>
 
     <div class="grid gap-4">
-      {posts.map((post: any) => (
+      {posts.map((post: CollectionEntry<"blog">) => (
         <GlassCard href={`/blog/${post.id}`} class="group" padding="md">
           <Badge variant="outline">Blog</Badge>
           <h2 class="mt-2 text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
@@ -45,7 +46,7 @@ const { tag, posts, projects } = Astro.props;
           <p class="mt-1 text-sm text-text-muted">{formatDate(post.data.date)}</p>
         </GlassCard>
       ))}
-      {projects.map((project: any) => (
+      {projects.map((project: CollectionEntry<"projects">) => (
         <GlassCard href={`/projects/${project.id}`} class="group" padding="md">
           <Badge variant="outline">Project</Badge>
           <h2 class="mt-2 text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">

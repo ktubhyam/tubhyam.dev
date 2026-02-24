@@ -85,7 +85,7 @@ export default function SideNav() {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center"
+          className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center"
           aria-label="Section navigation"
         >
           <div className="side-nav-pill flex flex-col items-center gap-4 md:gap-5 px-2 md:px-3 py-4 md:py-5">

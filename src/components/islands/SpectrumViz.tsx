@@ -82,7 +82,10 @@ export default function SpectrumViz({
       const p = Math.min(elapsed / drawDuration, 1);
       setProgress(p);
       setTime(elapsed / 1000);
-      animRef.current = requestAnimationFrame(loop);
+      // Stop rAF after draw completes — breathing uses CSS animation instead
+      if (p < 1) {
+        animRef.current = requestAnimationFrame(loop);
+      }
     }
 
     const delay = setTimeout(() => {

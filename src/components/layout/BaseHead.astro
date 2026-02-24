@@ -42,10 +42,22 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 <meta property="twitter:image" content={new URL(ogImage, SITE.url)} />
 
 <!-- Favicons -->
+<meta name="theme-color" content="#000000" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="icon" href="/favicon.ico" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+
+<!-- Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": SITE.author,
+  "url": SITE.url,
+  "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
+  "jobTitle": "Computational Chemist & ML Researcher",
+  "affiliation": { "@type": "Organization", "name": "ICT Mumbai" },
+})} />
 
 <!-- Fonts: Bricolage Grotesque (headings) + Inter (body) + JetBrains Mono (code) -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />

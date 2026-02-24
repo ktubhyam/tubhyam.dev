@@ -9,12 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.78.0",
     "@astrojs/mdx": "4.3.13",
     "@astrojs/react": "4.4.2",
     "@astrojs/rss": "4.0.15",
     "@astrojs/sitemap": "3.7.0",
-    "@astrojs/vercel": "9.0.4",
     "@tailwindcss/typography": "0.5.19",
     "@tailwindcss/vite": "4.2.1",
     "astro": "^5.17.1",

@@ -1,0 +1,49 @@
+---
+import ProseLayout from "@layouts/ProseLayout.astro";
+import Badge from "@components/ui/Badge.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const papers = await getCollection("research");
+  return papers.map((paper) => ({
+    params: { slug: paper.id },
+    props: { paper },
+  }));
+}
+
+const { paper } = Astro.props;
+const { Content } = await render(paper);
+
+const statusColors = {
+  published: "green" as const,
+  preprint: "cyan" as const,
+  "in-progress": "orange" as const,
+};
+---
+
+<ProseLayout title={paper.data.title} description={paper.data.abstract}>
+  <header class="mb-12 not-prose">
+    <Badge variant={statusColors[paper.data.status]}>
+      {paper.data.status}
+    </Badge>
+    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
+      {paper.data.title}
+    </h1>
+    <p class="mt-2 text-text-secondary">{paper.data.authors.join(", ")}</p>
+    <p class="mt-1 text-sm text-text-muted font-mono">{paper.data.venue}</p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      {paper.data.arxiv && (
+        <a href={paper.data.arxiv} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">
+          arXiv &rarr;
+        </a>
+      )}
+      {paper.data.pdf && (
+        <a href={paper.data.pdf} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">
+          PDF &rarr;
+        </a>
+      )}
+    </div>
+  </header>
+
+  <Content />
+</ProseLayout>
