@@ -1,0 +1,69 @@
+---
+title: "Normal Mode Explorer"
+date: 2026-02-18
+description: "Interactive 3D visualization of molecular vibrations with real-time animation, spectral overlays, Boltzmann analysis, and mode sonification. Built with Next.js, Three.js, and React Three Fiber."
+tags: ["next.js", "three.js", "react", "spectroscopy", "education", "visualization"]
+status: "active"
+github: "https://github.com/ktubhyam/normal-mode-explorer"
+demo: "https://nme.tubhyam.dev"
+featured: true
+---
+
+Normal Mode Explorer is an interactive tool for visualizing molecular vibrations in 3D. Select a molecule, pick a vibrational mode, and watch atoms oscillate along their displacement vectors in real time. Every mode comes with symmetry labels, selection rules, and spectral context.
+
+## Why This Exists
+
+Understanding normal modes is fundamental to vibrational spectroscopy — but textbooks show static arrow diagrams on flat pages. The connection between a peak on a spectrum and the actual atomic motion that produces it is hard to build intuitively from 2D drawings alone.
+
+NME lets you see each mode animate, hear its frequency, compare modes side-by-side, and understand why symmetry determines what spectroscopy can observe.
+
+## Features
+
+### 3D Molecular Visualization
+- Real-time animation of vibrational modes with adjustable speed and amplitude
+- CPK-colored atoms with displacement arrows showing mode vectors
+- Trajectory trails that trace atomic paths over time
+- Symmetry element overlays (axes, planes, inversion center)
+- Auto-rotating orbit camera with smooth damping
+- Screenshot export and fullscreen mode
+
+### Analysis Panels
+- **Mode List** — All vibrational modes with frequency, symmetry label, IR/Raman activity badges
+- **Spectrum Chart** — IR and Raman spectrum with the current mode highlighted
+- **Selection Rules** — Why each mode is IR-active, Raman-active, or silent, derived from point group symmetry
+- **Boltzmann Panel** — Temperature-dependent population distribution across modes
+- **Energy Chart** — Vibrational energy level diagram
+- **Displacement Table** — Per-atom displacement magnitudes for the selected mode
+- **Sonification** — Hear the vibrational frequency mapped to audible range
+
+### Interaction
+- **Side-by-side comparison** — Compare two modes in split viewport (Shift+click or press B)
+- **Superposition mode** — Combine multiple modes to see total vibrational motion (press S)
+- **Keyboard shortcuts** — Arrow keys cycle modes, Space plays/pauses, Esc closes panels
+- **Shareable URLs** — `nme.tubhyam.dev/?mol=ethanol&mode=3` links directly to a molecule and mode
+
+## Molecule Library
+
+32 molecules from diatomics (HCl, HF) to larger organics (benzene, glycine, isobutane). All geometries and normal modes computed using quantum chemistry (B3LYP/def2-TZVP via Psi4), giving eigenvalues (frequencies in cm$^{-1}$) and eigenvectors (displacement vectors).
+
+Each molecule includes:
+- Optimized 3D geometry with atomic masses
+- All $3N - 6$ vibrational modes (or $3N - 5$ for linear molecules)
+- IR intensities and Raman activities for every mode
+- Point group and symmetry labels per mode
+
+## Tech Stack
+
+- **Frontend:** Next.js 16 + TypeScript + Tailwind CSS
+- **3D rendering:** Three.js + React Three Fiber + @react-three/drei
+- **State:** Zustand (lightweight, selector-based)
+- **Animation:** Framer Motion for UI transitions
+- **Quantum chemistry:** Psi4 (B3LYP/def2-TZVP) for geometry optimization and frequency analysis
+- **Deployment:** Vercel at nme.tubhyam.dev
+
+## Related
+
+- **Simulation:** [Normal Mode Explorer](/simulations/normal-mode-explorer) — the simulation page with quick-launch link
+- **Simulation:** [VibeScope](/simulations/vibescope) — earlier prototype that became NME
+- **Project:** [Spektron](/projects/spektron) — foundation model trained on the same kind of spectral data NME visualizes
+- **Blog:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — context on why visualizing spectra matters

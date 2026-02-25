@@ -1,0 +1,63 @@
+---
+title: "Orbital Architect"
+date: 2026-02-25
+description: "Gamified quantum chemistry puzzle where you build atoms by filling electron orbitals. Aufbau principle, Pauli exclusion, and Hund's rule are the game mechanics."
+tags: ["three.js", "react", "quantum-chemistry", "education", "game"]
+status: "active"
+demo: "https://orbital.tubhyam.dev"
+featured: false
+---
+
+Orbital Architect turns electron configuration into a puzzle game. Build atoms from scratch by placing electrons into orbitals following real quantum mechanical rules — get it wrong and the atom destabilizes. Watch 3D orbital shapes materialize as you fill them.
+
+## Why Gamify Electron Configuration
+
+Electron configuration is one of the first things chemistry students learn and one of the first things they find tedious. The rules (aufbau principle, Pauli exclusion, Hund's rule) are abstract and disconnected from visual intuition. Orbital Architect makes the rules tangible: you see the orbital shapes, feel the energy penalties for violations, and develop intuition by playing through the periodic table.
+
+## Game Modes
+
+### Campaign
+Build elements from hydrogen to krypton across 36 levels of increasing complexity. Each level introduces a new concept:
+- Levels 1-2: s orbitals (hydrogen, helium)
+- Levels 3-10: s and p orbitals (lithium through neon)
+- Levels 11-18: Second period, reinforce pattern
+- Levels 19-36: d orbitals enter, transition metals, exceptions (chromium, copper)
+
+### Challenge Mode
+Timed rounds — configure atoms as fast as possible. Accuracy and speed contribute to a combined score. Leaderboard tracks personal bests.
+
+### Sandbox
+Free exploration with no rules enforced. Break Pauli exclusion and see what happens — the visualization shows destabilization effects as visual distortions on the orbital shapes.
+
+## Features
+
+- **3D orbital visualization** — s, p, and d orbital shapes rendered in real-time with Three.js, colored by phase
+- **Drag-and-drop electrons** — Place spin-up and spin-down electrons into orbital slots
+- **Energy level diagram** — Updates dynamically as you build, showing orbital energies and electron filling order
+- **Rule violation detection** — Immediate feedback when you break aufbau, Pauli, or Hund's rule, with educational explanations of what went wrong
+- **Periodic table integration** — Click any element to see the target configuration
+- **Scoring system** — Points for correct placement, streaks for consecutive correct atoms, achievements for milestones
+
+## Physics Implementation
+
+Orbital shapes are rendered using the real spherical harmonics $Y_l^m(\theta, \phi)$:
+- **s orbitals** ($l=0$): Sphere, single node count
+- **p orbitals** ($l=1$): Dumbbell shapes along x, y, z axes
+- **d orbitals** ($l=2$): Cloverleaf and donut shapes
+
+The radial probability distribution $R_{nl}(r)^2 r^2$ determines the opacity falloff from the nucleus, giving a physically motivated visual density rather than a hard boundary surface.
+
+Energy ordering follows the $(n + l)$ rule with empirical corrections for the known exceptions (Cr: [Ar] 3d$^5$ 4s$^1$, Cu: [Ar] 3d$^{10}$ 4s$^1$).
+
+## Tech Stack
+
+- **3D rendering:** Three.js + React Three Fiber
+- **State management:** Zustand
+- **UI:** Tailwind CSS + Framer Motion for transitions
+- **Deployment:** Vercel at orbital.tubhyam.dev
+
+## Related
+
+- **Simulation:** [Orbital Architect](/simulations/orbital-architect) — the simulation page with quick-launch link
+- **Project:** [Normal Mode Explorer](/projects/normal-mode-explorer) — another interactive 3D chemistry visualization
+- **Blog:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — related discussion on making chemistry visual

@@ -1,0 +1,84 @@
+---
+title: "SpectraView"
+date: 2026-02-26
+description: "React component library for interactive spectral visualization. Canvas+SVG hybrid renderer with peak detection, region highlights, zoom/pan, and multi-spectrum overlay."
+tags: ["react", "typescript", "spectroscopy", "visualization", "open-source"]
+status: "active"
+github: "https://github.com/ktubhyam/spectraview"
+featured: false
+---
+
+SpectraView is a React component library purpose-built for rendering scientific spectral data. It combines a Canvas 2D layer for high-performance trace rendering with an SVG overlay for interactive elements like axes, crosshairs, and peak markers.
+
+## Why a Custom Renderer
+
+Standard charting libraries (Chart.js, Recharts, Victory) aren't built for spectroscopy. They struggle with:
+- **Reversed x-axis** — IR convention runs 4000 → 400 cm$^{-1}$, left to right
+- **10,000+ data points** — real spectra have thousands of points that need to render at 60fps
+- **Domain-specific interactions** — zoom should preserve wavenumber context, not just pixel coordinates
+- **Overlaid annotations** — functional group regions, peak markers, and comparison spectra need to coexist without performance cost
+
+SpectraView handles all of these natively.
+
+## Architecture
+
+The renderer uses a dual-layer approach:
+
+```
+┌─────────────────────────────────┐
+│  SVG Layer (top)                │  ← Axes, grid, crosshair, peak markers,
+│  - DOM events + interactions    │     region highlights, annotations
+│  - Resolution-independent       │
+├─────────────────────────────────┤
+│  Canvas 2D Layer (bottom)       │  ← Spectral traces, fill areas
+│  - Min-max path decimation      │     10K+ points at 60fps
+│  - Hardware-accelerated         │
+└─────────────────────────────────┘
+```
+
+**Path decimation** is key to performance: when zoomed out, 10,000 points are reduced to ~2x the pixel width by keeping only the min and max intensity within each pixel column. This produces visually identical results at a fraction of the rendering cost.
+
+## Features
+
+- **Multi-spectrum overlay** — Load multiple spectra with distinct colors for comparison
+- **Peak detection** — Automatic peak picking with adjustable prominence threshold
+- **Region highlights** — Visualize functional group regions (C=O, C-H, O-H stretches) with labeled bands
+- **Zoom and pan** — Mouse wheel zoom, click-drag pan, toolbar buttons for quick actions
+- **Crosshair** — Real-time coordinate display as cursor moves over spectrum
+- **Theme switching** — Light and dark mode support
+- **Reversed x-axis** — Follows IR spectroscopy convention by default, configurable per instance
+- **Responsive** — Auto-resizes with container via ResizeObserver
+
+## Usage
+
+```tsx
+import { SpectraViewer } from "spectraview";
+
+<SpectraViewer
+  spectra={[
+    { data: ethanolData, color: "#00D8FF", label: "Ethanol" },
+    { data: acetoneData, color: "#C9A04A", label: "Acetone" },
+  ]}
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Absorbance"
+  reversed
+  peaks={{ enabled: true, prominence: 0.05 }}
+  regions={[
+    { start: 2800, end: 3000, label: "C-H stretch", color: "rgba(0,216,255,0.1)" },
+    { start: 1650, end: 1800, label: "C=O stretch", color: "rgba(201,160,74,0.1)" },
+  ]}
+/>
+```
+
+## Built With
+
+- **React 19** + TypeScript (strict mode)
+- **Canvas 2D API** for trace rendering
+- **SVG** for interactive overlays
+- **ResizeObserver** for responsive sizing
+
+## Related
+
+- **Simulation:** [SpectraView Demo](/simulations/spectraview-demo) — live interactive demo on the site
+- **Library:** [SpectraKit](/projects/spectrakit) — Python preprocessing library that prepares data for SpectraView
+- **Project:** [Spektron](/projects/spektron) — foundation model whose spectral outputs can be visualized with SpectraView
