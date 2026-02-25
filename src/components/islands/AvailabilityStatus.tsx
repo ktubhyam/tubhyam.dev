@@ -97,7 +97,7 @@ export default function AvailabilityStatus({ className = "" }: Props) {
             className="flex items-center gap-2 py-0.5"
           >
             <span className="text-text-muted/70 select-none">{">"}</span>
-            <span className="text-[#666] w-20">{line.label}:</span>
+            <span className="text-[#888] w-20">{line.label}:</span>
             <span style={{ color: COLOR_MAP[line.color] }}>{line.value}</span>
           </motion.div>
         ))}
