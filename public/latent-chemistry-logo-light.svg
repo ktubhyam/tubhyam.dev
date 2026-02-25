@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
-  <!-- Light background variant for Google News -->
-  <rect width="800" height="200" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100">
+  <!-- White background for Google News -->
+  <rect width="400" height="100" fill="#ffffff"/>
   <!-- Gold accent bar -->
-  <rect x="0" y="0" width="6" height="200" fill="#C9A04A"/>
-  <!-- Publication name -->
-  <text x="40" y="125" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="600" font-size="72" fill="#111111" letter-spacing="-1">Latent Chemistry</text>
+  <rect x="0" y="0" width="4" height="100" fill="#C9A04A"/>
+  <!-- Publication name - vertically centered with equal ascender/descender padding -->
+  <text x="24" y="64" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="600" font-size="36" fill="#111111" letter-spacing="-0.5">Latent Chemistry</text>
   <!-- Subtle gold underline -->
-  <rect x="40" y="148" width="180" height="3" rx="1.5" fill="#C9A04A" opacity="0.6"/>
+  <rect x="24" y="74" width="90" height="2" rx="1" fill="#C9A04A" opacity="0.6"/>
 </svg>

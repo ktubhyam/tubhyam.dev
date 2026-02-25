@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <rect width="1000" height="1000" fill="#000000" rx="48"/>
+  <!-- Gold accent bar -->
+  <rect x="0" y="0" width="12" height="1000" fill="#C9A04A"/>
+  <!-- L -->
+  <text x="230" y="660" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700" font-size="540" fill="#C9A04A" letter-spacing="-12">L</text>
+  <!-- C -->
+  <text x="540" y="660" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700" font-size="540" fill="#fafafa" letter-spacing="-12">C</text>
+</svg>
