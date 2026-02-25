@@ -1,7 +1,7 @@
 ---
 title: "SpectraKit"
 date: 2026-02-20
-description: "Lightweight Python library for spectral preprocessing and analysis. Functional API over NumPy arrays, 619 tests, two core dependencies. Published on PyPI as pyspectrakit."
+description: "Lightweight Python library for spectral preprocessing and analysis. Functional API over NumPy arrays, 699 tests, two core dependencies. Published on PyPI as pyspectrakit."
 tags: ["python", "spectroscopy", "open-source", "preprocessing"]
 status: "active"
 github: "https://github.com/ktubhyam/spectrakit"
@@ -66,6 +66,9 @@ SpectraKit is a Python library for vibrational spectroscopy data — IR, Raman, 
 - **Scatter correction** — MSC, Extended MSC with Legendre basis
 - **Transforms** — Kubelka-Munk, ATR correction, absorbance ↔ transmittance
 - **Peak analysis** — Detection and integration
+- **Despiking** — Whitaker-Hayes cosmic ray removal, rolling Z-score detection
+- **Signal quality** — Roughness metric, signal-to-noise ratio (auto and explicit regions)
+- **Spectral operations** — Subtract, average, interpolate, cross-correlate, shift alignment
 - **Similarity** — Cosine, Pearson, spectral angle, Euclidean (batch 2D × 2D)
 - **I/O** — JCAMP-DX, SPC, CSV, HDF5, Bruker OPUS (native parser)
 - **Pipeline** — Composable chains, sklearn-compatible via `SpectralTransformer`
@@ -73,7 +76,7 @@ SpectraKit is a Python library for vibrational spectroscopy data — IR, Raman, 
 
 ## Numbers
 
-**v1.7.1** — 619 tests, 0 mypy strict errors, 0 ruff violations. Python 3.10–3.13. MIT license.
+**v1.8.0** — 699 tests, 0 mypy strict errors, 0 ruff violations. Python 3.10–3.13. MIT license.
 
 ## Related
 

@@ -28,6 +28,9 @@ pip install pyspectrakit[all]     # everything: IO, CLI, plotting, sklearn, base
 - **Scatter correction:** MSC, Extended MSC with Legendre polynomial basis
 - **Transforms:** Kubelka-Munk, ATR correction, absorbance ↔ transmittance
 - **Peak analysis:** Detection and integration with `PeakResult` containers
+- **Despiking:** Whitaker-Hayes cosmic ray removal, rolling modified Z-score
+- **Signal quality:** Roughness metric (RMS of finite differences), signal-to-noise ratio
+- **Spectral operations:** Subtract, average, interpolate, cross-correlate, shift alignment
 - **Similarity:** Cosine, Pearson, spectral angle, Euclidean — batch 2D × 2D support
 - **I/O:** JCAMP-DX, SPC, CSV, HDF5, Bruker OPUS (native parser, no external deps)
 - **Pipeline:** Composable transform chains, scikit-learn compatible via `SpectralTransformer`
@@ -49,8 +52,8 @@ processed = pipe.transform(spectra)
 
 ## Stats
 
-- **v1.7.1** — latest release
-- **619 tests** — including hypothesis property-based, golden reference regression, adversarial I/O
+- **v1.8.0** — latest release
+- **699 tests** — including hypothesis property-based, golden reference regression, adversarial I/O
 - **0 mypy strict errors**, 0 ruff errors
 - **Python 3.10–3.13** supported
 - **MIT licensed**

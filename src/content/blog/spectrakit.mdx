@@ -1,7 +1,7 @@
 ---
 title: "SpectraKit: A Functional API for Spectral Preprocessing"
 date: 2026-01-25
-description: "Why spectral preprocessing libraries shouldn't have classes, how SpectraKit's functional API over NumPy arrays works, and what 619 tests actually test. Design decisions behind a spectroscopy toolkit with two core dependencies."
+description: "Why spectral preprocessing libraries shouldn't have classes, how SpectraKit's functional API over NumPy arrays works, and what 699 tests actually test. Design decisions behind a spectroscopy toolkit with two core dependencies."
 tags: ["python", "spectroscopy", "open-source", "software-design"]
 draft: false
 ---
@@ -21,11 +21,11 @@ SpectraKit exists because I got tired of rewriting the same preprocessing code f
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "Successfully installed ", color: "muted" },
-      { text: "pyspectrakit-1.7.1", color: "green" },
+      { text: "pyspectrakit-1.8.0", color: "green" },
     ] },
     { spans: [{ text: "" }], delay: 150 },
     { spans: [{ text: "$ python -c \"import spectrakit; print(spectrakit.__version__)\"", color: "muted" }] },
-    { spans: [{ text: "1.7.1", color: "amber" }] },
+    { spans: [{ text: "1.8.0", color: "amber" }] },
   ]}
 />
 
@@ -118,7 +118,7 @@ The library handles the full preprocessing pipeline that every spectroscopist ne
   lines={[
     { spans: [{ text: "$ python -c \"import spectrakit; help(spectrakit)\"", color: "muted" }] },
     { spans: [{ text: "" }], delay: 200 },
-    { spans: [{ text: "spectrakit v1.7.1 — Spectral Preprocessing Toolkit", color: "teal" }] },
+    { spans: [{ text: "spectrakit v1.8.0 — Spectral Preprocessing Toolkit", color: "teal" }] },
     { spans: [{ text: "" }] },
     { spans: [{ text: "MODULES:", color: "white" }] },
     { spans: [
@@ -152,6 +152,18 @@ The library handles the full preprocessing pipeline that every spectroscopist ne
     { spans: [
       { text: "  similarity ", color: "amber" },
       { text: "cosine, Pearson, spectral angle, Euclidean", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  despike    ", color: "amber" },
+      { text: "Whitaker-Hayes, rolling modified Z-score", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  quality    ", color: "amber" },
+      { text: "roughness (RMS), signal-to-noise ratio", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  ops        ", color: "amber" },
+      { text: "subtract, average, interpolate, correlate, align", color: "muted" },
     ] },
     { spans: [
       { text: "  io         ", color: "amber" },
@@ -188,7 +200,7 @@ This was a deliberate constraint. Spectroscopy code runs in environments ranging
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "pyspectrakit", color: "white" },
-      { text: "==1.7.1", color: "green" },
+      { text: "==1.8.0", color: "green" },
     ] },
     { spans: [
       { text: "├── ", color: "muted" },
@@ -329,7 +341,7 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
 
 ## Testing
 
-<span class="highlight-teal">619 tests</span>. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
+<span class="highlight-teal">699 tests</span>. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
 
 - **Correctness** — Output matches reference implementations (SciPy, MATLAB, published papers)
 - **Shape preservation** — 1D input produces 1D output, 2D batch input produces 2D output
@@ -344,49 +356,60 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "tests/test_baseline.py ", color: "white" },
-      { text: "97 passed", color: "green" },
+      { text: "41 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_smooth.py ", color: "white" },
-      { text: "54 passed", color: "green" },
+      { text: "26 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_normalize.py ", color: "white" },
-      { text: "63 passed", color: "green" },
+      { text: "25 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_derivative.py ", color: "white" },
-      { text: "48 passed", color: "green" },
+      { text: "20 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_scatter.py ", color: "white" },
-      { text: "71 passed", color: "green" },
+      { text: "20 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_transform.py ", color: "white" },
-      { text: "42 passed", color: "green" },
+      { text: "39 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_peaks.py ", color: "white" },
-      { text: "56 passed", color: "green" },
+      { text: "21 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_similarity.py ", color: "white" },
-      { text: "38 passed", color: "green" },
+      { text: "54 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_despike.py ", color: "white" },
+      { text: "33 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_quality.py ", color: "white" },
+      { text: "28 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_ops.py ", color: "white" },
+      { text: "64 passed", color: "green" },
     ] },
     { spans: [
       { text: "tests/test_io.py ", color: "white" },
-      { text: "89 passed", color: "green" },
+      { text: "94 passed", color: "green" },
     ] },
     { spans: [
-      { text: "tests/test_pipeline.py ", color: "white" },
-      { text: "61 passed", color: "green" },
+      { text: "... and 16 more test files", color: "muted" },
     ] },
     { spans: [{ text: "" }] },
     { spans: [
       { text: "═══ ", color: "muted" },
-      { text: "619 passed", color: "green" },
-      { text: " in 8.42s ", color: "muted" },
+      { text: "699 passed", color: "green" },
+      { text: " in 9.14s ", color: "muted" },
       { text: "═══", color: "muted" },
     ] },
   ]}
@@ -417,7 +440,7 @@ SpectraKit is stable, tested, and published. The next step is using it as the pr
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "  version:  ", color: "muted" },
-      { text: "1.7.1", color: "amber" },
+      { text: "1.8.0", color: "amber" },
     ] },
     { spans: [
       { text: "  install:  ", color: "muted" },
@@ -425,7 +448,7 @@ SpectraKit is stable, tested, and published. The next step is using it as the pr
     ] },
     { spans: [
       { text: "  tests:    ", color: "muted" },
-      { text: "619 passed", color: "green" },
+      { text: "699 passed", color: "green" },
       { text: ", 0 failed", color: "muted" },
     ] },
     { spans: [

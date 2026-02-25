@@ -48,8 +48,8 @@ interface Props {
 const DEFAULT_PROJECTS: Project[] = [
   {
     title: "SpectraKit",
-    description: "Spectral preprocessing library for IR, Raman, and NIR. Functional API over NumPy arrays — baseline correction, smoothing, normalization, scatter correction, peak analysis, and 6-format I/O. v1.7.1, 619 tests, two core deps.",
-    tags: ["Python", "PyPI", "v1.7.1"],
+    description: "Spectral preprocessing library for IR, Raman, and NIR. Functional API over NumPy arrays — baseline correction, smoothing, normalization, scatter correction, despiking, signal quality, peak analysis, and 6-format I/O. v1.8.0, 699 tests, two core deps.",
+    tags: ["Python", "PyPI", "v1.8.0"],
     color: "#4ECDC4",
     icon: "M16 18l6-6-6-6M8 6l-6 6 6 6",
     href: "/projects/spectrakit",
