@@ -1,0 +1,65 @@
+---
+title: "Speklens"
+date: 2025-09-15
+description: "CNN-Transformer encoder pretrained on 350K+ computed molecular spectra for spectral representation learning and downstream property prediction."
+tags: ["pytorch", "deep-learning", "spectroscopy", "representation-learning"]
+status: "completed"
+github: "https://github.com/ktubhyam/Speklens"
+featured: false
+---
+
+Speklens is a CNN-Transformer encoder pretrained on 350K+ computed molecular spectra for spectral representation learning. It was the precursor to [Spektron](/projects/spektron) — a simpler architecture that validated the core hypothesis: self-supervised pretraining on vibrational spectra produces representations that transfer to downstream tasks like compound identification and property prediction.
+
+## Motivation
+
+Traditional spectral analysis relies on hand-crafted features (peak positions, band areas, derivative ratios) that require domain expertise and don't generalize well across instruments or spectral types. Speklens asked: can we learn general-purpose spectral representations from unlabeled data, the way BERT learns language representations from text?
+
+## Architecture
+
+```
+Raw Spectrum (2048 points)
+    → 1D CNN Tokenizer (4 layers, stride-2 pooling)
+    → 128 spectral tokens, d_model=256
+    → Transformer Encoder (6 layers, 8 heads)
+    → [CLS] token extraction
+    → Projection head (256 → 128 latent)
+```
+
+The CNN front-end extracts local spectral features (peak shapes, shoulders, baselines) while reducing the sequence length from 2048 to 128 tokens. The Transformer captures global relationships between distant spectral regions — critical for identifying molecular functional groups that produce peaks in multiple wavenumber ranges.
+
+## Pretraining
+
+Speklens was pretrained on **350K+ computed spectra** (IR and Raman) from quantum chemistry databases using two objectives:
+
+1. **Masked Spectrum Modeling (MSM):** 15% of spectral tokens randomly masked, model predicts the missing spectral values from surrounding context
+2. **Contrastive Learning:** Augmented views of the same spectrum (noise, baseline shift, wavelength jitter) should produce similar representations
+
+Training used AdamW optimizer with linear warmup and cosine decay on a single GPU.
+
+## Downstream Evaluation
+
+After pretraining, the encoder was frozen and a lightweight head was trained for:
+
+- **Compound identification:** k-NN retrieval in the learned embedding space
+- **Property prediction:** Linear probe on [CLS] token for molecular weight, LogP, and functional group classification
+- **Spectral similarity:** Learned embeddings correlated better with structural similarity (Tanimoto) than raw spectral cosine similarity
+
+## Limitations and Lessons Learned
+
+Speklens demonstrated that self-supervised pretraining works for spectroscopy, but had several limitations that motivated [Spektron](/projects/spektron):
+
+1. **No instrument invariance:** The CNN-Transformer learned features that were tied to the specific spectral resolution and instrument characteristics of the training data. Transfer across instruments was poor without fine-tuning.
+
+2. **Patching loses information:** The stride-2 CNN pooling discards fine spectral detail. Some narrow peaks (like sharp Q-branches in gas-phase spectra) were lost in the tokenization.
+
+3. **No physics inductive bias:** The architecture treats spectra as generic 1D signals. The oscillatory dynamics underlying spectral features aren't captured by standard attention.
+
+4. **Fixed modality:** Speklens was trained separately on IR and Raman. It couldn't leverage the complementarity between modalities that [information theory](/research/spectral-identifiability) predicts.
+
+These limitations led to Spektron's D-LinOSS backbone (physics-aligned), full-resolution embedding (no patching), VIB disentanglement (instrument invariance), and multi-modality pretraining.
+
+## Related
+
+- **Successor:** [Spektron](/projects/spektron) — the foundation model that builds on Speklens with D-LinOSS backbone, VIB, and physics-informed training
+- **Theory:** [Spectral Identifiability](/research/spectral-identifiability) — information-theoretic framework that motivated moving beyond Speklens
+- **Blog:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — context on the challenges Speklens faced
