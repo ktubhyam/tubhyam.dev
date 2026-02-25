@@ -33,6 +33,7 @@ import DecryptedText from "@components/islands/DecryptedText";
 import GradientText from "@components/islands/GradientText";
 import StarBorder from "@components/ui/StarBorder.astro";
 import ProjectSlider from "@components/islands/ProjectSlider";
+import OrbitalDiagram from "@components/islands/OrbitalDiagram";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -503,20 +504,7 @@ import ProjectSlider from "@components/islands/ProjectSlider";
       <!-- 3. Orbital Architect -->
       <div class="match-cut-right">
       <MagneticCard client:visible href="https://orbital.tubhyam.dev">
-        <div class="mb-3 rounded-lg bg-bg-secondary/50 border border-border p-3">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-[10px] font-mono text-accent/80">LEVEL 26 — Fe</span>
-            <div class="flex-1 h-1 rounded-full bg-border overflow-hidden">
-              <div class="h-full w-[72%] rounded-full bg-gradient-to-r from-accent to-violet"></div>
-            </div>
-            <span class="text-[10px] font-mono text-accent/60">3,200 pts</span>
-          </div>
-          <div class="flex gap-1 items-end">
-            <div class="flex-1 h-6 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-[8px] font-mono text-accent/40">1s²</div>
-            <div class="flex-1 h-7 rounded bg-violet/10 border border-violet/20 flex items-center justify-center text-[8px] font-mono text-violet/40">2p⁶</div>
-            <div class="flex-1 h-9 rounded bg-teal/10 border border-teal/20 flex items-center justify-center text-[8px] font-mono text-teal/40">3d⁶</div>
-          </div>
-        </div>
+        <OrbitalDiagram client:visible element="Fe" atomicNumber={26} className="mb-3" />
         <div class="flex items-center gap-2 mb-2">
           <h4 class="text-sm font-heading font-semibold text-text-primary">Orbital Architect</h4>
           <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">Game</span>
