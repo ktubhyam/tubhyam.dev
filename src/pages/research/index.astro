@@ -84,6 +84,7 @@ const breadcrumbSchema = {
                   rel="noopener noreferrer"
                   class="text-xs text-text-secondary hover:text-text-primary transition-colors"
                   onclick="event.stopPropagation()"
+                  aria-label={`View ${paper.data.title} on arXiv`}
                 >
                   arXiv &rarr;
                 </a>
@@ -95,6 +96,7 @@ const breadcrumbSchema = {
                   rel="noopener noreferrer"
                   class="text-xs text-text-secondary hover:text-text-primary transition-colors"
                   onclick="event.stopPropagation()"
+                  aria-label={`Download PDF of ${paper.data.title}`}
                 >
                   PDF &rarr;
                 </a>

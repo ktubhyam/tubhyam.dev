@@ -1,0 +1,112 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+
+import BlurReveal from "@components/islands/BlurReveal";
+---
+
+<PageLayout title="Search" description="Search all content on tubhyam.dev.">
+  <section class="py-12">
+    <BlurReveal
+      client:idle
+      text="Search"
+      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      as="h1"
+    />
+    <p
+      class="text-text-muted mb-10"
+      style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
+    >
+      Find posts, projects, research, and more.
+    </p>
+
+    <div id="search" class="pagefind-container"></div>
+  </section>
+</PageLayout>
+
+<style is:global>
+  /* Pagefind theme overrides for dark mode */
+  :root {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: #C9A04A;
+    --pagefind-ui-text: #888888;
+    --pagefind-ui-background: #0a0a0a;
+    --pagefind-ui-border: #1a1a1a;
+    --pagefind-ui-tag: #111111;
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 12px;
+    --pagefind-ui-image-border-radius: 8px;
+    --pagefind-ui-image-box-ratio: 3 / 2;
+    --pagefind-ui-font: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .pagefind-ui__search-input {
+    font-family: "JetBrains Mono", ui-monospace, monospace !important;
+    background: #111111 !important;
+    border-color: #1a1a1a !important;
+    color: #fafafa !important;
+  }
+
+  .pagefind-ui__search-input:focus {
+    border-color: rgba(201, 160, 74, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(201, 160, 74, 0.08) !important;
+    outline: none !important;
+  }
+
+  .pagefind-ui__result-link {
+    color: #fafafa !important;
+  }
+
+  .pagefind-ui__result-link:hover {
+    color: #C9A04A !important;
+  }
+
+  .pagefind-ui__result-excerpt {
+    color: #767676 !important;
+  }
+
+  mark.pagefind-ui__result-highlight {
+    background: rgba(201, 160, 74, 0.2) !important;
+    color: #C9A04A !important;
+  }
+
+  .pagefind-ui__message {
+    color: #767676 !important;
+    font-family: "JetBrains Mono", ui-monospace, monospace !important;
+  }
+
+  .pagefind-ui__result {
+    border-color: #1a1a1a !important;
+    padding: 1.25rem 0 !important;
+  }
+
+  .pagefind-ui__result-title {
+    font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif !important;
+  }
+
+  .pagefind-ui__button {
+    background: #111111 !important;
+    border-color: #1a1a1a !important;
+    color: #888888 !important;
+  }
+
+  .pagefind-ui__button:hover {
+    border-color: #2a2a2a !important;
+    color: #fafafa !important;
+  }
+</style>
+
+<script is:inline>
+  window.addEventListener("DOMContentLoaded", async () => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "/pagefind/pagefind-ui.css";
+    document.head.appendChild(link);
+
+    const pagefind = await import("/pagefind/pagefind-ui.js");
+    new pagefind.PagefindUI({
+      element: "#search",
+      showSubResults: true,
+      showImages: false,
+    });
+  });
+</script>

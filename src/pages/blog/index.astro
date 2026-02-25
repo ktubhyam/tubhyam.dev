@@ -77,8 +77,9 @@ const breadcrumbSchema = {
                   {post.data.description}
                 </p>
               </div>
-              <div class="text-xs text-text-muted whitespace-nowrap font-mono">
-                {formatDate(post.data.date)}
+              <div class="text-xs text-text-muted whitespace-nowrap font-mono text-right">
+                <div>{formatDate(post.data.date)}</div>
+                <div class="mt-1 text-text-muted/60">{readingTime(post.body ?? "")} min read</div>
               </div>
             </div>
           </GlassCard>
