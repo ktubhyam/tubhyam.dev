@@ -1,39 +1,56 @@
 ---
 title: "SpectraKit"
 date: 2026-02-20
-description: "A unified spectroscopy toolkit for IR, Raman, and UV-Vis analysis with a clean Pythonic API."
+description: "A lightweight, pip-installable Python library for preprocessing and analyzing spectral data from IR, Raman, and NIR spectroscopy. Functional API, NumPy-native, two core dependencies."
 language: "python"
 github: "https://github.com/ktubhyam/spectrakit"
-pypi: "spectrakit"
-status: "alpha"
+pypi: "pyspectrakit"
+docs: "https://ktubhyam.github.io/spectrakit/"
+status: "beta"
 tags: ["python", "spectroscopy", "preprocessing", "open-source"]
 ---
 
-SpectraKit provides a unified `Spectrum` object for working with IR, Raman, and UV-Vis data. It handles the entire workflow from file parsing to publication-quality plots.
+SpectraKit is a Python library for vibrational spectroscopy data processing. Functional design — all functions accept and return NumPy arrays. Core dependencies are just NumPy and SciPy. Everything else is optional.
 
-## Core Features
+## Install
 
-- **Multi-format I/O:** JCAMP-DX, CSV, SPC, Bruker OPUS
-- **Preprocessing pipeline:** Composable transforms including ALS baseline correction, Savitzky-Golay smoothing, SNV and MSC normalization
-- **Peak analysis:** Detection, fitting (Gaussian, Lorentzian, Voigt), and deconvolution
-- **Spectral matching:** Cosine similarity, Pearson correlation, and Euclidean distance for library search
-- **Visualization:** Matplotlib-based plotting with sensible defaults for publications
+```bash
+pip install pyspectrakit          # core (numpy + scipy only)
+pip install pyspectrakit[all]     # everything: IO, CLI, plotting, sklearn, baselines
+```
+
+## Core Modules
+
+- **Baseline correction:** ALS, ArPLS, SNIP, polynomial, rubberband — all with optional `ConvergenceInfo` return
+- **Smoothing:** Savitzky-Golay, Whittaker (with wavenumber-aware penalty for non-uniform grids)
+- **Normalization:** SNV, min-max, area, L2 vector norm
+- **Derivatives:** Savitzky-Golay polynomial, Norris-Williams gap-segment
+- **Scatter correction:** MSC, Extended MSC with Legendre polynomial basis
+- **Transforms:** Kubelka-Munk, ATR correction, absorbance ↔ transmittance
+- **Peak analysis:** Detection and integration with `PeakResult` containers
+- **Similarity:** Cosine, Pearson, spectral angle, Euclidean — batch 2D × 2D support
+- **I/O:** JCAMP-DX, SPC, CSV, HDF5, Bruker OPUS (native parser, no external deps)
+- **Pipeline:** Composable transform chains, scikit-learn compatible via `SpectralTransformer`
 
 ## Quick Start
 
 ```python
-from spectrakit import load, Pipeline
-from spectrakit.preprocessing import AsLS, SNV
+from spectrakit.smooth import smooth_savgol
+from spectrakit.baseline import baseline_als
+from spectrakit.normalize import normalize_snv
+from spectrakit.pipeline import Pipeline
 
-spec = load("benzaldehyde.jdx")
-pipe = Pipeline([AsLS(), SNV()])
-clean = pipe.transform(spec)
-clean.plot()
+pipe = Pipeline()
+pipe.add("smooth", smooth_savgol, window_length=11, polyorder=2)
+pipe.add("baseline", baseline_als, lam=1e6, p=0.01)
+pipe.add("normalize", normalize_snv)
+processed = pipe.transform(spectra)
 ```
 
-## Design Principles
+## Stats
 
-- **Consistent API** across all spectral types (IR, Raman, UV-Vis)
-- **Composable preprocessing** via scikit-learn-style Pipeline
-- **Lazy loading** for large spectral datasets
-- **Type-safe** with full type hints and runtime validation
+- **v1.7.1** — latest release
+- **619 tests** — including hypothesis property-based, golden reference regression, adversarial I/O
+- **0 mypy strict errors**, 0 ruff errors
+- **Python 3.10–3.13** supported
+- **MIT licensed**

@@ -47,13 +47,13 @@ interface Props {
 const DEFAULT_PROJECTS: Project[] = [
   {
     title: "SpectraKit",
-    description: "Unified spectroscopy toolkit for IR, Raman, and UV-Vis analysis. Preprocessing pipelines, format parsers, spectral matching, and publication-quality plots.",
-    tags: ["Python", "PyPI", "MIT"],
+    description: "Spectral preprocessing library for IR, Raman, and NIR. Functional API over NumPy arrays — baseline correction, smoothing, normalization, scatter correction, peak analysis, and 6-format I/O. v1.7.1, 619 tests, two core deps.",
+    tags: ["Python", "PyPI", "v1.7.1"],
     color: "#4ECDC4",
     icon: "M16 18l6-6-6-6M8 6l-6 6 6 6",
     href: "/projects/spectrakit",
     github: "https://github.com/ktubhyam/spectrakit",
-    status: "Published on PyPI",
+    status: "Published — pip install pyspectrakit",
   },
   {
     title: "Spekron",

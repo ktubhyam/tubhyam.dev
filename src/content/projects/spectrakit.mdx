@@ -1,19 +1,76 @@
 ---
 title: "SpectraKit"
 date: 2026-02-20
-description: "A unified spectroscopy toolkit for IR, Raman, and UV-Vis analysis with a clean Pythonic API."
-tags: ["python", "spectroscopy", "open-source"]
+description: "Lightweight Python library for spectral preprocessing and analysis. Functional API over NumPy arrays, 619 tests, two core dependencies. Published on PyPI as pyspectrakit."
+tags: ["python", "spectroscopy", "open-source", "preprocessing"]
 status: "active"
 github: "https://github.com/ktubhyam/spectrakit"
 featured: true
 ---
 
-SpectraKit is a Python library for working with vibrational spectroscopy data. It provides a unified `Spectrum` object that handles IR, Raman, and UV-Vis spectra with consistent preprocessing, visualization, and analysis tools.
+import TerminalBlock from '@components/islands/TerminalBlock';
 
-## Features
+SpectraKit is a Python library for vibrational spectroscopy data — IR, Raman, NIR. Every function takes NumPy arrays in, returns NumPy arrays out. Core dependencies are numpy and scipy. Everything else (plotting, CLI, sklearn integration, HDF5) is optional.
 
-- Multi-format I/O: JCAMP-DX, CSV, SPC, Bruker OPUS
-- Preprocessing: baseline correction (ALS), smoothing (Savitzky-Golay), normalization (SNV, MSC)
-- Peak detection and fitting
-- Spectral matching and similarity scoring
-- Publication-quality plotting
+<TerminalBlock
+  client:visible
+  title="spectrakit — quick start"
+  lines={[
+    { spans: [{ text: "$ pip install pyspectrakit", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "$ python", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.io ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "read_jcamp", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.baseline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "baseline_als", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.normalize ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "normalize_snv", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [] },
+    { prompt: ">>> ", spans: [
+      { text: "spec ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "read_jcamp", color: "amber" },
+      { text: "(", color: "white" },
+      { text: "\"ethanol.dx\"", color: "green" },
+      { text: ")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "clean ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "normalize_snv", color: "amber" },
+      { text: "(", color: "white" },
+      { text: "baseline_als", color: "amber" },
+      { text: "(spec.intensities))", color: "white" },
+    ] },
+  ]}
+/>
+
+## What It Does
+
+- **Baseline correction** — ALS, ArPLS, SNIP, polynomial, rubberband (all with convergence diagnostics)
+- **Smoothing** — Savitzky-Golay, Whittaker with wavenumber-aware penalty
+- **Normalization** — SNV, min-max, area, L2 vector
+- **Derivatives** — Savitzky-Golay, Norris-Williams gap-segment
+- **Scatter correction** — MSC, Extended MSC with Legendre basis
+- **Transforms** — Kubelka-Munk, ATR correction, absorbance ↔ transmittance
+- **Peak analysis** — Detection and integration
+- **Similarity** — Cosine, Pearson, spectral angle, Euclidean (batch 2D × 2D)
+- **I/O** — JCAMP-DX, SPC, CSV, HDF5, Bruker OPUS (native parser)
+- **Pipeline** — Composable chains, sklearn-compatible via `SpectralTransformer`
+- **CLI** — `spectrakit info`, `spectrakit convert` for quick file operations
+
+## Numbers
+
+**v1.7.1** — 619 tests, 0 mypy strict errors, 0 ruff violations. Python 3.10–3.13. MIT license.
