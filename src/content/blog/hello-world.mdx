@@ -6,13 +6,10 @@ tags: ["spectroscopy", "deep-learning", "group-theory", "research"]
 draft: false
 ---
 
-import SpectrumViz from '@components/islands/SpectrumViz';
-import MoleculeCard from '@components/islands/MoleculeCard';
 import TerminalBlock from '@components/islands/TerminalBlock';
-import EquationReveal from '@components/islands/EquationReveal';
 import CodeComparison from '@components/islands/CodeComparison';
 
-Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. You shine light on a molecule, measure what comes back, and try to figure out what the molecule looks like. The **forward direction** of this problem is solved: given a structure, compute its spectrum. The **inverse direction** — given a spectrum, recover the structure — is fundamentally harder, and the reason is group theory.
+Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. You shine light on a molecule, measure what comes back, and try to figure out what the molecule looks like. The <span class="highlight">forward direction</span> of this problem is solved: given a structure, compute its spectrum. The <span class="highlight">inverse direction</span> — given a spectrum, recover the structure — is fundamentally harder, and the reason is group theory.
 
 ## The Forward Map
 
@@ -20,9 +17,7 @@ The starting point is the Wilson GF secular equation:
 
 $$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
 
-The matrix **G** encodes atomic masses and molecular geometry. The matrix **F** is the force constant matrix — essentially the Hessian of the potential energy surface. The eigenvalues give the squared vibrational frequencies, and the eigenvectors determine which modes are observable by IR and Raman spectroscopy.
-
-<SpectrumViz client:visible />
+The matrix **G** encodes atomic masses and molecular geometry. The matrix **F** is the force constant matrix — essentially the <span class="highlight">Hessian of the potential energy surface</span>. The eigenvalues give the squared vibrational frequencies, and the eigenvectors determine which modes are observable by IR and Raman spectroscopy.
 
 What makes the forward map well-behaved is that it's smooth, computable, and well-conditioned. Given any reasonable molecular geometry, you can compute the full IR and Raman spectrum to arbitrary precision. DFT codes do this routinely at the B3LYP/def2-TZVP level.
 
@@ -76,11 +71,11 @@ The inverse map has none of these properties.
 
 ## Why the Inverse Fails: Symmetry
 
-The fundamental obstruction to inversion is molecular symmetry. A molecule's point group **G** determines which vibrational modes are visible to each technique. The selection rules are strict:
+The fundamental obstruction to inversion is molecular symmetry. A molecule's <span class="highlight">point group G</span> determines which vibrational modes are visible to each technique. The selection rules are strict:
 
 - A mode is **IR-active** only if it transforms as a translation (changes the dipole moment)
 - A mode is **Raman-active** only if it transforms as a quadratic form (changes the polarizability)
-- Modes that do neither are **silent** — permanently invisible to both techniques
+- Modes that do neither are <span class="highlight-violet">silent</span> — permanently invisible to both techniques
 
 The **Information Completeness Ratio** measures the damage:
 
@@ -95,7 +90,7 @@ The vibrational forward map is **G-invariant**: it factors through the quotient 
 
 </div>
 
-How bad does it get? For **99.9%** of organic molecules, R = 1 and everything is observable. But the exceptions matter:
+How bad does it get? For <span class="highlight-teal">99.9% of organic molecules</span>, R = 1 and everything is observable. But the exceptions matter:
 
 <TerminalBlock
   client:visible
@@ -133,11 +128,9 @@ How bad does it get? For **99.9%** of organic molecules, R = 1 and everything is
   ]}
 />
 
-<MoleculeCard client:visible />
-
 ## Modal Complementarity
 
-There is a structural result that makes combined IR + Raman strictly better than either alone. For molecules with a center of inversion (the centrosymmetric ones — CO₂, benzene, cubane), the **mutual exclusion principle** applies:
+There is a structural result that makes combined IR + Raman strictly better than either alone. For molecules with a center of inversion (the centrosymmetric ones — CO₂, benzene, cubane), the <span class="highlight">mutual exclusion principle</span> applies:
 
 <div class="callout callout-theorem">
   <div class="callout-label">Theorem 2 — Modal Complementarity</div>
@@ -146,7 +139,7 @@ For centrosymmetric molecules, IR-active and Raman-active modes are **completely
 
 </div>
 
-This is not an approximation — it follows directly from the character table. The practical consequence: any ML model that fuses IR + Raman should see its largest accuracy gains on centrosymmetric molecules. This is a testable, quantitative prediction from the theory.
+This is not an approximation — it follows directly from the character table. The practical consequence: any ML model that fuses IR + Raman should see its <span class="highlight-teal">largest accuracy gains on centrosymmetric molecules</span>. This is a testable, quantitative prediction from the theory.
 
 ## Generic Identifiability
 
@@ -194,15 +187,15 @@ This is a conjecture, not a theorem. The obstruction to proving it is that the f
   ]}
 />
 
-A **4:1 overdetermination ratio** means the combined spectra contain roughly four times more equations than unknowns. The inverse problem is not just solvable — it is well-conditioned.
+A <span class="highlight">4:1 overdetermination ratio</span> means the combined spectra contain roughly four times more equations than unknowns. The inverse problem is not just solvable — it is well-conditioned.
 
 ## The Architecture: Spekron
 
-The theory says what is achievable. The model is designed to get there. **Spekron** is a CNN-Transformer encoder with a Variational Information Bottleneck (VIB) that splits the latent space into chemistry and instrument:
+The theory says what is achievable. The model is designed to get there. **Spekron** is a CNN-Transformer encoder with a <span class="highlight">Variational Information Bottleneck</span> (VIB) that splits the latent space into chemistry and instrument:
 
 $$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
 
-The latent vector splits into **z_chem** (128 dimensions, transferable chemistry) and **z_inst** (64 dimensions, instrument artifacts). At transfer time, z_inst is discarded — only the chemistry survives.
+The latent vector splits into <span class="highlight-teal">z_chem</span> (128 dimensions, transferable chemistry) and <span class="highlight-violet">z_inst</span> (64 dimensions, instrument artifacts). At transfer time, z_inst is discarded — only the chemistry survives.
 
 <div class="callout callout-result">
   <div class="callout-label">Key Design Choice</div>
@@ -242,17 +235,15 @@ A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over 
   ]}
 />
 
-<EquationReveal client:visible />
-
 ## Calibration Transfer
 
-The practical test case. A model trained on spectra from instrument A fails on instrument B — different detectors, optical paths, lamp aging all shift the spectral shape. Current approaches (PDS, SBC) require **25+ paired transfer samples**. The VIB architecture targets **≤10** by learning instrument-invariant representations during pretraining.
+The practical test case. A model trained on spectra from instrument A fails on instrument B — different detectors, optical paths, lamp aging all shift the spectral shape. Current approaches (PDS, SBC) require <span class="highlight-violet">25+ paired transfer samples</span>. The VIB architecture targets <span class="highlight-teal">≤10</span> by learning instrument-invariant representations during pretraining.
 
 The transfer objective aligns latent distributions across instruments using Sinkhorn-based optimal transport:
 
 $$\mathcal{L}_{\text{OT}} = W_\epsilon\!\left( q(z_{\text{chem}} | \mathcal{D}_A), \, q(z_{\text{chem}} | \mathcal{D}_B) \right)$$
 
-Combined with test-time training — running a few self-supervised gradient steps at inference on the new instrument — this enables adaptation without labeled target data.
+Combined with <span class="highlight">test-time training</span> — running a few self-supervised gradient steps at inference on the new instrument — this enables adaptation without labeled target data.
 
 <CodeComparison
   client:visible

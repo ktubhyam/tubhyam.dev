@@ -6,8 +6,6 @@ tags: ["spectroscopy", "group-theory", "information-theory", "research"]
 draft: false
 ---
 
-import SpectrumViz from '@components/islands/SpectrumViz';
-import MoleculeCard from '@components/islands/MoleculeCard';
 import TerminalBlock from '@components/islands/TerminalBlock';
 
 In 1966, Mark Kac posed a question that became one of the most cited in spectral theory: *"Can one hear the shape of a drum?"* He wanted to know whether a drum's resonant frequencies uniquely determine its geometry. Gordon, Webb, and Wolpert answered **no** in 1992 — they constructed non-isometric planar domains with identical Dirichlet spectra.
@@ -16,20 +14,13 @@ The molecular version of this question is more interesting, because it has a mor
 
 ## The Forward Problem
 
-Every molecule is a mechanical system. Its atoms are masses connected by bonds, and the bonds resist deformation. The vibrational frequencies are the eigenvalues of the Wilson GF secular equation:
+Every molecule is a mechanical system. Its atoms are masses connected by bonds, and the bonds resist deformation. The vibrational frequencies are the eigenvalues of the <span class="highlight">Wilson GF secular equation</span>:
 
 $$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
 
 **G** encodes the kinetic energy — atomic masses and their geometric arrangement. **F** encodes the potential energy — the Hessian of the Born-Oppenheimer surface evaluated at equilibrium. The eigenvalues give the squared normal mode frequencies. The eigenvectors determine what we can actually see.
 
-The observables are intensities, not eigenvectors directly. IR spectroscopy measures the squared derivative of the dipole moment along each normal coordinate. Raman spectroscopy measures the squared derivative of the polarizability tensor. A mode is visible to a technique only if the relevant derivative is nonzero.
-
-<SpectrumViz
-  client:visible
-  title="IR absorption spectrum"
-  xLabel="Wavenumber (cm⁻¹)"
-  yLabel="Absorbance"
-/>
+The observables are intensities, not eigenvectors directly. IR spectroscopy measures the <span class="highlight-teal">squared derivative of the dipole moment</span> along each normal coordinate. Raman spectroscopy measures the <span class="highlight-violet">squared derivative of the polarizability tensor</span>. A mode is visible to a technique only if the relevant derivative is nonzero.
 
 This forward map — from molecular structure to observed spectrum — is smooth, computable, and routinely evaluated by DFT codes. Going backwards is where things break.
 
@@ -73,13 +64,13 @@ This forward map — from molecular structure to observed spectrum — is smooth
 
 ## Why Symmetry Creates Blind Spots
 
-The selection rules for IR and Raman activity are determined entirely by the molecule's point group **G**. Each irreducible representation of G carries specific transformation properties under the symmetry operations, and these properties dictate observability:
+The selection rules for IR and Raman activity are determined entirely by the molecule's <span class="highlight">point group G</span>. Each irreducible representation of G carries specific transformation properties under the symmetry operations, and these properties dictate observability:
 
 - A mode is **IR-active** if its irreducible representation has the same symmetry as a translation — meaning it transforms as x, y, or z under the point group operations
 - A mode is **Raman-active** if it transforms as a quadratic form — xx, yy, zz, xy, xz, or yz
-- A mode matching neither is **silent**: invisible to both techniques, its information permanently inaccessible
+- A mode matching neither is <span class="highlight-violet">silent</span>: invisible to both techniques, its information permanently inaccessible
 
-The **Information Completeness Ratio** quantifies how much of the vibrational information survives:
+The <span class="highlight">Information Completeness Ratio</span> quantifies how much of the vibrational information survives:
 
 $$R(G, N) = \frac{N_{\text{IR}} + N_{\text{Raman}}}{3N - 6}$$
 
@@ -99,13 +90,11 @@ For centrosymmetric molecules (point group contains the inversion operation **i*
 
 </div>
 
-The proof of Theorem 2 is direct: inversion maps dipole derivatives to their negatives (so only ungerade modes have nonzero IR intensity) and maps polarizability derivatives to themselves (so only gerade modes have nonzero Raman intensity). The sets are disjoint by construction.
-
-<MoleculeCard client:visible label="Benzene — D₆h" formula="C₆H₆" />
+The proof of Theorem 2 is direct: inversion maps dipole derivatives to their negatives (so only ungerade modes have nonzero IR intensity) and maps polarizability derivatives to themselves (so only gerade modes have nonzero Raman intensity). The sets are <span class="highlight-teal">disjoint by construction</span>.
 
 ## The Numbers: QM9 Analysis
 
-The QM9 dataset — 130,831 small organic molecules with up to 9 heavy atoms — provides a comprehensive survey of symmetry in organic chemistry:
+The QM9 dataset — <span class="highlight">130,831 small organic molecules</span> with up to 9 heavy atoms — provides a comprehensive survey of symmetry in organic chemistry:
 
 <TerminalBlock
   client:visible
@@ -177,7 +166,7 @@ The combined IR + Raman forward map is generically injective on the quotient spa
 
 </div>
 
-The standard approach to proving generic injectivity would be to show that the Jacobian of the forward map has full rank almost everywhere, then invoke Sard's theorem. The problem: the forward map's smoothness breaks at eigenvalue degeneracies (where two normal modes have the same frequency), so Sard's theorem cannot be directly applied.
+The standard approach to proving generic injectivity would be to show that the Jacobian of the forward map has full rank almost everywhere, then invoke Sard's theorem. The problem: the forward map's <span class="highlight-violet">smoothness breaks at eigenvalue degeneracies</span> (where two normal modes have the same frequency), so Sard's theorem cannot be directly applied.
 
 What we can do is compute the Jacobian numerically. On 999 molecular geometries from QM9, the result is unambiguous:
 
@@ -224,7 +213,7 @@ What we can do is compute the Jacobian numerically. On 999 molecular geometries 
   ]}
 />
 
-**Full rank at every tested point, with a mean 4.2:1 overdetermination.** The system is not just barely solvable — it has substantial redundancy. This does not constitute a proof (999 points is a finite sample), but the margin makes accidental rank deficiency extremely unlikely.
+<span class="highlight-teal">Full rank at every tested point, with a mean 4.2:1 overdetermination.</span> The system is not just barely solvable — it has substantial redundancy. This does not constitute a proof (999 points is a finite sample), but the margin makes accidental rank deficiency extremely unlikely.
 
 ## Predictions for Machine Learning
 
@@ -244,7 +233,7 @@ IR + Raman fusion should outperform unimodal models, with the **largest accuracy
 
 </div>
 
-**Prediction 3** concerns learning efficiency. The 4.2:1 overdetermination ratio suggests that the learning problem is well-conditioned: the information-theoretic capacity of combined spectra substantially exceeds the dimensionality of the force constant space. Models should not need massive overparameterization to achieve near-optimal inversion.
+**Prediction 3** concerns learning efficiency. The <span class="highlight">4.2:1 overdetermination ratio</span> suggests that the learning problem is well-conditioned: the information-theoretic capacity of combined spectra substantially exceeds the dimensionality of the force constant space. Models should not need massive overparameterization to achieve near-optimal inversion.
 
 <TerminalBlock
   client:visible
@@ -283,6 +272,6 @@ The Fano inequality bounds the minimum error achievable by any estimator:
 
 $$P_e \geq 1 - \frac{I(X;\, Y_{\text{IR}}, Y_{\text{Raman}}) + 1}{\log |\mathcal{X}|}$$
 
-For molecules with R = 1 and generic identifiability, the mutual information saturates — the bound goes to zero. Perfect inversion is not just possible, it is the information-theoretic limit.
+For molecules with R = 1 and generic identifiability, the mutual information saturates — the bound goes to zero. <span class="highlight-teal">Perfect inversion is not just possible, it is the information-theoretic limit.</span>
 
 These predictions are being tested on QM9S (130K molecules with computed IR, Raman, and UV spectra at B3LYP/def2-TZVP). The model architecture is described in the [companion post on the spectral inverse problem](/blog/hello-world).

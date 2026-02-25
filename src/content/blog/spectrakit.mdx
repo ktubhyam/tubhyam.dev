@@ -11,7 +11,7 @@ import CodeComparison from '@components/islands/CodeComparison';
 
 Spectral preprocessing is the unglamorous part of spectroscopy. Before you can identify a compound, quantify a concentration, or train a model, you need to remove baselines, smooth noise, normalize intensities, and correct for scatter. Every spectroscopist does this. Most write their own scripts. The scripts are never reusable.
 
-SpectraKit exists because I got tired of rewriting the same preprocessing code for every project. It's a Python library — `pip install pyspectrakit` — that provides a functional API over NumPy arrays. No classes, no state, no framework lock-in. Every function takes arrays in and returns arrays out.
+SpectraKit exists because I got tired of rewriting the same preprocessing code for every project. It's a Python library — <span class="highlight">pip install pyspectrakit</span> — that provides a functional API over NumPy arrays. No classes, no state, no framework lock-in. Every function takes arrays in and returns arrays out.
 
 <TerminalBlock
   client:visible
@@ -33,11 +33,11 @@ SpectraKit exists because I got tired of rewriting the same preprocessing code f
 
 Most preprocessing libraries for spectroscopy are object-oriented. You create a `Spectrum` object, call methods on it, and the object mutates internal state. This design has two problems.
 
-First, it forces a data model. Your spectra live in whatever container the library invented — `Spectrum`, `SpectralCollection`, `Dataset`. You can't use plain NumPy arrays. You can't use pandas DataFrames without wrapping them. Integration with any other tool requires conversion.
+First, it <span class="highlight-violet">forces a data model</span>. Your spectra live in whatever container the library invented — `Spectrum`, `SpectralCollection`, `Dataset`. You can't use plain NumPy arrays. You can't use pandas DataFrames without wrapping them. Integration with any other tool requires conversion.
 
 Second, it makes composition opaque. When you chain `spectrum.baseline().smooth().normalize()`, you can't easily inspect intermediate results, swap one step for another, or build a pipeline that sklearn can use. The method chain is convenient but rigid.
 
-SpectraKit takes the opposite approach. Every function signature looks like this:
+SpectraKit takes the opposite approach. Every function signature follows the same pattern: <span class="highlight-teal">ndarray in, ndarray out</span>.
 
 <TerminalBlock
   client:visible
@@ -84,7 +84,7 @@ SpectraKit takes the opposite approach. Every function signature looks like this
   ]}
 />
 
-Arrays in, arrays out. You can inspect `corrected` before passing it to `smooth_savgol`. You can swap `baseline_als` for `baseline_snip` without changing anything else. You can use these functions inside a for loop, a multiprocessing pool, or a PyTorch data loader.
+You can inspect `corrected` before passing it to `smooth_savgol`. You can swap `baseline_als` for `baseline_snip` without changing anything else. You can use these functions inside a for loop, a multiprocessing pool, or a PyTorch data loader.
 
 <CodeComparison
   client:visible
@@ -110,7 +110,7 @@ Arrays in, arrays out. You can inspect `corrected` before passing it to `smooth_
 
 ## What It Covers
 
-The library handles the preprocessing pipeline that every spectroscopist needs:
+The library handles the full preprocessing pipeline that every spectroscopist needs:
 
 <TerminalBlock
   client:visible
@@ -172,11 +172,11 @@ The library handles the preprocessing pipeline that every spectroscopist needs:
   ]}
 />
 
-Every baseline correction method returns convergence diagnostics — not just the corrected spectrum, but also the number of iterations and the final residual. You don't have to trust that ALS converged. You can check.
+Every baseline correction method returns <span class="highlight">convergence diagnostics</span> — not just the corrected spectrum, but also the number of iterations and the final residual. You don't have to trust that ALS converged. You can check.
 
 ## The Dependency Decision
 
-SpectraKit has two core dependencies: numpy and scipy. That's it. Everything else — matplotlib for plotting, h5py for HDF5 I/O, scikit-learn for pipeline integration — is optional. You install what you need.
+SpectraKit has <span class="highlight-teal">two core dependencies</span>: numpy and scipy. That's it. Everything else — matplotlib for plotting, h5py for HDF5 I/O, scikit-learn for pipeline integration — is optional. You install what you need.
 
 This was a deliberate constraint. Spectroscopy code runs in environments ranging from Jupyter notebooks to embedded systems to production pipelines. A library that drags in tensorflow or torch as a dependency is unusable in half these contexts. NumPy and SciPy are the common denominator.
 
@@ -214,7 +214,7 @@ This was a deliberate constraint. Spectroscopy code runs in environments ranging
 
 Spectral file formats are a mess. JCAMP-DX has six variants. SPC files encode data differently depending on whether the vendor is Thermo, PerkinElmer, or Shimadzu. Bruker OPUS is a binary format with no official spec — you need to reverse-engineer the byte layout.
 
-SpectraKit's I/O module handles all of these with a single consistent interface. `read_jcamp`, `read_spc`, `read_opus` — each returns a named tuple with `wavenumbers`, `intensities`, and `metadata`. The format detection is automatic: pass a file path and the library figures out the rest.
+SpectraKit's I/O module handles all of these with a <span class="highlight">single consistent interface</span>. `read_jcamp`, `read_spc`, `read_opus` — each returns a named tuple with `wavenumbers`, `intensities`, and `metadata`. The format detection is automatic: pass a file path and the library figures out the rest.
 
 <TerminalBlock
   client:visible
@@ -255,14 +255,10 @@ SpectraKit's I/O module handles all of these with a single consistent interface.
       { text: "a.intensities.shape", color: "white" },
     ] },
     { spans: [{ text: "(1868,)", color: "green" }] },
-    { prompt: ">>> ", spans: [
-      { text: "a.metadata[\"title\"]", color: "white" },
-    ] },
-    { spans: [{ text: "'ETHANOL'", color: "green" }] },
   ]}
 />
 
-The Bruker OPUS parser deserves special mention. Most Python libraries that claim OPUS support wrap the Bruker SDK or shell out to a command-line converter. SpectraKit reads the binary format directly — no external dependencies, no SDK license, no subprocess calls. It handles single-channel, interferogram, and ratioed spectra from any Bruker instrument manufactured after 2000.
+The Bruker OPUS parser deserves special mention. Most Python libraries that claim OPUS support wrap the Bruker SDK or shell out to a command-line converter. SpectraKit <span class="highlight-teal">reads the binary format directly</span> — no external dependencies, no SDK license, no subprocess calls. It handles single-channel, interferogram, and ratioed spectra from any Bruker instrument manufactured after 2000.
 
 ## Pipelines and sklearn
 
@@ -307,16 +303,7 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
       { text: "... ])", color: "white" },
     ] },
     { spans: [{ text: "" }] },
-    { spans: [{ text: "# Use standalone", color: "muted" }] },
-    { prompt: ">>> ", spans: [
-      { text: "clean ", color: "white" },
-      { text: "= ", color: "red" },
-      { text: "pipe", color: "amber" },
-      { text: "(raw_spectra)  ", color: "white" },
-      { text: "# (n_samples, n_channels)", color: "muted" },
-    ] },
-    { spans: [{ text: "" }] },
-    { spans: [{ text: "# Or drop into sklearn", color: "muted" }] },
+    { spans: [{ text: "# Drop into sklearn", color: "muted" }] },
     { prompt: ">>> ", spans: [
       { text: "from ", color: "purple" },
       { text: "sklearn.pipeline ", color: "white" },
@@ -338,11 +325,11 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
   ]}
 />
 
-`SpectralTransformer` wraps any SpectraKit pipeline into a sklearn-compatible transformer. It implements `fit`, `transform`, and `fit_transform`. This means you can use SpectraKit preprocessing inside `GridSearchCV`, `cross_val_score`, or any sklearn meta-estimator without writing adapter code.
+<span class="highlight">SpectralTransformer</span> wraps any SpectraKit pipeline into a sklearn-compatible transformer. It implements `fit`, `transform`, and `fit_transform`. This means you can use SpectraKit preprocessing inside `GridSearchCV`, `cross_val_score`, or any sklearn meta-estimator without writing adapter code.
 
 ## Testing
 
-619 tests. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
+<span class="highlight-teal">619 tests</span>. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
 
 - **Correctness** — Output matches reference implementations (SciPy, MATLAB, published papers)
 - **Shape preservation** — 1D input produces 1D output, 2D batch input produces 2D output

@@ -300,6 +300,17 @@
   --tw-prose-pre-code: var(--color-text-secondary);
   --tw-prose-quotes: var(--color-text-muted);
   --tw-prose-bold: var(--color-text-primary);
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  text-align: left;
+}
+
+.prose ul, .prose ol {
+  text-align: left;
 }
 
 .prose a {
@@ -326,19 +337,46 @@
 
 /* --- KaTeX Math Overrides --- */
 .prose .katex-display {
-  margin: 1.5em 0;
+  margin: 2em 0;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 1em 0;
+  padding: 1.25em 0;
+  text-align: center;
 }
 
 .prose .katex-display > .katex {
   color: var(--color-text-primary);
+  font-size: 1.35em;
 }
 
 .prose .katex {
   color: var(--color-text-primary);
-  font-size: 1.05em;
+  font-size: 1.15em;
+}
+
+/* --- Text Highlights --- */
+.highlight {
+  background: linear-gradient(120deg, rgba(201, 160, 74, 0.15) 0%, rgba(201, 160, 74, 0.08) 100%);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid rgba(201, 160, 74, 0.3);
+}
+
+.highlight-teal {
+  background: linear-gradient(120deg, rgba(78, 205, 196, 0.15) 0%, rgba(78, 205, 196, 0.08) 100%);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-teal);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.highlight-violet {
+  background: linear-gradient(120deg, rgba(167, 139, 250, 0.15) 0%, rgba(167, 139, 250, 0.08) 100%);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-violet);
+  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
 }
 
 /* --- Callout Boxes --- */
