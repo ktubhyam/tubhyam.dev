@@ -28,7 +28,13 @@ export default defineConfig({
         // Prioritize main content pages
         if (item.url === "https://tubhyam.dev/") {
           item.priority = 1.0;
-        } else if (item.url.includes("/blog/") || item.url.includes("/projects/") || item.url.includes("/research/")) {
+        } else if (
+          item.url.includes("/blog/") ||
+          item.url.includes("/projects/") ||
+          item.url.includes("/research/") ||
+          item.url.includes("/simulations/") ||
+          item.url.includes("/libraries/")
+        ) {
           item.priority = 0.8;
         } else if (item.url.includes("/tags/")) {
           item.priority = 0.3;
