@@ -1,0 +1,37 @@
+---
+title: "SpectraView Demo"
+date: 2026-02-26
+description: "Interactive IR spectrum viewer with peak detection, region highlighting, zoom/pan, and multi-spectrum overlay."
+tags: ["spectroscopy", "visualization", "react", "spectrakit"]
+difficulty: "beginner"
+physics: ["infrared spectroscopy", "functional groups", "Beer-Lambert law", "peak detection"]
+component: "SpectraviewDemo"
+---
+
+import SpectraviewDemo from "@components/islands/SpectraviewDemo.tsx";
+
+Explore vibrational spectra interactively with SpectraView — a Canvas+SVG hybrid renderer built for scientific visualization.
+
+<SpectraviewDemo client:idle />
+
+## What You Can Do
+
+- **Toggle sample spectra** — Load ethanol, acetone, or isopropanol IR spectra. Overlay multiple spectra for comparison.
+- **Peak detection** — Enable automatic peak picking with adjustable prominence threshold.
+- **Region highlights** — Visualize common functional group regions (C=O, C-H, O-H stretches).
+- **Zoom and pan** — Mouse wheel to zoom, click-drag to pan, toolbar buttons for quick actions.
+- **Theme switching** — Toggle between light and dark modes.
+
+## Under the Hood
+
+SpectraView renders spectral data using a dual-layer architecture:
+
+- **Canvas 2D** for the spectral traces — handles 10,000+ data points at 60fps with min-max path decimation
+- **SVG overlay** for axes, grid, crosshair, peak markers, and region highlights — interactive elements that benefit from DOM events
+
+The reversed x-axis follows the IR spectroscopy convention (4000 → 400 cm⁻¹), and the zoom behavior preserves the scientific context of the data.
+
+## Built With
+
+- [spectraview](https://github.com/ktubhyam/spectraview) — React component library for spectral visualization
+- [spectrakit](https://github.com/ktubhyam/spectrakit) — Python spectral data processing toolkit
