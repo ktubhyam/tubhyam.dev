@@ -8,6 +8,7 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import CSTRSimulator from '@components/islands/CSTRSimulator';
 
 A chemical reactor is a dynamical system. Raw materials flow in, chemical reactions transform them, and products flow out. The state of the reactor — temperatures, concentrations, pressures — evolves continuously in time according to coupled differential equations. If you know the rate laws, the heat transfer coefficients, and the flow patterns, you can write down these equations and solve them numerically.
 
@@ -170,6 +171,10 @@ The neural network $r_\theta$ learns the effective reaction rate — absorbing c
     { text: "# Mass/energy conservation built in", type: "comment" },
   ]}
 />
+
+Explore the CSTR dynamics yourself — adjust the coolant temperature, dilution rate, and activation energy to see how operating conditions affect the phase portrait. Toggle "neural ODE" to see how the learned correction shifts the trajectory:
+
+<CSTRSimulator client:visible />
 
 <div class="callout callout-result">
   <div class="callout-label">Key Design Principle</div>

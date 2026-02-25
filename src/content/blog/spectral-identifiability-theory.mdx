@@ -7,6 +7,7 @@ draft: false
 ---
 
 import TerminalBlock from '@components/islands/TerminalBlock';
+import SymmetryExplorer from '@components/islands/SymmetryExplorer';
 
 In 1966, Mark Kac posed a question that became one of the most cited in spectral theory: *"Can one hear the shape of a drum?"* He wanted to know whether a drum's resonant frequencies uniquely determine its geometry. Gordon, Webb, and Wolpert answered **no** in 1992 — they constructed non-isometric planar domains with identical Dirichlet spectra.
 
@@ -152,6 +153,10 @@ The QM9 dataset — <span class="highlight">130,831 small organic molecules</spa
     ] },
   ]}
 />
+
+Explore different molecules to see how symmetry determines spectral observability — pick a molecule and see which modes are IR-active, Raman-active, or silent:
+
+<SymmetryExplorer client:visible />
 
 The distribution is heavily skewed. Most organic molecules have low symmetry (C₁ or Cs) — all modes are observable and R = 1. The high-symmetry cases (Td, Oh, D₆h) are rare in organic chemistry but common among important inorganic structures: methane, cubane, SF₆, buckminsterfullerene.
 

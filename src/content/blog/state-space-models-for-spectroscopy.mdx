@@ -8,6 +8,7 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import ReceptiveFieldDemo from '@components/islands/ReceptiveFieldDemo';
 
 A vibrational spectrum is conventionally treated as a fixed-length vector — 3501 intensity values spanning 500 to 4000 cm⁻¹. You feed it into a 1D CNN, extract features, and classify. This works. It also misses something fundamental.
 
@@ -59,6 +60,10 @@ A 1D CNN with kernel size $k$ and $L$ layers has an effective receptive field of
     ] },
   ]}
 />
+
+Try it yourself — toggle between CNN and SSM, adjust kernel size and layers, and see which spectral correlations fall inside the receptive field:
+
+<ReceptiveFieldDemo client:visible />
 
 You can increase the CNN receptive field with dilated convolutions or deeper networks, but both have costs. Dilated convolutions create "gridding artifacts" — they sample the input at regular intervals and miss features between the dilation gaps. Deeper networks require more parameters and are harder to train.
 
