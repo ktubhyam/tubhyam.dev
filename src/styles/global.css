@@ -324,6 +324,76 @@
   font-size: 0.9em;
 }
 
+/* --- KaTeX Math Overrides --- */
+.prose .katex-display {
+  margin: 1.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1em 0;
+}
+
+.prose .katex-display > .katex {
+  color: var(--color-text-primary);
+}
+
+.prose .katex {
+  color: var(--color-text-primary);
+  font-size: 1.05em;
+}
+
+/* --- Callout Boxes --- */
+.callout {
+  border-left: 3px solid;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 0 8px 8px 0;
+}
+
+.callout p:first-child {
+  margin-top: 0;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.callout-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.callout-theorem {
+  border-color: var(--color-accent);
+  background: rgba(201, 160, 74, 0.04);
+}
+
+.callout-theorem .callout-label {
+  color: var(--color-accent);
+}
+
+.callout-conjecture {
+  border-color: var(--color-violet);
+  background: rgba(167, 139, 250, 0.04);
+}
+
+.callout-conjecture .callout-label {
+  color: var(--color-violet);
+}
+
+.callout-result {
+  border-color: var(--color-teal);
+  background: rgba(78, 205, 196, 0.04);
+}
+
+.callout-result .callout-label {
+  color: var(--color-teal);
+}
+
 /* --- Form Input Focus Glow --- */
 input:focus,
 textarea:focus,

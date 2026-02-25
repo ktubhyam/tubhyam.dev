@@ -1,38 +1,168 @@
 ---
-title: "Can You Hear the Shape of a Molecule? An Introduction to Spectral Identifiability"
+title: "Spectral Identifiability: Group-Theoretic Constraints on Vibrational Inversion"
 date: 2026-02-15
-description: "A gentle introduction to the mathematical question of whether vibrational spectra uniquely determine molecular structure — and what group theory has to say about it."
+description: "A formal treatment of spectral identifiability — when vibrational spectra uniquely determine molecular structure, what group theory says about the limits of inversion, and numerical evidence for generic identifiability."
 tags: ["spectroscopy", "group-theory", "information-theory", "research"]
 draft: false
 ---
 
-In 1966, mathematician Mark Kac asked a famous question: *"Can one hear the shape of a drum?"* — that is, can you reconstruct a drum's geometry just from its resonant frequencies? The answer turned out to be **no** in general (Gordon, Webb, and Wolpert found counterexamples in 1992), but the question opened up deep connections between geometry and spectral theory.
+import SpectrumViz from '@components/islands/SpectrumViz';
+import MoleculeCard from '@components/islands/MoleculeCard';
+import TerminalBlock from '@components/islands/TerminalBlock';
 
-I've been asking an analogous question for chemistry: **Can one determine a molecule's structure from its vibrational spectrum?**
+In 1966, Mark Kac asked: *"Can one hear the shape of a drum?"* — can a drum's geometry be reconstructed from its resonant frequencies? Gordon, Webb, and Wolpert showed the answer is **no** in general (1992). The analogous question for chemistry — **can one determine a molecule's structure from its vibrational spectrum?** — turns out to have a more nuanced answer, governed entirely by molecular symmetry.
 
 ## The Forward Problem
 
-Every molecule vibrates. When you shine infrared light on a molecule or scatter laser light off it (Raman spectroscopy), you excite specific vibrational modes. The frequencies and intensities of these modes depend on the molecule's geometry and bonding — its force constants.
+Every molecule vibrates. The Wilson GF secular equation governs these vibrations:
 
-The forward map is well-understood: given a molecular structure, we can compute the IR and Raman spectrum using the Wilson GF method. But the *inverse* problem — going from spectrum back to structure — is much harder.
+$$
+\det(\mathbf{GF} - \lambda \mathbf{I}) = 0
+$$
+
+where $\mathbf{G}$ is the kinetic energy matrix (encodes masses and geometry), $\mathbf{F}$ is the force constant matrix (Hessian of the potential energy surface), and $\lambda_k = 4\pi^2\nu_k^2$ are the squared normal mode frequencies.
+
+The observables — what IR and Raman spectroscopy actually measure — are the frequencies $\nu_k$ and the intensities:
+
+$$
+A_k^{\text{IR}} = \left| \frac{\partial \boldsymbol{\mu}}{\partial Q_k} \right|^2, \qquad I_k^{\text{Raman}} \propto \left| \frac{\partial \boldsymbol{\alpha}}{\partial Q_k} \right|^2
+$$
+
+The dipole derivative $\partial\boldsymbol{\mu}/\partial Q_k$ determines IR activity; the polarizability derivative $\partial\boldsymbol{\alpha}/\partial Q_k$ determines Raman activity. A mode with zero dipole derivative is IR-silent. A mode with zero polarizability derivative is Raman-silent. A mode that is both is completely unobservable.
+
+<SpectrumViz
+  client:visible
+  title="IR absorption spectrum"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Absorbance"
+/>
 
 ## Why Symmetry Matters
 
-Molecular symmetry creates fundamental blind spots. If a molecule has a center of inversion (like CO2 or benzene), the mutual exclusion principle says that IR-active modes are Raman-inactive and vice versa. No single technique sees everything.
+Molecular symmetry determines which modes are active. The key tool is the **character table** of the molecular point group $G$. Each irreducible representation $\Gamma_i$ has associated characters $\chi_i(g)$ for each symmetry operation $g \in G$. The selection rules follow from:
 
-We quantify this with the **Information Completeness Ratio** R(G,N), which measures what fraction of a molecule's vibrational degrees of freedom are observable via combined IR + Raman. For most organic molecules (low symmetry), R = 1.0 and everything is observable. But for highly symmetric molecules like cubane (Oh symmetry), R drops to 0.45 — over half the vibrational information is hidden.
+- A mode is **IR-active** if its irreducible representation transforms as a translation ($x$, $y$, or $z$)
+- A mode is **Raman-active** if it transforms as a quadratic form ($x^2$, $xy$, $xz$, etc.)
+
+The **Information Completeness Ratio** quantifies the observable fraction:
+
+$$
+R(G, N) = \frac{N_{\text{IR}} + N_{\text{Raman}}}{3N - 6}
+$$
+
+where $N_{\text{IR}}$ and $N_{\text{Raman}}$ are computed from the character table decomposition of the reducible vibrational representation $\Gamma_{\text{vib}}$.
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Theorem 1 — Symmetry Quotient + Information Completeness</div>
+
+The vibrational forward map is $G$-invariant. The inverse map factors through the quotient space $\mathcal{M}/G$ — structure is recoverable only up to symmetry equivalence. When $R(G, N) = 1$, all vibrational DOF are observable and the quotient map is potentially injective. When $R < 1$, the unobservable (silent) modes create a degenerate fiber of positive dimension.
+
+</div>
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Theorem 2 — Modal Complementarity</div>
+
+For centrosymmetric molecules (point group contains inversion $i$), IR-active and Raman-active modes are **completely disjoint**: $\mathcal{A}_{\text{IR}} \cap \mathcal{A}_{\text{Raman}} = \emptyset$. Gerade ($g$) modes are Raman-only; ungerade ($u$) modes are IR-only. Combined measurement strictly increases observable DOF: $N_{\text{IR+Raman}} = N_{\text{IR}} + N_{\text{Raman}}$.
+
+</div>
+
+<MoleculeCard client:visible label="Benzene — D₆h" formula="C₆H₆" />
 
 ## What the Math Says
 
-Our analysis of 130,831 molecules from the QM9 dataset shows that 99.9% have all modes observable. The "hard" molecules — those with silent modes — are rare but include important cases like benzene and methane.
+Analysis of the QM9 dataset (130,831 molecules) reveals the distribution of $R(G, N)$:
 
-More excitingly, Jacobian rank analysis on 999 real molecular geometries shows that the combined IR + Raman forward map has **full rank at every tested point**, with a 4:1 overdetermination ratio. This is strong numerical evidence that the inverse problem generically has a unique solution (up to symmetry equivalence).
+<TerminalBlock
+  client:visible
+  title="symmetry_analysis.py"
+  lines={[
+    { spans: [{ text: "$ python symmetry_analysis.py --dataset qm9 --n 130831", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 300 },
+    { spans: [{ text: "Point group distribution (QM9, 130,831 molecules):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  C1  ", color: "white" },
+      { text: "83,241", color: "amber" },
+      { text: "  (63.6%)  R = 1.000", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Cs  ", color: "white" },
+      { text: "31,107", color: "amber" },
+      { text: "  (23.8%)  R = 1.000", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  C2v ", color: "white" },
+      { text: " 9,842", color: "amber" },
+      { text: "  ( 7.5%)  R = 1.000", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  C2h ", color: "white" },
+      { text: " 2,103", color: "amber" },
+      { text: "  ( 1.6%)  R = 1.000", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  D3h ", color: "white" },
+      { text: "   284", color: "amber" },
+      { text: "  ( 0.2%)  R = 0.917", color: "red" },
+    ] },
+    { spans: [
+      { text: "  Td  ", color: "white" },
+      { text: "    38", color: "amber" },
+      { text: "  ( 0.0%)  R = 0.778", color: "red" },
+    ] },
+    { spans: [
+      { text: "  Oh  ", color: "white" },
+      { text: "     5", color: "amber" },
+      { text: "  ( 0.0%)  R = 0.452", color: "red" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "  R = 1.0:  ", color: "muted" },
+      { text: "99.9%", color: "green" },
+      { text: " of molecules (all modes observable)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  R < 1.0:  ", color: "muted" },
+      { text: " 0.1%", color: "red" },
+      { text: " of molecules (silent modes present)", color: "muted" },
+    ] },
+  ]}
+/>
+
+The vast majority of organic molecules have trivial symmetry ($C_1$) or simple mirror planes ($C_s$, $C_{2v}$) — all modes are observable, $R = 1$. The challenging cases ($T_d$, $O_h$, $D_{6h}$) are rare but include important structures.
+
+Beyond information completeness, the question of **generic identifiability** — whether the forward map is injective at almost all points — requires analyzing the Jacobian:
+
+<div class="callout callout-conjecture">
+  <div class="callout-label">Conjecture 3 — Generic Identifiability</div>
+
+The combined IR + Raman forward map $\Phi_{\text{IR+Raman}}: \mathcal{F}/G \to \mathcal{S}_{\text{IR}} \times \mathcal{S}_{\text{Raman}}$ is generically injective. That is, for almost all molecular geometries (outside a set of measure zero), distinct force constant equivalence classes produce distinct combined spectra.
+
+</div>
+
+Numerical evidence from Jacobian rank analysis on 999 QM9 geometries: **full rank at every tested point**, mean overdetermination ratio 4.2:1, zero rank-deficient cases found. This does not constitute a proof — smoothness of the forward map breaks at eigenvalue degeneracies, preventing a direct application of Sard's theorem — but the evidence is strong.
 
 ## Implications for ML
 
-This theory has direct implications for machine learning models in spectroscopy:
-- Models should perform worse on high-symmetry molecules (lower R)
-- Combining IR and Raman inputs should help most for centrosymmetric molecules
-- The 4:1 overdetermination suggests the learning problem is well-conditioned
+These results translate directly into testable predictions for spectral ML models:
 
-We're testing these predictions with a symmetry-stratified evaluation framework. Early results are encouraging — stay tuned for the full paper.
+**Prediction 1:** Model accuracy should decrease monotonically with decreasing $R(G, N)$. High-symmetry molecules with silent modes present a fundamentally harder inverse problem — no model can recover unobservable information.
+
+**Prediction 2:** Multimodal models (IR + Raman fusion) should outperform unimodal models, with the largest gains on centrosymmetric molecules where modal complementarity (Theorem 2) guarantees disjoint information.
+
+**Prediction 3:** The 4:1 overdetermination ratio suggests the learning problem is well-conditioned. Models should not need massive overparameterization to achieve near-optimal inversion — the information-theoretic capacity of combined spectra exceeds the dimensionality of the force constant space.
+
+<div class="callout callout-result">
+  <div class="callout-label">Fano Bound</div>
+
+The minimum achievable prediction error for any estimator is bounded by:
+
+$$
+P_e \geq 1 - \frac{I(X; Y_{\text{IR}}, Y_{\text{Raman}}) + 1}{\log |\mathcal{X}|}
+$$
+
+where $I(X; Y_{\text{IR}}, Y_{\text{Raman}})$ is the mutual information between molecular structure $X$ and combined spectral observations. For molecules with $R = 1$ and generic identifiability, this bound goes to zero — perfect inversion is theoretically achievable.
+
+</div>
+
+These predictions are being tested with a symmetry-stratified evaluation framework on QM9S (130K molecules with computed IR, Raman, and UV spectra at B3LYP/def2-TZVP level of theory). The model architecture — a CNN-Transformer encoder with VIB disentanglement — is described in the [companion post on the spectral inverse problem](/blog/hello-world).

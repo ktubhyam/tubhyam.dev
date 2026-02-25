@@ -89,6 +89,9 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   inject();
 </script>
 
+<!-- KaTeX Math Rendering -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" integrity="sha384-zh0CIslj3dQfHSLfRi4hXEIjEOvMRLmEFqzJMKQ1OMvHMPtmDQ6WCvhvtN7xCJ0" crossorigin="anonymous" />
+
 <!-- Fonts: self-hosted WOFF2 (preloaded for zero render-blocking) -->
 <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
