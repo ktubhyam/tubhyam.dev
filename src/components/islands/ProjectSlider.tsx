@@ -36,6 +36,7 @@ interface Project {
   icon: string;
   href: string;
   github?: string;
+  pypi?: string;
   status: string;
 }
 
@@ -53,6 +54,7 @@ const DEFAULT_PROJECTS: Project[] = [
     icon: "M16 18l6-6-6-6M8 6l-6 6 6 6",
     href: "/projects/spectrakit",
     github: "https://github.com/ktubhyam/spectrakit",
+    pypi: "https://pypi.org/project/pyspectrakit/",
     status: "Published — pip install pyspectrakit",
   },
   {
@@ -281,6 +283,19 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
                         className="text-[#555] hover:text-[#888] transition-colors duration-200 hover:underline"
                       >
                         GitHub ↗
+                      </a>
+                    </>
+                  )}
+                  {project.pypi && (
+                    <>
+                      <span className="text-[#333]">  ·  </span>
+                      <a
+                        href={project.pypi}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#555] hover:text-[#888] transition-colors duration-200 hover:underline"
+                      >
+                        PyPI ↗
                       </a>
                     </>
                   )}
