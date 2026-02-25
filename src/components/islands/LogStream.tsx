@@ -112,7 +112,7 @@ export default function LogStream({
         {/* Header */}
         {visibleLines > 0 && (
           <div className="text-text-muted/70 mb-1">
-            <span className="text-[#C9A04A]">SpectralFM</span> v0.3.1 — 4x RTX 5090 — mixed precision
+            <span className="text-[#C9A04A]">Spekron</span> v0.3.1 — 4x RTX 5090 — mixed precision
           </div>
         )}
 
