@@ -39,7 +39,17 @@ import DecryptedText from "@components/islands/DecryptedText";
 import GradientText from "@components/islands/GradientText";
 import StarBorder from "@components/ui/StarBorder.astro";
 import ProjectSlider from "@components/islands/ProjectSlider";
+import BlogTerminal from "@components/islands/BlogTerminal";
 import OrbitalDiagram from "@components/islands/OrbitalDiagram";
+
+// Serialize posts for the BlogTerminal React island
+const blogPosts = posts.map((post) => ({
+  id: post.id,
+  title: post.data.title,
+  date: post.data.date.toISOString().slice(0, 10),
+  description: post.data.description,
+  tags: post.data.tags,
+}));
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -321,92 +331,8 @@ import OrbitalDiagram from "@components/islands/OrbitalDiagram";
     <!-- Project slider -->
     <ProjectSlider client:visible />
 
-    <!-- Blog — terminal style -->
-    <div class="mt-8 rounded-xl border border-border overflow-hidden bg-bg-secondary">
-      <!-- Title bar -->
-      <div class="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
-        <div class="flex items-center gap-1.5">
-          <div class="w-[10px] h-[10px] rounded-full bg-[#FF5F57]"></div>
-          <div class="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]"></div>
-          <div class="w-[10px] h-[10px] rounded-full bg-[#28C840]"></div>
-        </div>
-        <span class="ml-2 text-[10px] font-mono text-text-muted/60 select-none">blog</span>
-        <a href="/blog" class="ml-auto text-[10px] font-mono text-text-muted/40 hover:text-text-muted transition-colors">
-          all posts &rarr;
-        </a>
-      </div>
-
-      <!-- Terminal content -->
-      <div class="p-4 font-mono text-xs md:text-sm leading-relaxed">
-        <!-- Header line -->
-        <div class="flex">
-          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
-          <span>
-            <span class="text-[#555]">$ </span>
-            <span class="text-[#34D399]">ls</span>
-            <span class="text-[#e0e0e0]"> -la posts/</span>
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
-        </div>
-
-        <!-- Post entries -->
-        {posts.map((post, i) => {
-          const colors = ["#A78BFA", "#C9A04A", "#4ECDC4"];
-          const color = colors[i % colors.length];
-          const lineNum = i * 3 + 3;
-          const dateStr = post.data.date.toISOString().slice(0, 10);
-          return (
-            <a href={`/blog/${post.id}`} class="block group/entry hover:bg-white/[0.02] -mx-4 px-4 rounded transition-colors">
-              <div class="flex">
-                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum}</span>
-                <span class="flex-1">
-                  <span class="text-[#555]">{dateStr}  </span>
-                  <span style={`color: ${color}`} class="group-hover/entry:underline">{post.data.title}</span>
-                </span>
-              </div>
-              <div class="flex">
-                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum + 1}</span>
-                <span class="flex-1">
-                  <span class="text-[#555]">           </span>
-                  <span class="text-[#666]">{post.data.description.length > 100 ? post.data.description.slice(0, 100) + "..." : post.data.description}</span>
-                </span>
-              </div>
-              <div class="flex">
-                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum + 2}</span>
-                <span class="flex-1">
-                  <span class="text-[#555]">           </span>
-                  {post.data.tags.map((tag, j) => (
-                    <span>
-                      <span style={`color: ${color}`} class="opacity-60">{tag}</span>
-                      {j < post.data.tags.length - 1 && <span class="text-[#333]"> · </span>}
-                    </span>
-                  ))}
-                </span>
-              </div>
-            </a>
-          );
-        })}
-
-        <!-- Footer -->
-        <div class="flex mt-1">
-          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{posts.length * 3 + 3}</span>
-          <span>
-            <span class="text-[#555]">$ </span>
-            <span class="text-[#555]">{posts.length} posts</span>
-            <span class="text-[#333]"> · </span>
-            <span class="text-[#555]">click to read</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- Scanline overlay -->
-      <div
-        class="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px); background-size: 100% 4px;"
-      ></div>
-    </div>
+    <!-- Blog — animated terminal style -->
+    <BlogTerminal client:visible posts={blogPosts} className="mt-8" />
 
     <!-- Build visuals: File Tree + Training Log + Code Diff -->
     <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
