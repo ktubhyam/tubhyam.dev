@@ -5,20 +5,23 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header class="nav-header" id="main-nav">
-  <nav class="nav-morph" id="nav-inner">
-    <!-- Cursor spotlight overlay -->
-    <div class="nav-spotlight" aria-hidden="true"></div>
-    <!-- Glass inner shine -->
-    <div class="nav-shine" aria-hidden="true"></div>
+  <nav class="nav-terminal" id="nav-inner">
+    <!-- Window controls -->
+    <div class="nav-dots" aria-hidden="true">
+      <span class="dot dot-red"></span>
+      <span class="dot dot-yellow"></span>
+      <span class="dot dot-green"></span>
+    </div>
 
-    <!-- Logo -->
-    <a href="/" class="nav-logo" aria-label="Home">
-      <span class="nav-logo-text">TK</span>
-      <span class="nav-logo-dot"></span>
+    <!-- Prompt -->
+    <a href="/" class="nav-prompt" aria-label="Home">
+      <span class="nav-prompt-symbol">~</span>
+      <span class="nav-prompt-path">tubhyam</span>
+      <span class="nav-cursor"></span>
     </a>
 
     <!-- Divider -->
-    <div class="nav-divider"></div>
+    <div class="nav-pipe" aria-hidden="true">|</div>
 
     <!-- Nav links -->
     <div class="nav-links" id="nav-links">
@@ -31,8 +34,7 @@ const currentPath = Astro.url.pathname;
               currentPath.startsWith(link.href) && "nav-link-active",
             ]}
           >
-            <span class="nav-link-text">{link.label}</span>
-            <span class="nav-link-line" />
+            {link.label.toLowerCase()}
           </a>
         ))
       }
@@ -40,7 +42,7 @@ const currentPath = Astro.url.pathname;
 
     <!-- Mobile menu trigger -->
     <button class="nav-mobile-trigger md:hidden" id="mobile-menu-trigger" aria-label="Toggle menu">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M3 12h18M3 6h18M3 18h18" />
       </svg>
     </button>
@@ -49,20 +51,25 @@ const currentPath = Astro.url.pathname;
   <!-- Mobile menu -->
   <div class="md:hidden fixed inset-0 z-40 hidden" id="mobile-menu" aria-hidden="true">
     <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" id="mobile-menu-backdrop"></div>
-    <div class="absolute right-4 top-20 w-52 card p-4">
-      <div class="flex flex-col gap-1">
+    <div class="mobile-dropdown">
+      <div class="mobile-dropdown-header">
+        <span class="dot dot-red" style="width:6px;height:6px;"></span>
+        <span class="dot dot-yellow" style="width:6px;height:6px;"></span>
+        <span class="dot dot-green" style="width:6px;height:6px;"></span>
+        <span class="mobile-dropdown-title">navigation</span>
+      </div>
+      <div class="mobile-dropdown-links">
         {
           NAV_LINKS.map((link) => (
             <a
               href={link.href}
               class:list={[
-                "text-sm px-3 py-2 rounded-lg transition-colors duration-200",
-                currentPath.startsWith(link.href)
-                  ? "text-accent bg-accent/5"
-                  : "text-text-muted hover:text-text-secondary hover:bg-white/[0.03]",
+                "mobile-link",
+                currentPath.startsWith(link.href) && "mobile-link-active",
               ]}
             >
-              {link.label}
+              <span class="mobile-link-arrow">{currentPath.startsWith(link.href) ? "▸" : " "}</span>
+              {link.label.toLowerCase()}
             </a>
           ))
         }
@@ -72,221 +79,182 @@ const currentPath = Astro.url.pathname;
 </header>
 
 <style>
-  /* ─── Animated gradient border angle ─── */
-  @property --border-angle {
-    syntax: "<angle>";
-    inherits: false;
-    initial-value: 0turn;
-  }
-
-  /* ─── Header entry + positioning ─── */
+  /* ─── Header positioning ─── */
   .nav-header {
     position: fixed;
     z-index: 50;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     top: 0;
     left: 0;
     right: 0;
     display: flex;
     justify-content: center;
-    animation: nav-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    animation: nav-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
   }
 
   @keyframes nav-enter {
-    from { opacity: 0; transform: translateY(-20px) scale(0.95); filter: blur(6px); }
-    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  /* When collapsed to top-right corner */
   .nav-header.collapsed {
     justify-content: flex-end;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
   }
 
-  /* ─── Nav pill with animated gradient border ─── */
-  .nav-morph {
-    position: relative;
+  /* ─── Terminal bar ─── */
+  .nav-terminal {
     display: flex;
     align-items: center;
-    border-radius: 9999px;
-    padding: 8px 22px;
-    overflow: hidden;
-
-    /* Animated conic gradient border */
-    --border-angle: 0turn;
-    background:
-      linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.78)) padding-box,
-      conic-gradient(
-        from var(--border-angle),
-        transparent 25%,
-        rgba(201, 160, 74, 0.4) 37%,
-        rgba(78, 205, 196, 0.3) 50%,
-        rgba(167, 139, 250, 0.3) 62%,
-        transparent 75%
-      ) border-box;
-    border: 1px solid transparent;
-    animation: nav-border-spin 6s linear infinite;
-
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    transition: padding 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.5s ease;
+    gap: 12px;
+    padding: 7px 16px;
+    border-radius: 6px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  @keyframes nav-border-spin {
-    to { --border-angle: 1turn; }
+  .nav-terminal:hover {
+    border-color: #252525;
   }
 
-  .nav-morph:hover {
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4),
-                0 0 20px rgba(201, 160, 74, 0.06),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  .nav-header.collapsed .nav-terminal {
+    padding: 5px 12px;
   }
 
-  .nav-header.collapsed .nav-morph {
-    padding: 6px 12px;
-    background:
-      linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)) padding-box,
-      conic-gradient(
-        from var(--border-angle),
-        transparent 20%,
-        rgba(201, 160, 74, 0.5) 35%,
-        rgba(78, 205, 196, 0.4) 50%,
-        rgba(167, 139, 250, 0.4) 65%,
-        transparent 80%
-      ) border-box;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5),
-                0 0 24px rgba(201, 160, 74, 0.08);
+  /* ─── Window dots ─── */
+  .nav-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
   }
 
-  /* ─── Cursor spotlight overlay ─── */
-  .nav-spotlight {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-      140px circle at var(--spot-x, 50%) var(--spot-y, 50%),
-      rgba(201, 160, 74, 0.07),
-      transparent 60%
-    );
-    pointer-events: none;
-    opacity: 0;
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     transition: opacity 0.3s ease;
-    z-index: 1;
   }
 
-  .nav-morph:hover .nav-spotlight {
+  .dot-red { background: #FF5F57; }
+  .dot-yellow { background: #FEBC2E; }
+  .dot-green { background: #28C840; }
+
+  .nav-header.collapsed .nav-dots .dot-yellow,
+  .nav-header.collapsed .nav-dots .dot-green {
+    width: 0;
+    opacity: 0;
+    margin: 0;
+  }
+
+  .nav-header.collapsed:hover .nav-dots .dot-yellow,
+  .nav-header.collapsed:hover .nav-dots .dot-green {
+    width: 8px;
     opacity: 1;
   }
 
-  /* ─── Glass inner shine ─── */
-  .nav-shine {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      transparent 40%,
-      transparent 60%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* ─── Logo ─── */
-  .nav-logo {
-    position: relative;
-    z-index: 2;
+  /* ─── Prompt ─── */
+  .nav-prompt {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
     text-decoration: none;
     flex-shrink: 0;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
   }
 
-  .nav-logo-text {
-    font-family: var(--font-heading);
-    font-size: 15px;
-    font-weight: 700;
+  .nav-prompt:hover {
+    color: var(--color-text-secondary);
+  }
+
+  .nav-prompt-symbol {
     color: var(--color-accent);
-    letter-spacing: -0.02em;
-    transition: all 0.3s ease;
+    margin-right: 3px;
+    font-weight: 500;
   }
 
-  .nav-logo:hover .nav-logo-text {
-    text-shadow: 0 0 14px rgba(201, 160, 74, 0.5);
+  .nav-prompt-path {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
 
-  .nav-logo-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+  .nav-prompt:hover .nav-prompt-path {
+    color: var(--color-text-primary);
+  }
+
+  .nav-cursor {
+    display: inline-block;
+    width: 7px;
+    height: 14px;
     background: var(--color-accent);
-    animation: dot-color 10s ease-in-out infinite;
-    transition: box-shadow 0.3s ease;
+    margin-left: 2px;
+    opacity: 0.8;
+    animation: cursor-blink 1.2s step-end infinite;
   }
 
-  .nav-logo:hover .nav-logo-dot {
-    box-shadow: 0 0 10px currentColor;
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0; }
   }
 
-  @keyframes dot-color {
-    0%, 100% { background: #C9A04A; }
-    17% { background: #4ECDC4; }
-    33% { background: #FF6B6B; }
-    50% { background: #A78BFA; }
-    67% { background: #34D399; }
-    83% { background: #F59E0B; }
-  }
-
-  .nav-header.collapsed .nav-logo-dot {
-    animation: dot-color 4s ease-in-out infinite, pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: 0 0 10px rgba(201, 160, 74, 0.6); }
-  }
-
-  /* ─── Divider ─── */
-  .nav-divider {
-    position: relative;
-    z-index: 2;
-    width: 1px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 0 16px;
-    flex-shrink: 0;
-    transition: all 0.4s ease;
-  }
-
-  .nav-header.collapsed .nav-divider {
-    width: 0;
-    margin: 0;
+  .nav-header.collapsed .nav-prompt-path {
+    max-width: 0;
+    overflow: hidden;
     opacity: 0;
   }
 
-  .nav-header.collapsed:hover .nav-divider {
-    width: 1px;
-    margin: 0 16px;
+  .nav-header.collapsed:hover .nav-prompt-path {
+    max-width: 80px;
+    opacity: 1;
+  }
+
+  .nav-prompt-path {
+    transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.3s ease,
+                color 0.2s ease;
+    max-width: 80px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .nav-header.collapsed .nav-cursor {
+    animation: cursor-blink 0.8s step-end infinite;
+  }
+
+  /* ─── Pipe divider ─── */
+  .nav-pipe {
+    color: #333;
+    font-size: 14px;
+    flex-shrink: 0;
+    user-select: none;
+    transition: all 0.4s ease;
+  }
+
+  .nav-header.collapsed .nav-pipe {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  .nav-header.collapsed:hover .nav-pipe {
+    width: auto;
     opacity: 1;
   }
 
   /* ─── Links ─── */
   .nav-links {
-    position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 16px;
     overflow: hidden;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     opacity: 1;
-    max-width: 500px;
+    max-width: 400px;
   }
 
   .nav-header.collapsed .nav-links {
@@ -296,65 +264,32 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-header.collapsed:hover .nav-links {
-    max-width: 500px;
-    gap: 22px;
+    max-width: 400px;
+    gap: 16px;
     opacity: 1;
   }
 
   .nav-link {
-    position: relative;
+    color: #555;
     font-size: 13px;
-    color: var(--color-text-muted);
     white-space: nowrap;
-    transition: color 0.25s ease;
-    padding-bottom: 2px;
-    z-index: 2;
-  }
-
-  .nav-link-text {
-    position: relative;
-    z-index: 1;
+    transition: color 0.2s ease;
+    text-decoration: none;
+    letter-spacing: 0.01em;
   }
 
   .nav-link:hover {
     color: var(--color-text-primary);
   }
 
-  /* Animated underline on hover */
-  .nav-link-line {
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    width: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
-    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    border-radius: 1px;
-  }
-
-  .nav-link:hover .nav-link-line {
-    width: 100%;
-    left: 0;
-  }
-
   .nav-link-active {
     color: var(--color-accent);
   }
 
-  .nav-link-active .nav-link-line {
-    width: 60%;
-    left: 20%;
-    background: var(--color-accent);
-    box-shadow: 0 0 6px rgba(201, 160, 74, 0.4);
-  }
-
   /* ─── Mobile trigger ─── */
   .nav-mobile-trigger {
-    position: relative;
-    z-index: 2;
-    color: var(--color-text-muted);
-    padding: 4px;
-    margin-left: 10px;
+    color: #555;
+    padding: 2px;
     flex-shrink: 0;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -366,14 +301,12 @@ const currentPath = Astro.url.pathname;
 
   .nav-header.collapsed .nav-mobile-trigger {
     max-width: 0;
-    margin-left: 0;
     opacity: 0;
     overflow: hidden;
   }
 
   .nav-header.collapsed:hover .nav-mobile-trigger {
-    max-width: 24px;
-    margin-left: 10px;
+    max-width: 20px;
     opacity: 1;
   }
 
@@ -384,7 +317,64 @@ const currentPath = Astro.url.pathname;
   @media (max-width: 767px) {
     .nav-links { display: none; }
     .nav-header.collapsed:hover .nav-links { display: none; }
-    .nav-divider { display: none; }
+    .nav-pipe { display: none; }
+  }
+
+  /* ─── Mobile dropdown ─── */
+  .mobile-dropdown {
+    position: absolute;
+    right: 1rem;
+    top: 4.5rem;
+    width: 200px;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+  }
+
+  .mobile-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .mobile-dropdown-title {
+    font-size: 11px;
+    color: #555;
+    margin-left: 6px;
+  }
+
+  .mobile-dropdown-links {
+    padding: 6px 0;
+  }
+
+  .mobile-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #767676;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-link:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .mobile-link-arrow {
+    color: var(--color-accent);
+    font-size: 10px;
+    width: 10px;
+  }
+
+  .mobile-link-active {
+    color: var(--color-accent);
   }
 </style>
 
@@ -393,15 +383,6 @@ const currentPath = Astro.url.pathname;
   const nav = document.getElementById("nav-inner");
   let ticking = false;
   let isCollapsed = false;
-
-  // ─── Cursor spotlight tracking ───
-  if (nav) {
-    nav.addEventListener("mousemove", (e) => {
-      const rect = nav.getBoundingClientRect();
-      nav.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
-      nav.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
-    });
-  }
 
   // ─── Scroll collapse ───
   function handleScroll() {

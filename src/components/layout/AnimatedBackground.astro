@@ -7,76 +7,9 @@
   <!-- Subtle dot grid -->
   <div class="absolute inset-0 dot-grid opacity-50"></div>
 
-  <!-- Animated gradient orbs -->
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-
   <!-- Noise texture overlay for grain -->
   <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');"></div>
 </div>
 
 <style>
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(120px);
-    will-change: transform;
-  }
-
-  /* Warm amber orb — top right */
-  .orb-1 {
-    width: 500px;
-    height: 500px;
-    top: -10%;
-    right: -5%;
-    background: radial-gradient(circle, rgba(201, 160, 74, 0.12) 0%, transparent 70%);
-    animation: drift-1 25s ease-in-out infinite;
-  }
-
-  /* Cool blue orb — bottom left */
-  .orb-2 {
-    width: 400px;
-    height: 400px;
-    bottom: 10%;
-    left: -8%;
-    background: radial-gradient(circle, rgba(100, 130, 200, 0.08) 0%, transparent 70%);
-    animation: drift-2 30s ease-in-out infinite;
-  }
-
-  /* Subtle white orb — center */
-  .orb-3 {
-    width: 350px;
-    height: 350px;
-    top: 40%;
-    left: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
-    animation: drift-3 20s ease-in-out infinite;
-  }
-
-  @keyframes drift-1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(-40px, 30px) scale(1.05); }
-    50% { transform: translate(-20px, -20px) scale(0.95); }
-    75% { transform: translate(30px, 15px) scale(1.02); }
-  }
-
-  @keyframes drift-2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(50px, -30px) scale(1.08); }
-    66% { transform: translate(-20px, 40px) scale(0.96); }
-  }
-
-  @keyframes drift-3 {
-    0%, 100% { transform: translate(-50%, 0) scale(1); }
-    25% { transform: translate(-45%, 25px) scale(1.1); }
-    50% { transform: translate(-55%, -15px) scale(0.9); }
-    75% { transform: translate(-48%, 10px) scale(1.05); }
-  }
-
-  @media (prefers-reduced-motion: reduce), (max-width: 768px) {
-    .orb {
-      animation: none !important;
-    }
-  }
 </style>
