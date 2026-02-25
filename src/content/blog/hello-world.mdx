@@ -12,72 +12,154 @@ import TerminalBlock from '@components/islands/TerminalBlock';
 import EquationReveal from '@components/islands/EquationReveal';
 import CodeComparison from '@components/islands/CodeComparison';
 
-Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. The **forward problem** (structure → spectrum) is solved. The **inverse problem** (spectrum → structure) is not. This post outlines the mathematical framework connecting these two directions and the architecture designed to close the gap.
+Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. You shine light on a molecule, measure what comes back, and try to figure out what the molecule looks like. The **forward direction** of this problem is solved: given a structure, compute its spectrum. The **inverse direction** — given a spectrum, recover the structure — is fundamentally harder, and the reason is group theory.
 
-## The Forward and Inverse Maps
+## The Forward Map
 
-The Wilson GF method gives us the secular equation governing molecular vibrations:
+The starting point is the Wilson GF secular equation:
 
-$$
-\det(\mathbf{GF} - \lambda \mathbf{I}) = 0
-$$
+$$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
 
-where $\mathbf{G}$ encodes atomic masses and geometry, $\mathbf{F}$ is the force constant matrix (the Hessian of the potential energy surface), and $\lambda = 4\pi^2 \nu^2$. The eigenvalues $\lambda_k$ give observed frequencies; the eigenvectors $\mathbf{L}_k$ determine IR and Raman intensities through the dipole and polarizability derivatives:
-
-$$
-A_k^{\text{IR}} = \left| \frac{\partial \boldsymbol{\mu}}{\partial Q_k} \right|^2, \qquad I_k^{\text{Raman}} \propto \left| \frac{\partial \boldsymbol{\alpha}}{\partial Q_k} \right|^2
-$$
-
-The forward map $\Phi: \mathcal{F} \to \mathcal{S}$ takes force constants to spectra. It is smooth, computable, and well-conditioned. The inverse map $\Phi^{-1}$ is none of these — it is generally ill-posed due to symmetry-induced degeneracies and silent modes.
+The matrix **G** encodes atomic masses and molecular geometry. The matrix **F** is the force constant matrix — essentially the Hessian of the potential energy surface. The eigenvalues give the squared vibrational frequencies, and the eigenvectors determine which modes are observable by IR and Raman spectroscopy.
 
 <SpectrumViz client:visible />
 
-## Symmetry and Information Loss
+What makes the forward map well-behaved is that it's smooth, computable, and well-conditioned. Given any reasonable molecular geometry, you can compute the full IR and Raman spectrum to arbitrary precision. DFT codes do this routinely at the B3LYP/def2-TZVP level.
 
-Molecular symmetry determines which modes are observable. For a molecule with point group $G$ and $N$ atoms, the **Information Completeness Ratio** quantifies the observable fraction of vibrational degrees of freedom:
+The inverse map has none of these properties.
 
-$$
-R(G, N) = \frac{N_{\text{IR}} + N_{\text{Raman}}}{3N - 6}
-$$
+<TerminalBlock
+  client:visible
+  title="forward_map.py"
+  lines={[
+    { spans: [{ text: "$ python forward_map.py --molecule ethanol", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Computing Wilson GF matrices...", color: "teal" }] },
+    { spans: [
+      { text: "  G matrix: ", color: "muted" },
+      { text: "(21, 21)", color: "amber" },
+      { text: "  kinetic energy", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  F matrix: ", color: "muted" },
+      { text: "(21, 21)", color: "amber" },
+      { text: "  force constants", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [{ text: "Solving secular equation...", color: "teal" }] },
+    { spans: [
+      { text: "  Normal modes:  ", color: "muted" },
+      { text: "21", color: "green" },
+      { text: "  (3N-6 = 3×9-6)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  IR-active:     ", color: "muted" },
+      { text: "21", color: "green" },
+      { text: "  (100%)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Raman-active:  ", color: "muted" },
+      { text: "21", color: "green" },
+      { text: "  (100%)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Forward map: structure → spectrum ✓", color: "green" },
+    ] },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Inverse map: spectrum → structure ?", color: "red" },
+    ] },
+  ]}
+/>
 
-where $N_{\text{IR}}$ and $N_{\text{Raman}}$ count the number of IR-active and Raman-active modes respectively, computed from character table decompositions.
+## Why the Inverse Fails: Symmetry
+
+The fundamental obstruction to inversion is molecular symmetry. A molecule's point group **G** determines which vibrational modes are visible to each technique. The selection rules are strict:
+
+- A mode is **IR-active** only if it transforms as a translation (changes the dipole moment)
+- A mode is **Raman-active** only if it transforms as a quadratic form (changes the polarizability)
+- Modes that do neither are **silent** — permanently invisible to both techniques
+
+The **Information Completeness Ratio** measures the damage:
+
+$$R(G, N) = \frac{N_{\text{IR}} + N_{\text{Raman}}}{3N - 6}$$
+
+When $R = 1$, every vibrational degree of freedom is observable by at least one technique. When $R < 1$, information is permanently lost.
 
 <div class="callout callout-theorem">
   <div class="callout-label">Theorem 1 — Symmetry Quotient</div>
 
-Spectra are $G$-invariant: the forward map factors through the quotient space $\mathcal{M}/G$. The inverse map recovers structure only up to symmetry equivalence. When $R(G, N) = 1$, all vibrational degrees of freedom are observable. When $R < 1$, the unobservable modes create a degenerate fiber — multiple force constant matrices map to the same spectrum.
+The vibrational forward map is **G-invariant**: it factors through the quotient space M/G. The inverse map recovers structure only up to symmetry equivalence. When R(G, N) = 1, the quotient map is potentially injective. When R < 1, the silent modes create a degenerate fiber — multiple distinct force constant matrices produce identical spectra.
 
 </div>
 
-For 99.9% of organic molecules (QM9 dataset, 130,831 structures), $R = 1.0$. But for high-symmetry cases — cubane ($O_h$, $R = 0.45$), methane ($T_d$, $R = 0.78$), benzene ($D_{6h}$, $R = 0.85$) — significant information is hidden in silent modes.
+How bad does it get? For **99.9%** of organic molecules, R = 1 and everything is observable. But the exceptions matter:
+
+<TerminalBlock
+  client:visible
+  title="information_completeness.py"
+  lines={[
+    { spans: [{ text: "$ python r_ratio.py --examples", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Information Completeness Ratio R(G, N):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Ethanol     C1    ", color: "white" },
+      { text: "R = 1.000", color: "green" },
+      { text: "  all modes visible", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Benzene     D6h   ", color: "white" },
+      { text: "R = 0.850", color: "amber" },
+      { text: "  3 silent modes", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Methane     Td    ", color: "white" },
+      { text: "R = 0.778", color: "amber" },
+      { text: "  2 silent modes", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Cubane      Oh    ", color: "white" },
+      { text: "R = 0.452", color: "red" },
+      { text: "  55% hidden", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Higher symmetry = more information loss", color: "amber" },
+    ] },
+  ]}
+/>
 
 <MoleculeCard client:visible />
 
 ## Modal Complementarity
 
-For molecules with a center of inversion, the mutual exclusion principle guarantees that IR-active and Raman-active modes are **completely disjoint** — no mode is both IR and Raman active. This means combining IR and Raman always strictly increases the observable DOF:
+There is a structural result that makes combined IR + Raman strictly better than either alone. For molecules with a center of inversion (the centrosymmetric ones — CO₂, benzene, cubane), the **mutual exclusion principle** applies:
 
 <div class="callout callout-theorem">
   <div class="callout-label">Theorem 2 — Modal Complementarity</div>
 
-For centrosymmetric molecules ($G$ contains inversion $i$), the IR-active and Raman-active mode sets are disjoint: $\mathcal{A}_{\text{IR}} \cap \mathcal{A}_{\text{Raman}} = \emptyset$. Combined measurement increases the observable degrees of freedom: $N_{\text{IR+Raman}} = N_{\text{IR}} + N_{\text{Raman}} > \max(N_{\text{IR}}, N_{\text{Raman}})$.
+For centrosymmetric molecules, IR-active and Raman-active modes are **completely disjoint**. Gerade (symmetric) modes are Raman-only. Ungerade (antisymmetric) modes are IR-only. Combined measurement always strictly increases the observable degrees of freedom.
 
 </div>
 
-This is provable directly from the character table: $g$-modes (symmetric under inversion) are Raman-active only, $u$-modes (antisymmetric) are IR-active only. The implication for ML is direct — models that fuse IR + Raman inputs should see the largest accuracy gains on centrosymmetric molecules.
+This is not an approximation — it follows directly from the character table. The practical consequence: any ML model that fuses IR + Raman should see its largest accuracy gains on centrosymmetric molecules. This is a testable, quantitative prediction from the theory.
 
 ## Generic Identifiability
 
-The central open question: does combined IR + Raman generically determine force constants up to symmetry?
+The central open question is whether combined IR + Raman can **uniquely determine** molecular structure (up to symmetry equivalence) at generic points:
 
 <div class="callout callout-conjecture">
   <div class="callout-label">Conjecture 3 — Generic Identifiability</div>
 
-For almost all molecular geometries (in the measure-theoretic sense), the combined IR + Raman forward map $\Phi_{\text{IR+Raman}}: \mathcal{F}/G \to \mathcal{S}_{\text{IR}} \times \mathcal{S}_{\text{Raman}}$ is generically injective: distinct force constant equivalence classes produce distinct combined spectra.
+For almost all molecular geometries (outside a measure-zero set), the combined IR + Raman forward map is injective on the quotient space: distinct force constant equivalence classes produce distinct combined spectra.
 
 </div>
 
-This remains a conjecture. Jacobian rank analysis on 999 molecular geometries from QM9 provides strong numerical evidence:
+This is a conjecture, not a theorem. The obstruction to proving it is that the forward map's smoothness breaks at eigenvalue degeneracies, so Sard's theorem does not directly apply. But the numerical evidence is strong:
 
 <TerminalBlock
   client:visible
@@ -85,7 +167,7 @@ This remains a conjecture. Jacobian rank analysis on 999 molecular geometries fr
   lines={[
     { spans: [{ text: "$ python jacobian_rank.py --dataset qm9 --n_samples 999", color: "muted" }] },
     { spans: [{ text: "" }], delay: 300 },
-    { spans: [{ text: "Analyzing Jacobian rank at 999 molecular geometries...", color: "teal" }] },
+    { spans: [{ text: "Computing Jacobian of forward map at 999 geometries...", color: "teal" }] },
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "Results:", color: "white" },
@@ -96,9 +178,9 @@ This remains a conjecture. Jacobian rank analysis on 999 molecular geometries fr
       { text: " (100.0%)", color: "muted" },
     ] },
     { spans: [
-      { text: "  Mean condition:   ", color: "muted" },
-      { text: "4.2:1", color: "amber" },
-      { text: " overdetermination", color: "muted" },
+      { text: "  Overdetermination:", color: "muted" },
+      { text: " 4.2:1", color: "amber" },
+      { text: " mean ratio", color: "muted" },
     ] },
     { spans: [
       { text: "  Rank deficient:   ", color: "muted" },
@@ -107,43 +189,70 @@ This remains a conjecture. Jacobian rank analysis on 999 molecular geometries fr
     { spans: [{ text: "" }], delay: 200 },
     { spans: [
       { text: "→ ", color: "muted" },
-      { text: "Generic injectivity supported at all tested points", color: "green" },
+      { text: "Generic injectivity supported at every tested point", color: "green" },
     ] },
   ]}
 />
 
-The 4:1 overdetermination ratio means the system has roughly four times more observable equations than unknown force constants — the inverse problem is generically well-posed, not just solvable.
+A **4:1 overdetermination ratio** means the combined spectra contain roughly four times more equations than unknowns. The inverse problem is not just solvable — it is well-conditioned.
 
-## Architecture
+## The Architecture: Spekron
 
-Spekron is a symmetry-aware foundation model designed to approach the theoretical identifiability limit. The encoder is a hybrid CNN-Transformer with a Variational Information Bottleneck (VIB):
+The theory says what is achievable. The model is designed to get there. **Spekron** is a CNN-Transformer encoder with a Variational Information Bottleneck (VIB) that splits the latent space into chemistry and instrument:
 
-$$
-\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\left(q(z|x) \| p(z)\right)
-$$
+$$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
 
-The VIB splits the latent space into $z_{\text{chem}} \in \mathbb{R}^{128}$ (transferable chemistry) and $z_{\text{inst}} \in \mathbb{R}^{64}$ (discardable instrument artifacts). At transfer time, $z_{\text{inst}}$ is dropped — only the chemistry-encoding dimensions are retained.
+The latent vector splits into **z_chem** (128 dimensions, transferable chemistry) and **z_inst** (64 dimensions, instrument artifacts). At transfer time, z_inst is discarded — only the chemistry survives.
 
 <div class="callout callout-result">
-  <div class="callout-label">Key Design Insight</div>
+  <div class="callout-label">Key Design Choice</div>
 
-A 1D CNN tokenizer before the Transformer gives 8–10% accuracy gains over raw patch tokenization on spectral data. Local peak structure — the sharp, narrow features that carry chemical information — is better captured by convolutional kernels than by linear projections of fixed-size patches.
+A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over raw patch tokenization on spectral data. Vibrational peaks are sharp, narrow features — convolutional kernels capture this local structure before attention handles global context. This is the single largest architectural improvement in ablation studies.
 
 </div>
+
+<TerminalBlock
+  client:visible
+  title="architecture.py"
+  lines={[
+    { spans: [{ text: "$ python -c \"from spekron import SpectralFM; print(SpectralFM())\"", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "SpectralFM(", color: "white" }] },
+    { spans: [
+      { text: "  encoder:", color: "muted" },
+      { text: " CNN1D(7 layers)", color: "teal" },
+      { text: " → ", color: "muted" },
+      { text: "Transformer(4 layers, 8 heads)", color: "purple" },
+    ] },
+    { spans: [
+      { text: "  bottleneck:", color: "muted" },
+      { text: " VIB(z_chem=128, z_inst=64, β=0.01)", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  decoder:", color: "muted" },
+      { text: " Retrieval(k=32, conformal=True)", color: "green" },
+    ] },
+    { spans: [
+      { text: "  params:", color: "muted" },
+      { text: " 12.4M", color: "white" },
+      { text: "  pretrained on ", color: "muted" },
+      { text: "350K spectra", color: "amber" },
+    ] },
+    { spans: [{ text: ")", color: "white" }] },
+  ]}
+/>
 
 <EquationReveal client:visible />
 
 ## Calibration Transfer
 
-The practical test: a model trained on spectra from instrument A must work on instrument B, with minimal paired samples. Current methods (PDS, SBC) need 25+ transfer samples. The VIB architecture targets ≤10 by learning instrument-invariant representations during pretraining.
+The practical test case. A model trained on spectra from instrument A fails on instrument B — different detectors, optical paths, lamp aging all shift the spectral shape. Current approaches (PDS, SBC) require **25+ paired transfer samples**. The VIB architecture targets **≤10** by learning instrument-invariant representations during pretraining.
 
-The transfer objective uses Sinkhorn-based optimal transport to align latent distributions across instruments:
+The transfer objective aligns latent distributions across instruments using Sinkhorn-based optimal transport:
 
-$$
-\mathcal{L}_{\text{OT}} = W_\epsilon\left( q(z_{\text{chem}} | \mathcal{D}_A), \, q(z_{\text{chem}} | \mathcal{D}_B) \right)
-$$
+$$\mathcal{L}_{\text{OT}} = W_\epsilon\!\left( q(z_{\text{chem}} | \mathcal{D}_A), \, q(z_{\text{chem}} | \mathcal{D}_B) \right)$$
 
-where $W_\epsilon$ is the entropy-regularized Wasserstein distance. Combined with test-time training (TTT) — running $K$ self-supervised gradient steps at inference on the new instrument — this enables adaptation without labeled target data.
+Combined with test-time training — running a few self-supervised gradient steps at inference on the new instrument — this enables adaptation without labeled target data.
 
 <CodeComparison
   client:visible
@@ -153,21 +262,63 @@ where $W_\epsilon$ is the entropy-regularized Wasserstein distance. Combined wit
   before={[
     { text: "# Piecewise Direct Standardization", type: "comment" },
     { text: "F = build_transfer_matrix(X_src, X_tgt)", type: "removed" },
-    { text: "X_tgt_corrected = X_tgt @ F", type: "removed" },
-    { text: "y_pred = model.predict(X_tgt_corrected)", type: "removed" },
-    { text: "# Requires 25+ paired samples per instrument", type: "comment" },
+    { text: "X_corrected = X_tgt @ F", type: "removed" },
+    { text: "y_pred = model.predict(X_corrected)", type: "removed" },
+    { text: "# Requires 25+ paired samples", type: "comment" },
   ]}
   after={[
     { text: "# VIB + Optimal Transport Transfer", type: "comment" },
-    { text: "z = encoder(spectrum)  # any instrument", type: "added" },
+    { text: "z = encoder(spectrum)", type: "added" },
     { text: "z_chem = vib.disentangle(z)", type: "added" },
-    { text: "y_pred = retriever(z_chem)  # instrument-free", type: "added" },
+    { text: "y_pred = retriever(z_chem)", type: "added" },
     { text: "# Works with ≤10 samples via TTT", type: "comment" },
   ]}
 />
 
-Benchmark targets: R² > 0.952 on corn moisture (beating LoRA-CT) with ≤10 transfer samples across three NIR instruments (m5, mp5, mp6).
+<div class="callout callout-result">
+  <div class="callout-label">Benchmark Target</div>
 
-## Status
+R² > 0.952 on corn moisture prediction (beating LoRA-CT) with ≤10 transfer samples across three NIR instruments (m5, mp5, mp6). The corn dataset has 80 samples × 3 instruments × 700 channels — a small but well-characterized benchmark where calibration transfer methods are directly comparable.
 
-The theoretical framework (Theorems 1–2, Conjecture 3) is complete. The model architecture is implemented. Current phase: pretraining on QM9S (130K molecules, computed IR + Raman + UV at B3LYP/def2-TZVP) and ChEMBL (220K experimental spectra). Symmetry-stratified evaluation — testing whether empirical accuracy tracks $R(G, N)$ as the theory predicts — follows immediately after.
+</div>
+
+## Current Status
+
+<TerminalBlock
+  client:visible
+  title="project_status.sh"
+  lines={[
+    { spans: [{ text: "$ spekron status", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Theory", color: "white" }] },
+    { spans: [
+      { text: "  Theorem 1 (symmetry quotient):  ", color: "muted" },
+      { text: "proved", color: "green" },
+    ] },
+    { spans: [
+      { text: "  Theorem 2 (complementarity):    ", color: "muted" },
+      { text: "proved", color: "green" },
+    ] },
+    { spans: [
+      { text: "  Conjecture 3 (identifiability): ", color: "muted" },
+      { text: "numerical evidence", color: "amber" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "Model", color: "white" }] },
+    { spans: [
+      { text: "  Architecture:    ", color: "muted" },
+      { text: "implemented", color: "green" },
+    ] },
+    { spans: [
+      { text: "  Pretraining:     ", color: "muted" },
+      { text: "in progress", color: "amber" },
+      { text: " (QM9S 130K + ChEMBL 220K)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Transfer eval:   ", color: "muted" },
+      { text: "pending", color: "red" },
+    ] },
+  ]}
+/>
+
+The theoretical framework is complete. The model is pretraining on QM9S (130K molecules, computed IR + Raman + UV at B3LYP/def2-TZVP) and ChEMBL (220K experimental spectra). Next: symmetry-stratified evaluation to test whether empirical accuracy tracks R(G, N) as the theory predicts. Details on the theory are in the [companion post on spectral identifiability](/blog/spectral-identifiability-theory).
