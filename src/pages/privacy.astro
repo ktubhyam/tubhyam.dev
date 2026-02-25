@@ -1,0 +1,72 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE, PUBLICATION } from "@lib/constants";
+---
+
+<PageLayout title="Privacy Policy" description={`Privacy policy for ${PUBLICATION.name} and ${SITE.url}.`}>
+  <section class="py-12 max-w-3xl">
+    <h1 class="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight">Privacy Policy</h1>
+    <p class="text-sm font-mono text-text-muted mb-10">Last updated: February 2026</p>
+
+    <div class="prose prose-invert prose-lg max-w-none">
+      <h2>Overview</h2>
+      <p>
+        This privacy policy describes how {PUBLICATION.name} (<a href={SITE.url}>{SITE.url}</a>),
+        operated by {SITE.author}, collects, uses, and protects your information.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <h3>Analytics</h3>
+      <p>
+        We use <a href="https://vercel.com/analytics" target="_blank" rel="noopener noreferrer">Vercel Analytics</a> to
+        collect anonymous usage data including page views, referrers, and browser information. This data is aggregated
+        and cannot be used to identify individual visitors. No cookies are used for analytics.
+      </p>
+
+      <h3>Newsletter Subscriptions</h3>
+      <p>
+        If you subscribe to {PUBLICATION.name}, we collect your email address for the sole purpose of sending you
+        new articles and updates. You can unsubscribe at any time using the link in any email we send.
+        We do not sell, share, or rent your email address to third parties.
+      </p>
+
+      <h3>Google Services</h3>
+      <p>
+        This site participates in Google News and may use Google Reader Revenue Manager. When you interact with
+        Google services on this site, Google's own <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> applies to data collected by Google.
+      </p>
+
+      <h2>Information We Do Not Collect</h2>
+      <ul>
+        <li>We do not use tracking cookies</li>
+        <li>We do not collect personal information unless you voluntarily provide it (e.g., newsletter signup)</li>
+        <li>We do not run third-party advertising</li>
+        <li>We do not sell any data to third parties</li>
+      </ul>
+
+      <h2>Third-Party Services</h2>
+      <p>This site uses the following third-party services:</p>
+      <ul>
+        <li><strong>Vercel</strong> — hosting and anonymous analytics</li>
+        <li><strong>GitHub</strong> — source code hosting</li>
+        <li><strong>Google</strong> — Search Console, News Publisher Center</li>
+      </ul>
+
+      <h2>Your Rights</h2>
+      <p>
+        You have the right to request access to, correction of, or deletion of any personal data we hold about you.
+        To exercise these rights, contact <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        We may update this policy from time to time. Changes will be posted on this page with an updated date.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For questions about this privacy policy, contact <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </div>
+  </section>
+</PageLayout>
