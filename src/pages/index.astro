@@ -53,6 +53,37 @@ const blogPosts = posts.map((post) => ({
 ---
 
 <BaseLayout title={SITE.title} hideNav>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "mainEntity": {
+      "@type": "Person",
+      "name": SITE.author,
+      "url": SITE.url,
+      "jobTitle": "Computational Chemist & ML Researcher",
+      "description": SITE.description,
+      "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
+      "knowsAbout": [
+        "Vibrational Spectroscopy", "Deep Learning", "State Space Models",
+        "Neural ODEs", "Molecular Modeling", "Information Theory",
+        "Physics-Informed Machine Learning", "Chemical Engineering"
+      ],
+    },
+  })} />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": SITE.author,
+    "url": SITE.url,
+    "description": SITE.description,
+    "author": { "@type": "Person", "name": SITE.author, "url": SITE.url },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": `${SITE.url}/search?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  })} />
+
   <!-- Side navigation -->
   <SideNav client:idle />
 
