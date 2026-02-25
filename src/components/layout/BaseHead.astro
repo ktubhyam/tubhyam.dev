@@ -24,6 +24,8 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 <meta name="title" content={pageTitle} />
 <meta name="description" content={pageDescription} />
 <meta name="author" content={SITE.author} />
+<meta name="robots" content="index, follow" />
+<meta name="keywords" content="Tubhyam Karthikeyan, Karthikeyan T, computational chemistry, spectroscopy, machine learning, ICT Mumbai, Spekron, SpectraKit" />
 <link rel="canonical" href={canonicalUrl} />
 
 <!-- Open Graph -->
@@ -53,10 +55,29 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   "@context": "https://schema.org",
   "@type": "Person",
   "name": SITE.author,
+  "alternateName": "Karthikeyan T",
   "url": SITE.url,
-  "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
+  "email": SITE.email,
+  "image": new URL("/og/default.png", SITE.url).toString(),
+  "sameAs": [
+    SITE.github,
+    SITE.twitter,
+    SITE.linkedin,
+    "https://scholar.google.com/citations?user=ktubhyam",
+  ],
   "jobTitle": "Computational Chemist & ML Researcher",
-  "affiliation": { "@type": "Organization", "name": "ICT Mumbai" },
+  "affiliation": {
+    "@type": "EducationalOrganization",
+    "name": "Institute of Chemical Technology, Mumbai",
+    "alternateName": "ICT Mumbai",
+  },
+  "knowsAbout": [
+    "Spectroscopy",
+    "Machine Learning",
+    "Chemometrics",
+    "Computational Chemistry",
+    "Vibrational Spectroscopy",
+  ],
 })} />
 
 <!-- Vercel Analytics -->

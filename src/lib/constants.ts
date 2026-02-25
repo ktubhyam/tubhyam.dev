@@ -1,13 +1,13 @@
 export const SITE = {
   title: "Tubhyam Karthikeyan",
   description:
-    "Computational chemist, ML researcher, and open-source builder. Exploring the intersection of science, AI, and interactive simulations.",
+    "Tubhyam Karthikeyan — computational chemist, ML researcher, and open-source builder at ICT Mumbai. Spectroscopy, AI, and scientific computing.",
   url: "https://tubhyam.dev",
   author: "Tubhyam Karthikeyan",
   email: "takarthikeyan25@gmail.com",
-  github: "https://github.com/tkart25",
-  twitter: "https://twitter.com/tkart25",
-  linkedin: "https://linkedin.com/in/tkart25",
+  github: "https://github.com/ktubhyam",
+  twitter: "https://twitter.com/ktubhyam",
+  linkedin: "https://www.linkedin.com/in/ktubhyam",
 } as const;
 
 export const NAV_LINKS = [
