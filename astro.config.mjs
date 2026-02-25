@@ -20,7 +20,28 @@ export default defineConfig({
       remarkPlugins: [remarkMath],
       rehypePlugins: [rehypeKatex],
     }),
-    sitemap(),
+    sitemap({
+      serialize(item) {
+        // Set lastmod to current build date
+        item.lastmod = new Date().toISOString();
+
+        // Prioritize main content pages
+        if (item.url === "https://tubhyam.dev/") {
+          item.priority = 1.0;
+        } else if (item.url.includes("/blog/") || item.url.includes("/projects/") || item.url.includes("/research/")) {
+          item.priority = 0.8;
+        } else if (item.url.includes("/tags/")) {
+          item.priority = 0.3;
+        }
+
+        return item;
+      },
+      filter(page) {
+        // Exclude library pages that duplicate project pages
+        // The /projects/ version is the canonical one
+        return !page.includes("/libraries/spectrakit");
+      },
+    }),
   ],
   vite: {
     plugins: [tailwindcss()],

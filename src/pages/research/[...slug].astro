@@ -60,7 +60,12 @@ const breadcrumbSchema = {
 };
 ---
 
-<ProseLayout title={paper.data.title} description={paper.data.abstract}>
+<ProseLayout
+  title={paper.data.title}
+  description={paper.data.abstract}
+  ogType="article"
+  publishedDate={paper.data.date.toISOString()}
+>
   <script type="application/ld+json" set:html={JSON.stringify(scholarlySchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 

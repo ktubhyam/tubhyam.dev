@@ -54,7 +54,13 @@ const breadcrumbSchema = {
 };
 ---
 
-<ProseLayout title={post.data.title} description={post.data.description}>
+<ProseLayout
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  publishedDate={post.data.date.toISOString()}
+  modifiedDate={post.data.updated?.toISOString()}
+>
   <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
