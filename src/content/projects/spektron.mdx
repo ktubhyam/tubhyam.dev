@@ -1,40 +1,119 @@
 ---
 title: "Spektron"
 date: 2026-01-20
-description: "A hybrid Mamba-Transformer foundation model for vibrational spectroscopy with wavelet embeddings, MoE routing, and VIB disentanglement."
+description: "A self-supervised foundation model for vibrational spectroscopy using damped linear oscillatory state-space models, variational information bottleneck disentanglement, and physics-informed multi-task pretraining."
 tags: ["pytorch", "deep-learning", "spectroscopy", "foundation-model"]
 status: "active"
 github: "https://github.com/ktubhyam/Spektron"
 featured: true
 ---
 
-Spektron is a self-supervised foundation model for vibrational spectroscopy that achieves few-shot calibration transfer across instruments and modalities.
+Spektron is a self-supervised foundation model for vibrational spectroscopy that achieves few-shot calibration transfer across instruments and modalities. Built on a physics-aligned backbone that mirrors the dynamics of molecular vibrations, it disentangles transferable chemical information from discardable instrument signatures.
+
+## The Problem
+
+Vibrational spectroscopy (IR, Raman, NIR) is one of the most deployed analytical techniques in chemistry — but every spectrometer introduces its own instrumental fingerprint. A model trained on one instrument performs poorly on another. Classical calibration transfer methods like Direct Standardization require paired measurements on both instruments, which is expensive and impractical at scale.
+
+Spektron addresses this by learning a latent representation where chemical information is invariant to the instrument that produced the measurement.
 
 ## Architecture
 
-- **Wavelet Embedding** — Daubechies-4 DWT with learnable 1D CNN patching
-- **Mamba Backbone** — Selective state-space models for O(n) sequence processing
-- **Mixture of Experts** — Top-2 gating with optional KAN activations
-- **Transformer Encoder** — Global attention for cross-position reasoning
-- **VIB Head** — Disentangles chemistry (z_chem) from instrument signature (z_inst)
+The model uses a multi-stage encoder with seven loss objectives for self-supervised pretraining:
 
-## Key Features
+```
+Raw Spectrum (B, 2048)
+    → Raw Spectral Embedding (Conv1d, k=15, stride=1)
+    → [CLS] + [DOMAIN] token prepend
+    → D-LinOSS Backbone (4 layers, d_model=256, d_state=128)
+    → Mixture of Experts (4 experts, top-k=2)
+    → Transformer Encoder (2 blocks, 8 heads)
+    → VIB Head → z_chem (128-dim) + z_inst (64-dim)
+    → Task Heads: reconstruction | regression | transfer
+```
 
-- Multi-task pretraining: masked reconstruction + contrastive + denoising
-- LoRA-based fine-tuning for efficient transfer
-- Test-Time Training for zero-shot instrument adaptation
-- Physics-informed losses: Beer-Lambert, non-negativity, smoothness
+### D-LinOSS Backbone
+
+The backbone uses **Damped Linear Oscillatory State-Space** (D-LinOSS) layers instead of standard SSMs like Mamba. Each layer models a set of 128 damped harmonic oscillators — a physics-aligned inductive bias for spectroscopy, since vibrational spectra literally arise from molecular vibrations (harmonic and anharmonic oscillators).
+
+Each oscillator is parameterized by:
+- **Natural frequency** $\omega_i$ — learned diagonal entries of the stiffness matrix
+- **Damping coefficient** $\gamma_i$ — controls energy dissipation
+- **IMEX symplectic discretization** — preserves oscillatory structure during the 2048-step recurrence
+
+The recurrence matrix for each oscillator takes the form:
+
+$$M = \begin{pmatrix} 1 & \Delta t \\ -\Delta t^2 \cdot \omega^2 / S & 1 - \Delta t^2 \cdot \omega^2 / S \end{pmatrix}$$
+
+where $S$ is the stride and $\Delta t$ is the step size. A critical stability requirement is the **CFL condition**: the ratio $\alpha = \Delta t^2 \cdot \omega^2 / S$ must remain below 2.0 to keep eigenvalues inside the unit circle. During training, $\omega$ values can grow, causing $\alpha$ to exceed this threshold and producing exponential divergence in the 2048-step scan. We clamp $\alpha \leq 1.99$ to guarantee stability.
+
+The entire LinOSSBlock is forced to run in **float32** even under mixed precision, because the SSM scan accumulates values that can reach $\pm 200\text{K}$ — well beyond float16 range.
+
+### Raw Spectral Embedding
+
+Unlike the wavelet-based embedding used with the Mamba backbone, D-LinOSS operates on **full-resolution spectra** (2048 tokens, one per spectral point). A local Conv1d with kernel size 15 and stride 1 maps each spectral point to the model dimension, preserving all spectral detail. Wavenumber-aware positional encoding injects the physical frequency axis into the representation.
+
+### Variational Information Bottleneck (VIB)
+
+The VIB head splits the CLS token representation into two latent variables:
+- **$z_\text{chem}$** (128-dim): chemistry-invariant representation, regularized via KL divergence
+- **$z_\text{inst}$** (64-dim): instrument-specific information, trained to be discardable
+
+A **gradient reversal layer** on $z_\text{chem}$ ensures it cannot encode instrument identity — the adversarial classifier receives reversed gradients, forcing $z_\text{chem}$ to be instrument-agnostic. This is the key mechanism enabling zero-shot transfer: at inference time, $z_\text{inst}$ is discarded and only $z_\text{chem}$ is used for downstream tasks.
+
+### Mixture of Experts (MoE)
+
+Four expert networks (one per modality: NIR, IR, Raman, Cross-domain) with top-k=2 sparse gating. Optional KAN (Kolmogorov-Arnold Network) activations in the expert FFNs provide interpretability — the learned activation shapes can reveal which spectral features each expert specializes in.
+
+## Pretraining Objectives
+
+Spektron uses seven concurrent loss functions during self-supervised pretraining:
+
+| Loss | Weight | Purpose |
+|------|--------|---------|
+| **MSRP** (Masked Spectrum Reconstruction) | 1.0 | Mask 20% of spectral points in contiguous 3-point blocks, reconstruct from context |
+| **Contrastive** (BYOL-style) | 0.3 | Same sample across instruments → similar $z_\text{chem}$ |
+| **Denoising** | 0.2 | Reconstruct clean spectrum from augmented (noise, baseline drift, wavelength shift) input |
+| **Physics-informed** | 0.1 | Beer-Lambert linearity, smoothness, non-negativity, peak symmetry |
+| **Optimal Transport** (Sinkhorn) | 0.1 | Align latent distributions across instruments via Wasserstein distance |
+| **VIB** | 0.15 | KL regularization + adversarial instrument classification with gradient reversal |
+| **MoE balance** | 0.01 | Prevent expert collapse via load balancing |
+
+A learnable `mask_token` parameter replaces masked positions in embedding space *before* the backbone — this is critical. Without masking the input, the model degenerates to a near-identity mapping (MSRP loss drops to 0.003 within 700 steps, learning nothing useful).
 
 ## Training Infrastructure
 
-- 4x RTX 5090 GPUs with DataParallel
-- Mixed precision (AMP) training
-- W&B experiment tracking
-- 61K+ spectra pretraining corpus
+- **Hardware:** 2x NVIDIA RTX 5060 Ti (16GB each) via Vast.ai
+- **Batch size:** 16 (8 per GPU), gradient accumulation 4 steps → effective batch 64
+- **Optimizer:** AdamW (lr=3e-4, weight_decay=0.01) with linear warmup (1K steps) → cosine annealing
+- **Precision:** bfloat16 AMP with LinOSSBlock forced to float32
+- **Data:** 222K QM9S training samples (IR + Raman spectra, 2048 points each)
+- **Throughput:** ~39 samples/sec, ~23 hours for 50K pretraining steps
+- **Memory:** ~7.5GB per GPU
+
+## Key Design Decisions
+
+1. **D-LinOSS over Mamba:** The oscillatory dynamics of D-LinOSS naturally align with vibrational spectroscopy — each latent oscillator can learn to track a specific molecular vibration mode. Mamba's selective gating is more general but lacks this physics prior.
+
+2. **Full-resolution embedding:** With D-LinOSS's O(n) complexity, we can process all 2048 spectral points as individual tokens (vs. 127 patches with wavelet embedding). No information is lost to patching.
+
+3. **Gradient reversal for VIB:** Rather than training a separate adversarial loop, a gradient reversal layer in the forward pass cleanly separates instrument information from chemistry during backpropagation.
+
+4. **CFL clamping:** Learned frequency parameters $\omega$ can grow unboundedly during training, causing the discretized recurrence to become unstable. Clamping the CFL ratio at 1.99 prevents eigenvalue escape without constraining the learned dynamics.
+
+5. **Sinkhorn regularization at 1.0:** For 128-dimensional embeddings, the standard regularization (0.05) causes the transport kernel $\exp(-C/\epsilon)$ to underflow in float16. A regularization of 1.0 keeps the computation numerically stable.
+
+## Downstream Tasks
+
+- **Calibration transfer:** Predict corn moisture/oil/protein/starch across 3 instruments with ≤10 labeled transfer samples (target: R² > 0.95)
+- **Compound identification:** Few-shot classification from learned $z_\text{chem}$ embeddings
+- **Property prediction:** Regression from CLS token to molecular properties
+- **Test-Time Training (TTT):** K gradient steps on unlabeled target spectra using MSRP loss, adapting layer norms or LoRA parameters for zero-shot instrument adaptation
 
 ## Related
 
-- **Paper:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the research paper describing Spektron's architecture and results
+- **Paper:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the research paper describing Spektron's architecture and evaluation
 - **Theory:** [Spectral Identifiability](/research/spectral-identifiability) — information-theoretic framework motivating the VIB design
 - **Preprocessing:** [SpectraKit](/projects/spectrakit) — the spectral preprocessing library powering Spektron's data pipeline
 - **Blog:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — accessible overview of the theory behind spectral inversion
+- **Blog:** [Masked Pretraining for Scientific Spectra](/blog/masked-pretraining-scientific-spectra) — lessons learned from the masking strategy
+- **Blog:** [State-Space Models for Spectroscopy](/blog/state-space-models-for-spectroscopy) — why SSMs are a natural fit for spectral sequences

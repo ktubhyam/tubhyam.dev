@@ -91,8 +91,8 @@ export default function SideNav() {
               className="flex items-center gap-1.5 mb-1 group cursor-pointer w-full"
               aria-label="Scroll to top"
             >
-              <span className="text-[13px] font-mono font-medium text-[#C9A04A] transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(201,160,74,0.5)]">
-                ~
+              <span className="text-[10px] font-mono font-medium text-[#C9A04A] tracking-tight transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(201,160,74,0.5)]">
+                t.dev
               </span>
             </button>
 

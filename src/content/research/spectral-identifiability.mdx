@@ -8,26 +8,116 @@ abstract: "We present a group-theoretic and information-theoretic framework for 
 tags: ["information-theory", "group-theory", "spectroscopy", "identifiability"]
 ---
 
+## Motivation
+
+Can you reconstruct a molecule from its vibrational spectrum? This is the spectroscopic inverse problem — and it's the theoretical foundation underlying [Spektron](/projects/spektron)'s architecture design. Before building a model to solve the inverse problem, we need to understand what information is theoretically available.
+
+Not all molecular vibrations produce spectral signatures. Symmetry dictates which modes are IR-active (dipole moment changes), which are Raman-active (polarizability changes), and which are silent. This paper quantifies exactly how much information is observable for any molecular symmetry.
+
 ## Key Contributions
 
-1. **Information Completeness Ratio R(G,N):** A provable quantification of how much vibrational information is observable via combined IR and Raman spectroscopy, derived from character tables and selection rules.
+### 1. Information Completeness Ratio
 
-2. **Modal Complementarity Theorem:** For centrosymmetric molecules, IR-active and Raman-active modes are disjoint (mutual exclusion principle), meaning combined spectra strictly increase observable degrees of freedom.
+We define $R(G, N)$ as the fraction of vibrational degrees of freedom observable via combined IR and Raman spectroscopy for a molecule with point group $G$ and $N$ atoms:
 
-3. **Generic Identifiability Conjecture:** Supported by full-rank Jacobian analysis on 999 real molecular geometries from QM9, showing 4x overdetermination and zero rank-deficient cases.
+$$R(G, N) = \frac{N_\text{IR} + N_\text{Raman} - N_\text{coincident}}{3N - 6}$$
+
+where $N_\text{IR}$ and $N_\text{Raman}$ are the number of IR-active and Raman-active modes respectively, and $N_\text{coincident}$ counts modes active in both. The denominator $3N - 6$ is the total number of vibrational degrees of freedom (for nonlinear molecules).
+
+$R(G,N) = 1$ means every vibrational mode produces at least one spectral signature — no information is lost to symmetry. $R(G,N) < 1$ means some modes are completely silent in both IR and Raman, creating a fundamental information gap that no model can overcome.
+
+### 2. Modal Complementarity Theorem
+
+For centrosymmetric molecules (those with an inversion center, point groups $C_i$, $C_{2h}$, $D_{2h}$, $O_h$, etc.), the **mutual exclusion principle** holds rigorously:
+
+**Theorem (Modal Complementarity):** If $G$ contains the inversion operation $i$, then a normal mode is either IR-active or Raman-active, but never both. That is, the IR-active and Raman-active mode sets are disjoint.
+
+This means combined IR + Raman spectroscopy provides strictly more information than either technique alone for centrosymmetric molecules. The proof follows from the character of the inversion operation: IR activity requires odd symmetry ($\chi(i) = -1$) while Raman activity requires even symmetry ($\chi(i) = +1$) under the relevant representation.
+
+For non-centrosymmetric molecules (most organic molecules, including the QM9 dataset), modes can be simultaneously IR and Raman active — the complementarity is partial rather than strict.
+
+### 3. Generic Identifiability Conjecture
+
+**Conjecture:** For molecules with $R(G,N) = 1$ and sufficiently many atoms ($N \geq 4$), the combined forward map $\phi_\text{IR+Raman}: \mathcal{F} \to \mathcal{S}$ from force constants to spectral observables is generically injective up to symmetry equivalence.
+
+In other words: if all modes are observable, the combined spectrum uniquely determines the molecular force field (and hence geometry) for almost all molecules. "Generically" means except on a measure-zero set of pathological cases.
 
 ## Theoretical Framework
 
-The forward map from molecular force constants to vibrational spectra is G-invariant — symmetry-equivalent structures produce identical spectra. Our framework quantifies:
-- How much information is lost due to symmetry (silent modes)
-- How complementary IR and Raman are for different point groups
-- Under what conditions the inverse problem (spectrum → structure) has a unique solution
+### The Forward Map
+
+The forward map from molecular structure to vibrational spectrum is determined by the **Wilson GF method**:
+
+$$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
+
+where $\mathbf{G}$ is the kinetic energy matrix (determined by atomic masses and geometry), $\mathbf{F}$ is the force constant matrix (determined by the potential energy surface), and the eigenvalues $\lambda_k = 4\pi^2 \nu_k^2$ give the vibrational frequencies.
+
+This map is $G$-equivariant: symmetry-equivalent molecular structures produce identical spectra. Our framework characterizes the fiber structure of this map — how many distinct structures map to the same spectrum.
+
+### Symmetry Quotient
+
+**Theorem (Symmetry Quotient):** The dimension of the observable spectral space for point group $G$ is:
+
+$$\dim(\mathcal{S}_G) = \sum_{\Gamma \in \text{IR-active}} n_\Gamma + \sum_{\Gamma \in \text{Raman-active}} n_\Gamma$$
+
+where $n_\Gamma$ is the number of times irreducible representation $\Gamma$ appears in the vibrational representation. This sum equals $R(G,N) \cdot (3N-6)$.
+
+### Fano Inequality Bound
+
+Using Fano's inequality from information theory, we derive a lower bound on the identification error for any spectroscopic method:
+
+$$P_e \geq 1 - \frac{I(\text{spectrum}; \text{structure}) + 1}{\log_2 |\mathcal{M}|}$$
+
+where $|\mathcal{M}|$ is the number of candidate molecules and $I$ is the mutual information. For molecules with $R(G,N) < 1$, the silent modes create a hard information-theoretic ceiling on identification accuracy that no model — however powerful — can exceed.
 
 ## Computational Evidence
 
-- **130,831 QM9 molecules analyzed:** 99.9% have R(G,N) = 1.0 (all modes observable)
-- **999 Jacobian rank tests:** 100% full rank, median condition number 6,474
-- **Confusable pair analysis:** 82.1% of spectrally similar pairs resolved by combining IR + Raman
+### QM9 Point Group Distribution
+
+Analysis of 130,831 molecules from the QM9 dataset:
+
+| Point Group | Count | Fraction | $R(G,N)$ |
+|-------------|-------|----------|-----------|
+| $C_1$ | 121,459 | 92.8% | 1.0 |
+| $C_s$ | 7,248 | 5.5% | 1.0 |
+| $C_{2v}$ | 1,683 | 1.3% | 1.0 |
+| $C_{2h}$ | 289 | 0.2% | 1.0 |
+| $D_{2h}$ | 74 | 0.06% | 1.0 |
+| Other | 78 | 0.06% | 0.89–1.0 |
+
+**99.9% of QM9 molecules have $R(G,N) = 1.0$** — all vibrational modes are observable via combined IR + Raman. The information-theoretic ceiling is effectively non-binding for typical organic molecules.
+
+### Jacobian Rank Analysis
+
+We computed the Jacobian $\partial \phi / \partial \mathbf{F}$ of the forward map for 999 randomly sampled QM9 molecular geometries:
+
+- **100% had full rank** — the forward map is locally injective everywhere tested
+- **Median condition number:** 6,474 (well-conditioned)
+- **Mean overdetermination factor:** 4.1x (more spectral observables than force constant parameters)
+- **Zero rank-deficient cases** out of 999 trials
+
+This provides strong numerical evidence for the generic identifiability conjecture.
+
+### Confusable Pair Analysis
+
+Among pairs of molecules with similar IR spectra (cosine similarity > 0.95):
+
+- **82.1%** are resolved by adding Raman information (similarity drops below 0.8)
+- **12.4%** remain similar but distinguishable (similarity 0.8–0.95)
+- **5.5%** are truly confusable — but these are predominantly structural isomers differing only in methyl group positions, where the vibrational differences are inherently small
+
+## Implications for ML Architecture Design
+
+The theoretical results directly inform the design of [Spektron](/projects/spektron):
+
+1. **Dual-modality input:** Since IR and Raman are complementary for centrosymmetric molecules and partially complementary for all molecules, the model processes both modalities jointly via domain embeddings.
+
+2. **VIB bottleneck dimension:** The $z_\text{chem}$ dimension (128) is chosen to exceed $3N - 6$ for the largest QM9 molecules ($N = 29$, giving 81 vibrational DOF), ensuring the bottleneck doesn't discard observable information.
+
+3. **Testable predictions:**
+   - Model accuracy should decrease monotonically with $R(G,N)$ — molecules with silent modes should be harder to identify
+   - IR-only and Raman-only models should underperform the combined model, with the gap largest for centrosymmetric molecules
+   - The confusable pair analysis predicts which molecule pairs the model will struggle with
 
 ## Related
 
