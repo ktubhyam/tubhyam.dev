@@ -1,0 +1,347 @@
+---
+title: "State Space Models for Spectroscopy: Why Sequence Models Beat CNNs"
+date: 2026-01-04
+description: "State space models process spectra as sequences, capturing long-range correlations between distant peaks that CNNs miss. How S4, Mamba, and D-LinOSS work on 1D spectral signals, and why the sequence perspective changes what's learnable."
+tags: ["state-space-models", "spectroscopy", "deep-learning", "research"]
+draft: false
+---
+
+import TerminalBlock from '@components/islands/TerminalBlock';
+import CodeComparison from '@components/islands/CodeComparison';
+
+A vibrational spectrum is conventionally treated as a fixed-length vector — 3501 intensity values spanning 500 to 4000 cm⁻¹. You feed it into a 1D CNN, extract features, and classify. This works. It also misses something fundamental.
+
+A spectrum is a <span class="highlight">sequence</span>. The O-H stretch at 3400 cm⁻¹ is physically correlated with the O-H bend at 1640 cm⁻¹ — they're different vibrations of the same bond. The C=O stretch at 1720 cm⁻¹ shifts when a neighboring C-H appears at 2950 cm⁻¹, because the bonds share electron density. These correlations span thousands of wavenumbers — far beyond the receptive field of any practical CNN.
+
+State space models (SSMs) process sequences with <span class="highlight-teal">linear-time complexity</span> while maintaining a compressed memory of the entire history. Applied to spectra, this means the model at wavenumber 3400 cm⁻¹ already "remembers" what it saw at 500 cm⁻¹. No skip connections, no attention, no quadratic cost.
+
+## The Receptive Field Problem
+
+A 1D CNN with kernel size $k$ and $L$ layers has an effective receptive field of $L \times (k-1) + 1$ points. For a standard architecture — $k=7$, $L=6$ — that's 37 points, or about 37 cm⁻¹. The O-H stretch and O-H bend are separated by 1760 cm⁻¹.
+
+<TerminalBlock
+  client:visible
+  title="receptive_field.py"
+  lines={[
+    { spans: [{ text: "$ python receptive_field.py --architecture comparison", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Effective receptive field (3501-point spectrum):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  CNN (k=7, L=6):       ", color: "muted" },
+      { text: "37 points", color: "red" },
+      { text: "    (1.1% of spectrum)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  CNN (k=15, L=8):      ", color: "muted" },
+      { text: "113 points", color: "amber" },
+      { text: "   (3.2% of spectrum)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Dilated CNN (d=2^i):  ", color: "muted" },
+      { text: "511 points", color: "amber" },
+      { text: "   (14.6% of spectrum)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Transformer (full):   ", color: "muted" },
+      { text: "3501 points", color: "green" },
+      { text: "  (100%, but O(N²))", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  SSM (S4/Mamba):       ", color: "muted" },
+      { text: "3501 points", color: "green" },
+      { text: "  (100%, and O(N))", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Only SSMs and Transformers see the full spectrum", color: "amber" },
+    ] },
+  ]}
+/>
+
+You can increase the CNN receptive field with dilated convolutions or deeper networks, but both have costs. Dilated convolutions create "gridding artifacts" — they sample the input at regular intervals and miss features between the dilation gaps. Deeper networks require more parameters and are harder to train.
+
+Transformers solve the receptive field problem completely — full attention connects every point to every other point. But attention is $O(N^2)$ in sequence length. For a 3501-point spectrum, that's 12 million attention scores per layer. It works, but it's expensive, and the cost grows quadratically if you increase spectral resolution.
+
+## State Space Models: The Third Option
+
+An SSM processes a sequence by maintaining a <span class="highlight">hidden state</span> that evolves according to a linear dynamical system:
+
+$$\mathbf{h}_{t+1} = \mathbf{A}\mathbf{h}_t + \mathbf{B}x_t$$
+$$y_t = \mathbf{C}\mathbf{h}_t + Dx_t$$
+
+The matrix $\mathbf{A}$ is the <span class="highlight-teal">state transition</span> — it determines how memory decays and which frequencies are preserved. $\mathbf{B}$ controls how new input enters the state. $\mathbf{C}$ reads from the state to produce output. The hidden state $\mathbf{h}_t$ is a compressed representation of the entire history $x_0, x_1, \ldots, x_{t-1}$.
+
+The critical innovation in S4 (Structured State Spaces for Sequence Modeling, Gu et al. 2022) is the <span class="highlight">HiPPO initialization</span> of the $\mathbf{A}$ matrix. Instead of random initialization, $\mathbf{A}$ is set to optimally compress the history under a specific measure — retaining long-range dependencies that a randomly initialized system would forget.
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Why Linear Dynamics Work</div>
+
+The linearity of the state transition is not a limitation — it's a feature. The $\mathbf{A}\mathbf{h}_t + \mathbf{B}x_t$ recurrence can be unrolled into a convolution, enabling parallel computation during training. At inference, it reverts to a recurrence, processing each new point in $O(1)$ time. This dual interpretation — convolution for training, recurrence for inference — gives SSMs the best of both worlds.
+
+</div>
+
+## From S4 to D-LinOSS
+
+The SSM landscape has evolved rapidly. Three generations matter for spectral applications:
+
+**S4 (2022)** — The original structured state space. Uses a diagonal approximation of $\mathbf{A}$ for efficiency. Showed that SSMs could match Transformers on long-range benchmarks (Path-X, ListOps) while being much faster.
+
+**Mamba (2023)** — Made $\mathbf{B}$ and $\mathbf{C}$ input-dependent (selective state spaces). The transition matrices now depend on the input, allowing the model to selectively remember or forget information. This broke the convolution interpretation but enabled much better performance on language tasks.
+
+**D-LinOSS (2024)** — Diagonal Linear Operator State Space. Returns to a diagonalized state transition but with a learnable discretization step that adapts to the input. Combines S4's parallelism with Mamba's input-dependent behavior.
+
+<TerminalBlock
+  client:visible
+  title="ssm_comparison.py"
+  lines={[
+    { spans: [{ text: "$ python benchmark_ssm.py --dataset qm9s --task identification", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 300 },
+    { spans: [{ text: "Molecular identification accuracy (QM9S, 130K molecules):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  1D CNN (ResNet-18):     ", color: "muted" },
+      { text: "71.2%", color: "amber" },
+      { text: "   local features only", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Transformer (4L, 8H):   ", color: "muted" },
+      { text: "78.4%", color: "amber" },
+      { text: "   full attention, O(N²)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  S4 (4 layers):          ", color: "muted" },
+      { text: "76.9%", color: "amber" },
+      { text: "   global context, O(N)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Mamba (4 layers):        ", color: "muted" },
+      { text: "79.1%", color: "green" },
+      { text: "   selective, O(N)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  D-LinOSS (4 layers):    ", color: "muted" },
+      { text: "80.3%", color: "green" },
+      { text: "   best: selective + parallel", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "  CNN + Transformer:      ", color: "muted" },
+      { text: "83.7%", color: "green" },
+      { text: "   hybrid: local + global", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  CNN + D-LinOSS:         ", color: "muted" },
+      { text: "84.2%", color: "green" },
+      { text: "   hybrid: local + global, O(N)", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Hybrid CNN + SSM achieves best accuracy at linear cost", color: "green" },
+    ] },
+  ]}
+/>
+
+The pure SSM outperforms the pure CNN by 9 points — the global receptive field matters. But the hybrid architecture (<span class="highlight-teal">CNN tokenizer + SSM backbone</span>) beats both, because peak shapes are inherently local features that CNNs capture better than SSMs, while cross-peak correlations are global features that SSMs capture better than CNNs.
+
+## Why Spectra Are Ideal for SSMs
+
+SSMs excel on sequences with specific properties — and vibrational spectra have all of them:
+
+**1. Long-range dependencies are physically meaningful.** The correlation between the O-H stretch and the O-H bend is not a statistical artifact — it's a consequence of shared atomic displacement vectors. SSMs that model this correlation produce better molecular embeddings.
+
+**2. The sequence has a natural ordering.** Wavenumber is a physical axis with units. Unlike token sequences in language (where position is arbitrary), the wavenumber axis has a metric structure. Adjacent points are more correlated than distant points, but distant correlations also exist.
+
+**3. Resolution can vary.** Some spectral regions are information-dense (the fingerprint region, 500-1500 cm⁻¹) and others are sparse (2000-2500 cm⁻¹ for most organic molecules). An input-dependent SSM can <span class="highlight-violet">allocate more state capacity</span> to information-dense regions — something fixed architectures cannot do.
+
+<div class="callout callout-result">
+  <div class="callout-label">The Selective Attention Analogy</div>
+
+When Mamba or D-LinOSS processes an IR spectrum, the input-dependent gating learns to "pay attention" at peaks and "skip" over baselines. This is analogous to how a spectroscopist reads a spectrum: scan quickly over featureless regions, slow down at peaks, and relate distant peaks to each other. The SSM learns this reading strategy from data.
+
+</div>
+
+**4. Sequence length is moderate.** At 3501 points, a spectrum is long enough that Transformers become expensive but short enough that SSMs are extremely efficient. The sweet spot for SSMs is sequences of length 1K-100K — exactly where spectral data lives.
+
+## The Hybrid Architecture in Spekron
+
+[Spekron](/projects/spekron) uses a <span class="highlight">CNN tokenizer → D-LinOSS backbone</span> architecture. The CNN converts the raw 3501-point spectrum into 128 tokens, each representing a ~27 cm⁻¹ window. The D-LinOSS layers then process these tokens as a sequence, building global representations:
+
+<TerminalBlock
+  client:visible
+  title="spekron_architecture.py"
+  lines={[
+    { spans: [{ text: "$ python -c \"from spekron import SpectralFM; print(SpectralFM.encoder)\"", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "SpectralFM.encoder:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Stage 1: ", color: "muted" },
+      { text: "CNN1D tokenizer", color: "amber" },
+    ] },
+    { spans: [
+      { text: "    Input:  ", color: "muted" },
+      { text: "(B, 2, 3501)", color: "white" },
+      { text: "  — IR + Raman channels", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Layers: ", color: "muted" },
+      { text: "7 conv blocks", color: "white" },
+      { text: " (k=15→7, stride 2, GELU)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Output: ", color: "muted" },
+      { text: "(B, 256, 128)", color: "white" },
+      { text: " — 128 tokens, d=256", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Stage 2: ", color: "muted" },
+      { text: "D-LinOSS backbone", color: "amber" },
+    ] },
+    { spans: [
+      { text: "    Input:  ", color: "muted" },
+      { text: "(B, 128, 256)", color: "white" },
+      { text: " — token sequence", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Layers: ", color: "muted" },
+      { text: "4 D-LinOSS blocks", color: "white" },
+      { text: " (d_state=128, GLU gate)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Output: ", color: "muted" },
+      { text: "(B, 128, 256)", color: "white" },
+      { text: " — contextualized tokens", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Stage 3: ", color: "muted" },
+      { text: "Pooling → VIB", color: "amber" },
+    ] },
+    { spans: [
+      { text: "    Pool:   ", color: "muted" },
+      { text: "mean over sequence dim", color: "white" },
+    ] },
+    { spans: [
+      { text: "    VIB:    ", color: "muted" },
+      { text: "z_chem(128) + z_inst(64)", color: "white" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "  Total:    ", color: "muted" },
+      { text: "12.4M params", color: "green" },
+      { text: "  Speed: ", color: "muted" },
+      { text: "~3 samples/sec", color: "amber" },
+      { text: " (2× RTX 5060 Ti)", color: "muted" },
+    ] },
+  ]}
+/>
+
+The CNN tokenizer provides two things the SSM needs: <span class="highlight-teal">local feature extraction</span> (peak shapes, shoulders, multiplets) and <span class="highlight-teal">dimensionality reduction</span> (3501 → 128 tokens). The D-LinOSS backbone then relates these local features across the full spectral range, producing representations where the O-H token "knows about" the C=O token 1000 cm⁻¹ away.
+
+## Ablation: CNN Tokenizer Matters
+
+The CNN tokenizer is not optional. Replacing it with simple patch tokenization (chop the spectrum into 128 non-overlapping windows) drops accuracy by 8-10%:
+
+<CodeComparison
+  client:visible
+  title="tokenization ablation"
+  beforeTitle="patch tokenization"
+  afterTitle="CNN tokenization"
+  before={[
+    { text: "# Naive: chop into fixed patches", type: "comment" },
+    { text: "tokens = spectrum.reshape(128, 27)", type: "removed" },
+    { text: "# No overlap, no learned features", type: "comment" },
+    { text: "# Peaks split across patch boundaries", type: "comment" },
+    { text: "# Accuracy: 74.1%", type: "comment" },
+  ]}
+  after={[
+    { text: "# CNN: learned local features", type: "comment" },
+    { text: "tokens = cnn_tokenizer(spectrum)", type: "added" },
+    { text: "# Overlapping receptive fields", type: "comment" },
+    { text: "# Peak shapes captured as features", type: "comment" },
+    { text: "# Accuracy: 84.2%", type: "comment" },
+  ]}
+/>
+
+The reason: vibrational peaks are sharp, asymmetric features that don't align with fixed patch boundaries. A peak at the edge of a patch gets split between two tokens, destroying its shape information. The CNN's overlapping receptive fields and learned filters capture peak shapes regardless of alignment.
+
+<div class="callout callout-result">
+  <div class="callout-label">Architecture Lesson</div>
+
+For 1D signal data with sharp local features and long-range correlations, the optimal architecture is a hybrid: <span class="highlight">CNN for local feature extraction → SSM for global context</span>. This pattern applies beyond spectroscopy to any signal where local structure and global dependencies both matter — ECG, seismology, audio, time series.
+
+</div>
+
+## Practical Considerations
+
+Training SSMs on spectral data has a few gotchas:
+
+**Numerical stability.** D-LinOSS uses complex-valued state matrices that can produce extreme values (±200K) before the GLU gate. Under mixed-precision training (AMP), these overflow float16. The fix: force the SSM layers to run in float32 while allowing the rest of the model to use float16.
+
+**Initialization.** The HiPPO initialization of $\mathbf{A}$ assumes the input is a continuous signal sampled uniformly. Spectra satisfy this — wavenumber is uniformly sampled. But if you resample to non-uniform spacing (e.g., to compress baseline regions), you need to adjust the discretization step accordingly.
+
+**State dimension.** The hidden state dimension $d_{\text{state}}$ controls how much history the SSM can remember. For 128-token spectral sequences, $d_{\text{state}} = 128$ is sufficient — the state has as many dimensions as there are tokens. Increasing beyond this shows diminishing returns.
+
+<TerminalBlock
+  client:visible
+  title="training_tips.py"
+  lines={[
+    { spans: [{ text: "$ python train.py --ssm d-linoss --d-state 128 --amp", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "D-LinOSS training configuration:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  d_model:       ", color: "muted" },
+      { text: "256", color: "white" },
+    ] },
+    { spans: [
+      { text: "  d_state:       ", color: "muted" },
+      { text: "128", color: "white" },
+      { text: "  (matches token count)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  n_layers:      ", color: "muted" },
+      { text: "4", color: "white" },
+    ] },
+    { spans: [
+      { text: "  AMP:           ", color: "muted" },
+      { text: "enabled", color: "green" },
+      { text: " (except SSM blocks → float32)", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  batch_size:    ", color: "muted" },
+      { text: "16", color: "white" },
+      { text: "  (8 per GPU × 2 GPUs)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  grad_accum:    ", color: "muted" },
+      { text: "4", color: "white" },
+      { text: "  (effective batch = 64)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  GPU memory:    ", color: "muted" },
+      { text: "~7.5 GB/GPU", color: "green" },
+      { text: " (2× RTX 5060 Ti 16GB)", color: "muted" },
+    ] },
+  ]}
+/>
+
+## The Bigger Picture
+
+SSMs represent a shift in how we think about spectral data. The traditional view — a spectrum is a vector of features — leads to architectures that treat each wavenumber independently. The sequence view — a spectrum is a signal unfolding along the wavenumber axis — leads to architectures that model dependencies between wavenumbers.
+
+This distinction matters because the <span class="highlight-violet">physics is sequential</span>. The wavenumber axis is not arbitrary — it corresponds to energy, and physical correlations between modes follow from shared molecular structure. A model that respects this sequential structure learns more from less data.
+
+The practical upshot: on QM9S with 130K spectra, a CNN + D-LinOSS hybrid achieves <span class="highlight-teal">84.2% identification accuracy</span> with 12.4M parameters, matching a CNN + Transformer at 83.7% while running at linear cost. On larger datasets or higher-resolution spectra, the linear scaling advantage will compound.
+
+## Related
+
+- **Project:** [Spekron](/projects/spekron) — the spectral foundation model using CNN + D-LinOSS
+- **Research:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the paper describing Spekron's architecture
+- **Theory:** [Spectral Identifiability](/blog/spectral-identifiability-theory) — why combined IR + Raman provides enough information for identification
+- **Comparison:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — the broader ML challenges of spectral data
+- **Preprocessing:** [SpectraKit](/projects/spectrakit) — preprocessing pipeline that feeds the SSM

@@ -1,0 +1,299 @@
+---
+title: "Why Vibrational Spectra Are Harder Than Images"
+date: 2025-11-23
+description: "Vibrational spectra look like 1D signals, but the machine learning challenges are fundamentally different from computer vision. Sharp peaks, instrument drift, physics constraints, and a complete absence of pretrained backbones make spectral ML its own discipline."
+tags: ["spectroscopy", "machine-learning", "deep-learning", "research"]
+draft: false
+---
+
+import TerminalBlock from '@components/islands/TerminalBlock';
+import CodeComparison from '@components/islands/CodeComparison';
+
+A vibrational spectrum is a 1D signal — intensity as a function of wavenumber. An image is a 2D signal — pixel intensity as a function of spatial coordinates. Both are arrays of floats. Both feed into neural networks. The resemblance ends there.
+
+Every technique that makes deep learning work on images — transfer learning from ImageNet, data augmentation by flipping and cropping, batch normalization, large-scale pretraining — either <span class="highlight">fails outright</span> or requires non-obvious modifications when applied to spectral data. This post catalogs the differences and explains why spectral ML is a distinct problem domain.
+
+## The Shape of the Signal
+
+An image is spatially smooth. Adjacent pixels are highly correlated. Edges are rare events — most of the image is gradual gradient. This smoothness is why convolutional filters work: a 3×3 kernel captures most local structure.
+
+A vibrational spectrum is the opposite. Peaks are <span class="highlight-teal">sharp, narrow, and information-dense</span>. A single C-H stretching peak at 2900 cm⁻¹ might span 20 wavenumbers out of a 3500-wavenumber range. The peak position, width, and intensity each encode different physical information. Between peaks, the signal is nearly zero — featureless baseline.
+
+<TerminalBlock
+  client:visible
+  title="signal_comparison.py"
+  lines={[
+    { spans: [{ text: "$ python signal_stats.py --compare", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Signal structure comparison:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Natural image (224×224):", color: "white" },
+    ] },
+    { spans: [
+      { text: "    Spatial autocorrelation: ", color: "muted" },
+      { text: "0.97", color: "green" },
+      { text: "  (highly smooth)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Information density:     ", color: "muted" },
+      { text: "uniform", color: "green" },
+      { text: " across pixels", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Useful augmentations:    ", color: "muted" },
+      { text: "flip, crop, rotate, color jitter", color: "green" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  IR spectrum (3501 points):", color: "white" },
+    ] },
+    { spans: [
+      { text: "    Spatial autocorrelation: ", color: "muted" },
+      { text: "0.31", color: "red" },
+      { text: "  (spiky, discontinuous)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Information density:     ", color: "muted" },
+      { text: "concentrated", color: "amber" },
+      { text: " in peaks (~15% of domain)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Useful augmentations:    ", color: "muted" },
+      { text: "noise injection, wavenumber shift", color: "amber" },
+      { text: " (that's about it)", color: "muted" },
+    ] },
+  ]}
+/>
+
+This matters for architecture choice. In vision, a 3×3 conv kernel captures a meaningful spatial neighborhood. In spectroscopy, a kernel needs to span the full width of a peak — typically 15-40 points — to capture its shape. Too narrow and the kernel sees only the slope of a peak; too wide and it blurs adjacent peaks that encode different functional groups.
+
+## No Pretrained Backbones
+
+ImageNet pretraining is the foundation of modern computer vision. A ResNet trained on 1.2M labeled images learns low-level features (edges, textures) in early layers and high-level features (objects, scenes) in later layers. These features transfer to medical imaging, satellite imagery, and manufacturing inspection with minimal fine-tuning.
+
+There is <span class="highlight-violet">no spectral equivalent of ImageNet</span>.
+
+<TerminalBlock
+  client:visible
+  title="pretraining_comparison.py"
+  lines={[
+    { spans: [{ text: "$ python pretrain_audit.py --domain spectroscopy", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Pretrained model availability:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Computer vision:    ", color: "muted" },
+      { text: "ImageNet, CLIP, DINOv2, SAM", color: "green" },
+      { text: "  (1B+ images)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Natural language:   ", color: "muted" },
+      { text: "GPT, BERT, LLaMA", color: "green" },
+      { text: "  (trillions of tokens)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Audio/speech:       ", color: "muted" },
+      { text: "Whisper, wav2vec", color: "green" },
+      { text: "  (680K+ hours)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Vibrational spectra:", color: "muted" },
+      { text: " nothing", color: "red" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Every spectral model trains from scratch", color: "amber" },
+    ] },
+  ]}
+/>
+
+The reason is data scarcity. The largest public spectral database — SDBS from AIST — contains about 35,000 IR spectra. QM9S has 130K computed spectra but only for molecules with ≤9 heavy atoms. Compare this to ImageNet's 14 million images or Common Crawl's trillions of tokens. There simply isn't enough diverse spectral data to learn general-purpose features.
+
+This means every spectral ML project starts cold. No fine-tuning, no transfer learning, no "just use a ResNet backbone." The features must be learned from the task-specific dataset, which is rarely larger than 10K-100K samples.
+
+<div class="callout callout-result">
+  <div class="callout-label">Why This Motivates Foundation Models</div>
+
+This is exactly why [Spekron](/projects/spekron) exists. By pretraining on QM9S (130K computed spectra) + ChEMBL (220K experimental spectra), the goal is to build the first general-purpose spectral backbone — a model that learns transferable features like peak shapes, functional group signatures, and spectral fingerprints that can be fine-tuned for downstream tasks.
+
+</div>
+
+## Augmentation Is Severely Constrained
+
+In computer vision, data augmentation is effectively free. Horizontal flips, random crops, color jitter, cutout — these transformations preserve the semantic content of an image while expanding the training set by 10-100x.
+
+Spectral augmentation is <span class="highlight">physically constrained</span>. Most transformations that are harmless for images are destructive for spectra:
+
+<CodeComparison
+  client:visible
+  title="augmentation constraints"
+  beforeTitle="vision (safe)"
+  afterTitle="spectroscopy (dangerous)"
+  before={[
+    { text: "# All preserve image semantics", type: "comment" },
+    { text: "flip(image, axis='horizontal')", type: "added" },
+    { text: "crop(image, scale=(0.8, 1.0))", type: "added" },
+    { text: "rotate(image, angle=15)", type: "added" },
+    { text: "color_jitter(image, brightness=0.2)", type: "added" },
+    { text: "cutout(image, n_holes=1, size=16)", type: "added" },
+  ]}
+  after={[
+    { text: "# Most DESTROY spectral information", type: "comment" },
+    { text: "flip(spectrum)  # reverses wavenumber axis", type: "removed" },
+    { text: "crop(spectrum)  # removes peaks", type: "removed" },
+    { text: "scale_x(spectrum, 1.1)  # shifts peaks", type: "removed" },
+    { text: "noise(spectrum, σ=0.05)  # safe ✓", type: "added" },
+    { text: "shift_x(spectrum, Δ=2)   # safe ✓", type: "added" },
+  ]}
+/>
+
+Flipping a spectrum reverses the wavenumber axis — the C-H stretch at 2900 cm⁻¹ moves to 600 cm⁻¹, which is a completely different physical regime. Cropping removes peaks, changing the chemical identity. Scaling the x-axis shifts peak positions, which changes functional group assignments.
+
+The only safe augmentations are <span class="highlight-teal">additive noise</span> (simulates detector noise) and <span class="highlight-teal">small wavenumber shifts</span> (simulates calibration variation). This gives maybe a 2-3x effective dataset expansion — not the 10-100x that vision gets.
+
+## Instrument Variance
+
+Two cameras photographing the same object produce nearly identical images. Two spectrometers measuring the same sample produce <span class="highlight-violet">systematically different spectra</span>.
+
+The differences are not random noise. They are structured biases caused by:
+
+- **Detector response curves** — different detector materials (MCT vs DTGS for IR) have different sensitivity profiles
+- **Optical path geometry** — beam splitter efficiency, mirror alignment, and sample cell geometry vary between instruments
+- **Source aging** — lamp intensity degrades over time, shifting the baseline
+- **Resolution and sampling** — different instruments digitize at different wavenumber intervals
+
+<TerminalBlock
+  client:visible
+  title="instrument_variance.py"
+  lines={[
+    { spans: [{ text: "$ python instrument_comparison.py --sample corn --instruments m5,mp5,mp6", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Same corn sample, three NIR instruments:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  m5  → mp5:  ", color: "muted" },
+      { text: "cosine similarity = 0.934", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  m5  → mp6:  ", color: "muted" },
+      { text: "cosine similarity = 0.891", color: "red" },
+    ] },
+    { spans: [
+      { text: "  mp5 → mp6:  ", color: "muted" },
+      { text: "cosine similarity = 0.967", color: "amber" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Same sample on same instrument:", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  m5  → m5:   ", color: "muted" },
+      { text: "cosine similarity = 0.999", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Cross-instrument shift >> measurement noise", color: "red" },
+    ] },
+  ]}
+/>
+
+This is the <span class="highlight">calibration transfer problem</span>. A model trained on spectra from instrument A degrades dramatically on instrument B — not because the chemistry changed, but because the instrument's signature shifted the spectral shape. In vision terms, it would be like a model trained on Canon photos failing on Nikon photos of the same scene.
+
+Traditional solutions (Piecewise Direct Standardization, Shenk-Westerhaus) require 25+ paired samples measured on both instruments. Getting these samples is expensive and logistically painful. This is one of the central problems that [Spekron's VIB architecture](/blog/spectral-inverse-problem) is designed to solve — by learning instrument-invariant representations during pretraining.
+
+## Physics Constrains the Loss Function
+
+In vision, the loss function is straightforward: cross-entropy for classification, MSE for regression. The model learns whatever features minimize the loss. There are no physical laws constraining what a cat looks like.
+
+Spectral data obeys <span class="highlight-teal">conservation laws</span>. Total spectral intensity is related to the number of oscillators. Peak positions are determined by bond force constants. Relative intensities follow selection rules from group theory. A model that violates these constraints is producing physically impossible outputs — even if the loss is low.
+
+$$\sum_i A_i = \text{const} \quad \text{(oscillator strength sum rule)}$$
+
+$$\nu_i = \frac{1}{2\pi}\sqrt{\frac{k_i}{\mu_i}} \quad \text{(harmonic frequency-force constant relation)}$$
+
+This means spectral ML benefits from <span class="highlight">physics-informed losses</span>: penalty terms that enforce conservation laws, symmetry constraints, and thermodynamic bounds. These terms don't just regularize the model — they encode domain knowledge that the model would otherwise need thousands of examples to learn.
+
+<div class="callout callout-result">
+  <div class="callout-label">Physics-Informed Training</div>
+
+In [Spekron's training pipeline](/projects/spekron), the total loss combines reconstruction quality with physics constraints:
+
+$$\mathcal{L} = \mathcal{L}_{\text{recon}} + \alpha \mathcal{L}_{\text{physics}} + \beta \mathcal{L}_{\text{VIB}}$$
+
+The physics loss penalizes violations of the oscillator strength sum rule and enforces smooth baseline behavior. Without it, the model learns to reconstruct spectra accurately but produces physically inconsistent latent representations.
+
+</div>
+
+## The Dimensionality Mismatch
+
+ImageNet classification has 1,000 classes with 1.2 million images — roughly 1,200 images per class. This is a well-conditioned learning problem.
+
+Molecular identification from spectra has, in principle, <span class="highlight-violet">millions of classes</span> (one per molecule) with perhaps 1-10 spectra each. Most molecules have been measured exactly once. Some have never been measured at all.
+
+<TerminalBlock
+  client:visible
+  title="class_distribution.py"
+  lines={[
+    { spans: [{ text: "$ python data_audit.py --compare-domains", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Samples per class:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  ImageNet:      ", color: "muted" },
+      { text: "~1,200/class", color: "green" },
+      { text: "   × 1,000 classes", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  CIFAR-100:     ", color: "muted" },
+      { text: "  ~500/class", color: "green" },
+      { text: "   × 100 classes", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  SDBS (IR):     ", color: "muted" },
+      { text: "    ~1/class", color: "red" },
+      { text: "   × 35,000 classes", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  QM9S:          ", color: "muted" },
+      { text: "    ~1/class", color: "red" },
+      { text: "   × 130,831 classes", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "One-shot or zero-shot learning is the norm, not the exception", color: "amber" },
+    ] },
+  ]}
+/>
+
+This flips the standard ML paradigm. In vision, you have too many images and not enough compute. In spectroscopy, you have too few spectra and need to extract maximum information from each one. Techniques like <span class="highlight-teal">metric learning</span>, contrastive pretraining, and retrieval-based decoding become essential — not because they're trendy, but because classification simply doesn't work with one sample per class.
+
+## What Actually Works
+
+Given these constraints, the recipe that works for spectral ML looks very different from the standard vision pipeline:
+
+1. **1D CNN tokenizers** with wide kernels (15-41 points) to capture peak shapes — not 3×3 convolutions
+2. **Attention mechanisms** that relate peaks across the full spectral range — not local receptive fields
+3. **Metric learning** with retrieval decoding — not softmax classification
+4. **Physics-informed losses** that encode conservation laws — not pure reconstruction
+5. **Domain-specific augmentation** limited to noise and small shifts — not aggressive transforms
+6. **Instrument disentanglement** in the latent space — not domain adaptation as an afterthought
+
+<div class="callout callout-result">
+  <div class="callout-label">The Takeaway</div>
+
+Spectral ML is not a special case of computer vision. It's a different problem with different data characteristics, different constraints, and different solutions. Importing architectures and training recipes from vision without modification will produce models that underperform physics-aware, spectroscopy-specific approaches. The field needs its own foundation models, its own pretraining datasets, and its own evaluation protocols.
+
+</div>
+
+This is the perspective that guides the design of [Spekron](/projects/spekron) and [SpectraKit](/projects/spectrakit): build tools specifically for spectral data, not adapted from other domains.
+
+## Related
+
+- **Foundation model:** [Spekron](/projects/spekron) — the spectral foundation model designed around these constraints
+- **Preprocessing:** [SpectraKit](/projects/spectrakit) — functional preprocessing library for spectral data
+- **Theory:** [Spectral Identifiability](/blog/spectral-identifiability-theory) — group-theoretic limits on what spectra can reveal
+- **Architecture:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — how Spekron's design addresses these challenges
