@@ -1,6 +1,6 @@
 /**
- * ProjectSlider — Interactive project showcase with sliding cards and animated text.
- * Horizontal carousel with snap scrolling, auto-play, and keyboard navigation.
+ * ProjectSlider — Terminal-styled project showcase carousel.
+ * Matches TerminalBlock aesthetic: traffic lights, title bar, scanlines, monospace.
  */
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -33,7 +33,7 @@ interface Project {
   description: string;
   tags: string[];
   color: string;
-  icon: string; // SVG path
+  icon: string;
   href: string;
   github?: string;
   status: string;
@@ -80,10 +80,10 @@ const DEFAULT_PROJECTS: Project[] = [
 function TypewriterDescription({ text }: { text: string }) {
   const { displayed, done } = useTypewriter(text, 18);
   return (
-    <p className="mt-5 text-sm text-text-muted leading-relaxed max-w-xl">
+    <span className="text-[#888]">
       {displayed}
-      {!done && <span className="animate-blink text-text-muted/70">▌</span>}
-    </p>
+      {!done && <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-px translate-y-[2px]" />}
+    </span>
   );
 }
 
@@ -133,143 +133,191 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
   }, []);
 
   const variants = {
-    enter: (d: number) => ({ x: d > 0 ? 80 : -80, opacity: 0, filter: "blur(4px)" }),
-    center: { x: 0, opacity: 1, filter: "blur(0px)" },
-    exit: (d: number) => ({ x: d > 0 ? -80 : 80, opacity: 0, filter: "blur(4px)" }),
+    enter: (d: number) => ({ opacity: 0, y: d > 0 ? 12 : -12 }),
+    center: { opacity: 1, y: 0 },
+    exit: (d: number) => ({ opacity: 0, y: d > 0 ? -12 : 12 }),
   };
 
   return (
     <div className={`relative ${className}`}>
-      {/* Main card */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-bg-secondary min-h-[340px] md:min-h-[300px]">
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div
-            key={active}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="p-6 md:p-8"
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center border"
-                  style={{ borderColor: `${project.color}30`, backgroundColor: `${project.color}10` }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={project.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={project.icon} />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-heading font-semibold text-text-primary tracking-tight">
-                    {project.title}
-                  </h3>
-                  <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: project.color }}>
-                    {project.status}
-                  </span>
-                </div>
+      <div className="rounded-xl border border-border overflow-hidden bg-bg-secondary relative">
+        {/* Title bar — matches TerminalBlock */}
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
+          <div className="flex items-center gap-1.5">
+            <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
+            <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
+            <div className="w-[10px] h-[10px] rounded-full bg-[#28C840]" />
+          </div>
+          <span className="ml-2 text-[10px] font-mono text-text-muted/60 select-none">projects</span>
+
+          {/* Navigation arrows in title bar */}
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              onClick={() => interact(prev)}
+              className="w-5 h-5 flex items-center justify-center text-text-muted/40 hover:text-text-muted transition-colors"
+              aria-label="Previous project"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <span className="text-[10px] font-mono text-text-muted/40 tabular-nums">
+              {active + 1}/{projects.length}
+            </span>
+            <button
+              onClick={() => interact(next)}
+              className="w-5 h-5 flex items-center justify-center text-text-muted/40 hover:text-text-muted transition-colors"
+              aria-label="Next project"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Terminal content */}
+        <div className="p-4 font-mono text-xs md:text-sm leading-relaxed min-h-[220px] relative overflow-hidden">
+          <AnimatePresence custom={direction} mode="wait">
+            <motion.div
+              key={active}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* Line 1: project name */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+                <span>
+                  <span className="text-[#555]">$ </span>
+                  <span className="text-[#34D399]">cat</span>
+                  <span className="text-[#e0e0e0]"> {project.title.toLowerCase().replace(/\s+/g, "-")}</span>
+                  <span className="text-[#555]">/README.md</span>
+                </span>
               </div>
 
-              {/* Counter */}
-              <span className="text-xs font-mono text-text-muted/50 flex-shrink-0">
-                {String(active + 1).padStart(2, "0")}/{String(projects.length).padStart(2, "0")}
-              </span>
-            </div>
+              {/* Line 2: blank */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+              </div>
 
-            {/* Description with terminal typewriter */}
-            <TypewriterDescription key={active} text={project.description} />
+              {/* Line 3: title with color */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+                <span>
+                  <span className="text-[#555]"># </span>
+                  <span style={{ color: project.color }}>{project.title}</span>
+                  <span className="text-[#555]"> — </span>
+                  <span className="text-[#555] text-[10px] uppercase tracking-wider">{project.status}</span>
+                </span>
+              </div>
 
-            {/* Tags */}
-            <div className="mt-5 flex flex-wrap gap-2">
-              {project.tags.map((tag, i) => (
-                <motion.span
-                  key={tag}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 + i * 0.05 }}
-                  className="text-[10px] font-mono rounded-full px-2.5 py-0.5 border"
-                  style={{
-                    color: `${project.color}cc`,
-                    borderColor: `${project.color}20`,
-                    backgroundColor: `${project.color}08`,
-                  }}
-                >
-                  {tag}
-                </motion.span>
-              ))}
-            </div>
+              {/* Line 4: blank */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+              </div>
 
-            {/* Links */}
-            <div className="mt-6 flex items-center gap-4">
-              <a
-                href={project.href}
-                className="text-xs font-mono transition-colors duration-200"
-                style={{ color: `${project.color}aa` }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = project.color)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = `${project.color}aa`)}
+              {/* Line 5: description with typewriter */}
+              <div
+                className="flex"
+                style={{
+                  backgroundColor: "rgba(201, 160, 74, 0.04)",
+                  borderLeft: "2px solid rgba(201, 160, 74, 0.3)",
+                  paddingLeft: "6px",
+                  marginLeft: "-8px",
+                }}
               >
-                View project &rarr;
-              </a>
-              {project.github && (
-                <a
-                  href={project.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-mono text-text-muted/50 hover:text-text-muted transition-colors duration-200"
-                >
-                  GitHub &nearr;
-                </a>
-              )}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+                <span className="flex-1">
+                  <TypewriterDescription key={active} text={project.description} />
+                </span>
+              </div>
+
+              {/* Line 6: blank */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
+              </div>
+
+              {/* Line 7: tags */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">7</span>
+                <span>
+                  <span className="text-[#555]">tags: </span>
+                  {project.tags.map((tag, i) => (
+                    <span key={tag}>
+                      <span style={{ color: project.color }}>{tag}</span>
+                      {i < project.tags.length - 1 && <span className="text-[#333]"> · </span>}
+                    </span>
+                  ))}
+                </span>
+              </div>
+
+              {/* Line 8: blank */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">8</span>
+              </div>
+
+              {/* Line 9: links */}
+              <div className="flex">
+                <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">9</span>
+                <span>
+                  <a
+                    href={project.href}
+                    className="transition-colors duration-200 hover:underline"
+                    style={{ color: project.color }}
+                  >
+                    View project →
+                  </a>
+                  {project.github && (
+                    <>
+                      <span className="text-[#333]">  ·  </span>
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#555] hover:text-[#888] transition-colors duration-200 hover:underline"
+                      >
+                        GitHub ↗
+                      </a>
+                    </>
+                  )}
+                </span>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Scanline overlay — matches TerminalBlock */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)",
+              backgroundSize: "100% 4px",
+            }}
+          />
+        </div>
       </div>
 
-      {/* Navigation dots + arrows */}
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {projects.map((p, i) => (
-            <button
-              key={i}
-              onClick={() => interact(() => goTo(i))}
-              className="group relative h-8 flex items-center"
-              aria-label={`Go to ${p.title}`}
-            >
-              <div
-                className="h-[3px] rounded-full transition-all duration-500"
-                style={{
-                  width: i === active ? 32 : 12,
-                  backgroundColor: i === active ? p.color : "rgba(255,255,255,0.1)",
-                }}
-              />
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1">
+      {/* Navigation dots */}
+      <div className="mt-3 flex items-center justify-center gap-2">
+        {projects.map((p, i) => (
           <button
-            onClick={() => interact(prev)}
-            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text-primary hover:border-border-hover transition-colors"
-            aria-label="Previous project"
+            key={i}
+            onClick={() => interact(() => goTo(i))}
+            className="h-6 flex items-center"
+            aria-label={`Go to ${p.title}`}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <div
+              className="h-[2px] rounded-full transition-all duration-500"
+              style={{
+                width: i === active ? 24 : 8,
+                backgroundColor: i === active ? p.color : "rgba(255,255,255,0.08)",
+              }}
+            />
           </button>
-          <button
-            onClick={() => interact(next)}
-            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-text-muted hover:text-text-primary hover:border-border-hover transition-colors"
-            aria-label="Next project"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </button>
-        </div>
+        ))}
       </div>
     </div>
   );
