@@ -4,6 +4,7 @@ import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
+import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import StaggerReveal from "@components/islands/StaggerReveal";
@@ -11,9 +12,39 @@ import StaggerReveal from "@components/islands/StaggerReveal";
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Blog",
+  "description": "Technical writing on computational chemistry, ML, and open source.",
+  "url": `${SITE.url}/blog`,
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": posts.length,
+    "itemListElement": posts.map((post, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SITE.url}/blog/${post.id}`,
+      "name": post.data.title,
+    })),
+  },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${SITE.url}/blog` },
+  ],
+};
 ---
 
 <PageLayout title="Blog" description="Technical writing on computational chemistry, ML, and open source.">
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <section class="py-12">
     <BlurReveal
       client:idle

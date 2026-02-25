@@ -3,15 +3,46 @@ import PageLayout from "@layouts/PageLayout.astro";
 import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
+import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import StaggerReveal from "@components/islands/StaggerReveal";
 
 const projects = (await getCollection("projects"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Projects",
+  "description": "Things I've built — libraries, tools, and experiments.",
+  "url": `${SITE.url}/projects`,
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": projects.length,
+    "itemListElement": projects.map((project, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SITE.url}/projects/${project.id}`,
+      "name": project.data.title,
+    })),
+  },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Projects", "item": `${SITE.url}/projects` },
+  ],
+};
 ---
 
 <PageLayout title="Projects" description="Things I've built — libraries, tools, and experiments.">
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <section class="py-12">
     <BlurReveal
       client:idle
