@@ -1,22 +1,45 @@
 ---
-title: "Hello World — Building My Corner of the Internet"
+title: "What I'm Working On: Spectroscopy, Deep Learning, and the Inverse Problem"
 date: 2026-02-24
-description: "Introducing my new personal site, built with Astro 5 and a liquid glass aesthetic. Here's what I'm working on and why."
-tags: ["meta", "web-dev", "astro"]
+description: "An overview of my current research directions — spectral identifiability theory, symmetry-aware foundation models for vibrational spectroscopy, and calibration transfer."
+tags: ["spectroscopy", "machine-learning", "research"]
 draft: false
 ---
 
-This is the first post on my new site. I built it with **Astro 5**, **Tailwind CSS 4**, and a glassmorphism design language that I'm calling "liquid glass."
+This is the first post on my site. Rather than a generic introduction, I want to outline the research problems I'm currently working on and where I think the field is heading.
 
-## Why a Personal Site?
+## The Core Question
 
-As a computational chemist and ML researcher, I spend most of my time writing code, running experiments, and reading papers. But I realized I needed a place to share my work publicly — not just on GitHub, but in a way that tells a story.
+Vibrational spectroscopy (IR, Raman) is one of the most widely used analytical techniques in chemistry. You shine light on a molecule, measure which frequencies it absorbs or scatters, and infer something about its structure. The forward problem — predicting a spectrum from a known structure — is solved. The **inverse problem** — recovering structure from a spectrum — is not.
 
-## What's Here
+This is the question driving most of my work: *under what conditions can vibrational spectra uniquely determine molecular structure, and can we build ML models that approach this theoretical limit?*
 
-- **Simulations** — Interactive browser-based physics and chemistry simulations
-- **Libraries** — Open-source Python packages for spectroscopy and molecular analysis
-- **Research** — My papers and publications
-- **Blog** — Technical writing on everything from group theory to neural networks
+## Spectral Identifiability Theory
 
-More to come. Stay tuned.
+The first part of this is mathematical. Molecular symmetry creates fundamental constraints on what spectra can reveal. A molecule's point group *G* determines which vibrational modes are IR-active, Raman-active, both, or neither (silent). For centrosymmetric molecules, the mutual exclusion principle guarantees that IR and Raman observe completely disjoint mode sets.
+
+I've been developing a formal framework — built on character tables and representation theory — that quantifies these constraints. The key quantity is the **Information Completeness Ratio** *R(G, N)*, which measures the fraction of vibrational degrees of freedom observable via combined IR + Raman. For 99.9% of organic molecules, *R* = 1.0. But for high-symmetry cases like cubane (*O*<sub>h</sub>), it drops to 0.45.
+
+The deeper result is a generic identifiability conjecture: that combined IR + Raman generically determines force constants up to symmetry equivalence. Jacobian rank analysis on ~1000 molecules from QM9 supports this — full rank at every tested point, with a 4:1 overdetermination ratio.
+
+## A Foundation Model for Vibrational Spectroscopy
+
+The second part is computational. I'm building **Spekron**, a symmetry-aware foundation model for spectral analysis. The architecture is a hybrid CNN-Transformer encoder with a Variational Information Bottleneck (VIB) that disentangles chemical information from instrument-specific artifacts.
+
+Key design decisions:
+
+- **CNN tokenizer** over raw patching — empirically gives 8-10% accuracy gains on spectral data by capturing local peak structure before global attention
+- **VIB disentanglement** — the latent space splits into *z*<sub>chem</sub> (transferable chemistry) and *z*<sub>inst</sub> (discardable instrument noise), enabling zero-shot calibration transfer
+- **Retrieval decoder** over generative — more defensible for a research paper and naturally supports conformal prediction for uncertainty quantification
+
+Pretraining uses masked reconstruction + contrastive objectives on QM9S (130K molecules) and ChEMBL (220K). Fine-tuning targets calibration transfer on standard benchmarks (corn, tablet datasets).
+
+## Calibration Transfer
+
+A practical problem in analytical chemistry: a model trained on spectra from one instrument fails on spectra from another instrument measuring the same samples. The spectral shapes shift due to hardware differences — different detectors, optical paths, lamp aging.
+
+Current approaches (PDS, SBC) require dozens of paired transfer samples measured on both instruments. The goal with Spekron's VIB architecture is to reduce this to ≤10 samples by learning an instrument-invariant representation during pretraining.
+
+## What's Next
+
+I'll be writing more here as results come in — symmetry-stratified experiments validating the theory, ablation studies on the architecture, and benchmark comparisons against existing calibration transfer methods. If any of this intersects with your work, feel free to reach out.
