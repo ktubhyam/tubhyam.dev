@@ -1,7 +1,7 @@
 export const SITE = {
   title: "Tubhyam Karthikeyan",
   description:
-    "Tubhyam Karthikeyan — computational chemist, ML researcher, and open-source builder at ICT Mumbai. Spectroscopy, AI, and scientific computing.",
+    "Computational chemist and ML researcher at ICT Mumbai. Building open-source tools for spectroscopy, molecular modeling, and scientific AI. Projects, research, and blog.",
   url: "https://tubhyam.dev",
   author: "Tubhyam Karthikeyan",
   email: "tubhyamkt@gmail.com",
