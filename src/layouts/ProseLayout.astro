@@ -8,9 +8,10 @@ interface Props {
   ogType?: "website" | "article";
   publishedDate?: string;
   modifiedDate?: string;
+  hasMath?: boolean;
 }
 
-const { title, description, image, ogType, publishedDate, modifiedDate } = Astro.props;
+const { title, description, image, ogType, publishedDate, modifiedDate, hasMath } = Astro.props;
 ---
 
 <BaseLayout
@@ -20,10 +21,33 @@ const { title, description, image, ogType, publishedDate, modifiedDate } = Astro
   ogType={ogType}
   publishedDate={publishedDate}
   modifiedDate={modifiedDate}
+  hasMath={hasMath}
 >
   <article class="mx-auto max-w-[720px] px-6">
     <div class="prose prose-invert prose-lg max-w-none">
       <slot />
     </div>
   </article>
+
+  <script>
+    document.querySelectorAll(".prose pre").forEach((pre) => {
+      const btn = document.createElement("button");
+      btn.className = "code-copy-btn";
+      btn.setAttribute("aria-label", "Copy code");
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+      btn.addEventListener("click", async () => {
+        const code = pre.querySelector("code");
+        if (code) {
+          await navigator.clipboard.writeText(code.textContent ?? "");
+          btn.classList.add("copied");
+          btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>`;
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`;
+          }, 2000);
+        }
+      });
+      pre.appendChild(btn);
+    });
+  </script>
 </BaseLayout>

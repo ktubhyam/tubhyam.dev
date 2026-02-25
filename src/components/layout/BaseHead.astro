@@ -6,15 +6,19 @@ interface Props {
   ogType?: "website" | "article";
   publishedDate?: string;
   modifiedDate?: string;
+  hasMath?: boolean;
 }
 
-const { title, description, image, ogType = "website", publishedDate, modifiedDate } = Astro.props;
+const { title, description, image, ogType = "website", publishedDate, modifiedDate, hasMath = false } = Astro.props;
 
 import { SITE } from "@lib/constants";
 
 const pageTitle = title === SITE.title ? title : `${title} — ${SITE.title}`;
 const pageDescription = description ?? SITE.description;
-const ogImage = image ?? "/og/default.png";
+// Generate dynamic OG image path for content pages, fallback to default
+const pathname = Astro.url.pathname.replace(/\/$/, "");
+const hasGeneratedOg = pathname.startsWith("/blog/") || pathname.startsWith("/projects/") || pathname.startsWith("/research/") || pathname.startsWith("/simulations/");
+const ogImage = image ?? (hasGeneratedOg ? `/og${pathname}.png` : "/og/default.png");
 const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 ---
 
@@ -105,8 +109,8 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   inject();
 </script>
 
-<!-- KaTeX Math Rendering (self-hosted for reliable loading) -->
-<link rel="stylesheet" href="/styles/katex.min.css" />
+<!-- KaTeX Math Rendering (only on pages with equations) -->
+{hasMath && <link rel="stylesheet" href="/styles/katex.min.css" />}
 
 <!-- Fonts: self-hosted WOFF2 (preloaded for zero render-blocking) -->
 <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />

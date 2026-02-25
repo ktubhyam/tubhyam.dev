@@ -14,9 +14,10 @@ interface Props {
   ogType?: "website" | "article";
   publishedDate?: string;
   modifiedDate?: string;
+  hasMath?: boolean;
 }
 
-const { title, description, image, hideNav = false, ogType, publishedDate, modifiedDate } = Astro.props;
+const { title, description, image, hideNav = false, ogType, publishedDate, modifiedDate, hasMath } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,6 +30,7 @@ const { title, description, image, hideNav = false, ogType, publishedDate, modif
       ogType={ogType}
       publishedDate={publishedDate}
       modifiedDate={modifiedDate}
+      hasMath={hasMath}
     />
   </head>
   <body class="min-h-screen">

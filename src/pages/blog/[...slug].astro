@@ -2,20 +2,28 @@
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection, render } from "astro:content";
-import { formatDate } from "@lib/utils";
+import { formatDate, readingTime } from "@lib/utils";
 import { SITE } from "@lib/constants";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
-  return posts.map((post) => ({
+  const posts = (await getCollection("blog"))
+    .filter((p) => !p.data.draft)
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post },
+    props: {
+      post,
+      prevPost: posts[i + 1] ?? null,
+      nextPost: posts[i - 1] ?? null,
+    },
   }));
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await render(post);
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
+const minutes = readingTime(post.body ?? "");
 const canonicalUrl = new URL(`/blog/${post.id}`, SITE.url).toString();
 
 const blogPostingSchema = {
@@ -41,6 +49,7 @@ const blogPostingSchema = {
   "keywords": post.data.tags.join(", "),
   "image": new URL("/og/default.png", SITE.url).toString(),
   "inLanguage": "en",
+  "wordCount": (post.body ?? "").trim().split(/\s+/).length,
 };
 
 const breadcrumbSchema = {
@@ -60,6 +69,7 @@ const breadcrumbSchema = {
   ogType="article"
   publishedDate={post.data.date.toISOString()}
   modifiedDate={post.data.updated?.toISOString()}
+  hasMath={true}
 >
   <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
@@ -77,11 +87,53 @@ const breadcrumbSchema = {
       <time datetime={post.data.date.toISOString()}>
         {formatDate(post.data.date)}
       </time>
+      <span class="text-border">·</span>
+      <span>{minutes} min read</span>
       {post.data.updated && (
-        <span>Updated {formatDate(post.data.updated)}</span>
+        <>
+          <span class="text-border">·</span>
+          <span>Updated {formatDate(post.data.updated)}</span>
+        </>
       )}
     </div>
   </header>
 
+  {tocHeadings.length >= 3 && (
+    <nav class="not-prose mb-10 rounded-xl border border-border bg-bg-secondary p-5">
+      <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Table of Contents</p>
+      <ul class="space-y-1.5">
+        {tocHeadings.map((h) => (
+          <li style={h.depth === 3 ? "padding-left: 1rem;" : ""}>
+            <a
+              href={`#${h.slug}`}
+              class="text-sm text-text-muted hover:text-accent transition-colors duration-200 leading-relaxed"
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+
   <Content />
+
+  {(prevPost || nextPost) && (
+    <nav class="not-prose mt-16 pt-8 border-t border-border">
+      <div class="grid grid-cols-2 gap-4">
+        {prevPost ? (
+          <a href={`/blog/${prevPost.id}`} class="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-border-hover hover:bg-surface transition-all duration-200">
+            <span class="text-xs font-mono text-text-muted">Previous</span>
+            <span class="text-sm font-heading text-text-secondary group-hover:text-accent transition-colors line-clamp-2">{prevPost.data.title}</span>
+          </a>
+        ) : <div />}
+        {nextPost ? (
+          <a href={`/blog/${nextPost.id}`} class="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-border-hover hover:bg-surface transition-all duration-200 text-right">
+            <span class="text-xs font-mono text-text-muted">Next</span>
+            <span class="text-sm font-heading text-text-secondary group-hover:text-accent transition-colors line-clamp-2">{nextPost.data.title}</span>
+          </a>
+        ) : <div />}
+      </div>
+    </nav>
+  )}
 </ProseLayout>

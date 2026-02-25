@@ -65,6 +65,7 @@ const breadcrumbSchema = {
   description={paper.data.abstract}
   ogType="article"
   publishedDate={paper.data.date.toISOString()}
+  hasMath={true}
 >
   <script type="application/ld+json" set:html={JSON.stringify(scholarlySchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

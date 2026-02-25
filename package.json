@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -13,13 +13,17 @@
     "@astrojs/react": "4.4.2",
     "@astrojs/rss": "4.0.15",
     "@astrojs/sitemap": "3.7.0",
+    "@resvg/resvg-js": "2.6.2",
     "@tailwindcss/typography": "0.5.19",
     "@tailwindcss/vite": "4.2.1",
     "@vercel/analytics": "1.6.1",
     "astro": "^5.17.1",
     "motion": "12.34.3",
+    "pagefind": "1.4.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "satori": "0.19.2",
+    "sharp": "0.34.5",
     "tailwindcss": "4.2.1"
   },
   "devDependencies": {
