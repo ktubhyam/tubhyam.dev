@@ -4,7 +4,7 @@
  */
 import { useState, useRef, useMemo, useCallback } from "react";
 import { motion, useInView } from "motion/react";
-import { SpectraView, usePeakPicking } from "spectraview";
+import { SpectraView, usePeakPicking, useSpectrumData } from "spectraview";
 import type { Spectrum, Peak, Region } from "spectraview";
 import {
   createEthanolSpectrum,
@@ -23,6 +23,9 @@ const SAMPLE_SPECTRA: Record<string, () => Spectrum> = {
   isopropanol: createIsopropanolSpectrum,
 };
 
+/** Accepted file extensions for drag-and-drop loading. */
+const ACCEPTED_EXTENSIONS = [".jdx", ".dx", ".csv", ".json"];
+
 /** Region highlights for common functional groups. */
 const REGIONS: Region[] = [
   { xStart: 1650, xEnd: 1780, label: "C=O stretch" },
@@ -40,13 +43,59 @@ export default function SpectraviewDemo({ className = "" }: Props) {
   const [showRegions, setShowRegions] = useState(false);
   const [prominence, setProminence] = useState(0.1);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  // Build active spectra
-  const spectra = useMemo(() => {
+  // User-loaded spectra via drag-and-drop
+  const {
+    spectra: userSpectra,
+    loading: fileLoading,
+    error: fileError,
+    loadFile,
+    clear: clearUploaded,
+  } = useSpectrumData();
+
+  // Build active sample spectra
+  const sampleSpectra = useMemo(() => {
     return Array.from(activeIds)
       .filter((id) => SAMPLE_SPECTRA[id])
       .map((id) => SAMPLE_SPECTRA[id]());
   }, [activeIds]);
+
+  // Merge sample and user-loaded spectra
+  const spectra = useMemo(
+    () => [...sampleSpectra, ...userSpectra],
+    [sampleSpectra, userSpectra],
+  );
+
+  // Drag-and-drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      for (const file of files) {
+        const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+        if (ACCEPTED_EXTENSIONS.includes(ext)) {
+          await loadFile(file);
+        }
+      }
+    },
+    [loadFile],
+  );
 
   // Peak detection
   const peaks = usePeakPicking(spectra, {
@@ -163,6 +212,50 @@ export default function SpectraviewDemo({ className = "" }: Props) {
             <span className="text-[10px] font-mono text-teal w-8 text-right">
               {prominence.toFixed(2)}
             </span>
+          </div>
+        )}
+
+        {/* Drop zone for user files */}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`mt-2 flex items-center justify-center rounded-md border border-dashed py-3 px-4 transition-all duration-150 ${
+            isDragOver
+              ? "border-teal bg-teal/5"
+              : "border-border hover:border-text-muted/30"
+          }`}
+        >
+          <span
+            className={`text-[11px] font-mono select-none ${
+              isDragOver ? "text-teal" : "text-text-muted"
+            }`}
+          >
+            {fileLoading
+              ? "Loading..."
+              : isDragOver
+                ? "Drop to load spectra"
+                : "Drop .jdx, .csv, or .json spectral files"}
+          </span>
+        </div>
+
+        {/* Error message */}
+        {fileError && (
+          <p className="mt-1.5 text-[10px] font-mono text-red-400">{fileError}</p>
+        )}
+
+        {/* Uploaded files summary + clear button */}
+        {userSpectra.length > 0 && (
+          <div className="mt-1.5 flex items-center gap-2">
+            <span className="text-[10px] font-mono text-text-muted">
+              {userSpectra.length} uploaded spectr{userSpectra.length === 1 ? "um" : "a"}
+            </span>
+            <button
+              onClick={clearUploaded}
+              className="px-2 py-0.5 text-[10px] font-mono rounded border border-border text-text-muted hover:border-red-400/50 hover:text-red-400 transition-all duration-150"
+            >
+              clear uploaded
+            </button>
           </div>
         )}
       </div>
