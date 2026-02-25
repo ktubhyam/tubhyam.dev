@@ -132,19 +132,6 @@
     border-color: var(--color-border-hover);
   }
 
-  /* Nav — full state */
-  .nav-bar {
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--color-border);
-    border-radius: 9999px;
-  }
-
-  .nav-bar-scrolled {
-    background: rgba(0, 0, 0, 0.95);
-    border-color: var(--color-border-hover);
-  }
 
   /* Accent text */
   .text-accent {
@@ -241,34 +228,10 @@
 }
 
 /* --- Side Nav Pill --- */
-@property --side-nav-angle {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0turn;
-}
-
 .side-nav-pill {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)) padding-box,
-    conic-gradient(
-      from var(--side-nav-angle),
-      transparent 20%,
-      rgba(78, 205, 196, 0.3) 33%,
-      rgba(201, 160, 74, 0.35) 50%,
-      rgba(167, 139, 250, 0.3) 67%,
-      transparent 80%
-    ) border-box;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
-              inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  animation: side-nav-spin 8s linear infinite;
-}
-
-@keyframes side-nav-spin {
-  to { --side-nav-angle: 1turn; }
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
 }
 
 /* --- Scroll Progress Bar --- */
