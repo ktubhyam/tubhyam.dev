@@ -14,12 +14,14 @@ interface OgImageOptions {
   title: string;
   description?: string;
   type?: string;
+  publication?: boolean;
 }
 
 export async function generateOgImage({
   title,
   description,
   type,
+  publication = false,
 }: OgImageOptions): Promise<Buffer> {
   // Truncate long titles/descriptions
   const displayTitle =
@@ -143,7 +145,7 @@ export async function generateOgImage({
                       color: "#C9A04A",
                       letterSpacing: "0.02em",
                     },
-                    children: "tubhyam.dev",
+                    children: publication ? "Latent Chemistry" : "tubhyam.dev",
                   },
                 },
                 {

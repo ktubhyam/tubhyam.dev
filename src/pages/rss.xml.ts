@@ -1,6 +1,6 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
-import { SITE } from "@lib/constants";
+import { SITE, PUBLICATION } from "@lib/constants";
 import type { APIContext } from "astro";
 
 export async function GET(context: APIContext) {
@@ -12,8 +12,8 @@ export async function GET(context: APIContext) {
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
   return rss({
-    title: SITE.title,
-    description: SITE.description,
+    title: PUBLICATION.name,
+    description: PUBLICATION.description,
     site: context.site ?? SITE.url,
     language: "en",
     items: [

@@ -4,7 +4,7 @@ import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
-import { SITE } from "@lib/constants";
+import { SITE, PUBLICATION } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import StaggerReveal from "@components/islands/StaggerReveal";
@@ -15,20 +15,26 @@ const posts = (await getCollection("blog"))
 
 const collectionSchema = {
   "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Blog",
-  "description": "Technical writing on computational chemistry, ML, and open source.",
+  "@type": "Blog",
+  "name": PUBLICATION.name,
+  "description": PUBLICATION.description,
   "url": `${SITE.url}/blog`,
-  "mainEntity": {
-    "@type": "ItemList",
-    "numberOfItems": posts.length,
-    "itemListElement": posts.map((post, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "url": `${SITE.url}/blog/${post.id}`,
-      "name": post.data.title,
-    })),
+  "author": {
+    "@type": "Person",
+    "name": SITE.author,
+    "url": SITE.url,
   },
+  "publisher": {
+    "@type": "Organization",
+    "name": PUBLICATION.name,
+    "url": `${SITE.url}/blog`,
+  },
+  "blogPost": posts.map((post) => ({
+    "@type": "BlogPosting",
+    "headline": post.data.title,
+    "url": `${SITE.url}/blog/${post.id}`,
+    "datePublished": post.data.date.toISOString(),
+  })),
 };
 
 const breadcrumbSchema = {
@@ -41,22 +47,26 @@ const breadcrumbSchema = {
 };
 ---
 
-<PageLayout title="Blog" description="Technical writing on computational chemistry, ML, and open source.">
+<PageLayout title={`${PUBLICATION.name} — Blog`} description={PUBLICATION.description}>
   <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
+    <p class="text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] mb-3"
+       style="opacity: 0; animation: fade-up 0.5s ease-out 0.2s forwards;">
+      {PUBLICATION.name}
+    </p>
     <BlurReveal
       client:idle
-      text="Blog"
-      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      text={PUBLICATION.tagline}
+      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight capitalize"
       as="h1"
     />
     <p
       class="text-text-muted mb-10"
       style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
     >
-      Technical writing on computational chemistry, machine learning, and building things.
+      {PUBLICATION.description}
     </p>
 
     <StaggerReveal client:visible className="grid gap-4" stagger={0.1}>

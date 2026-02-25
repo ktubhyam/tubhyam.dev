@@ -10,6 +10,12 @@ export const SITE = {
   linkedin: "https://www.linkedin.com/in/ktubhyam",
 } as const;
 
+export const PUBLICATION = {
+  name: "Latent Chemistry",
+  tagline: "Deep learning for chemical sciences",
+  description: "Original research and technical writing at the intersection of machine learning, spectroscopy, and computational chemistry.",
+} as const;
+
 export const NAV_LINKS = [
   { label: "About", href: "/about" },
   { label: "Projects", href: "/projects" },

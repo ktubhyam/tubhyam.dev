@@ -3,7 +3,7 @@ import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection, render } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
-import { SITE } from "@lib/constants";
+import { SITE, PUBLICATION } from "@lib/constants";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog"))
@@ -42,9 +42,9 @@ const blogPostingSchema = {
     "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
   },
   "publisher": {
-    "@type": "Person",
-    "name": SITE.author,
-    "url": SITE.url,
+    "@type": "Organization",
+    "name": PUBLICATION.name,
+    "url": `${SITE.url}/blog`,
   },
   "keywords": post.data.tags.join(", "),
   "image": new URL("/og/default.png", SITE.url).toString(),
@@ -75,6 +75,9 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
+    <a href="/blog" class="inline-block text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] hover:text-accent transition-colors mb-4">
+      {PUBLICATION.name}
+    </a>
     <div class="flex flex-wrap items-center gap-2 mb-4">
       {post.data.tags.map((tag) => (
         <Badge variant="outline">{tag}</Badge>

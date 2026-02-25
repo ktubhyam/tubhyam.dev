@@ -2,7 +2,7 @@
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection, render } from "astro:content";
-import { SITE } from "@lib/constants";
+import { SITE, PUBLICATION } from "@lib/constants";
 
 export async function getStaticPaths() {
   const papers = await getCollection("research");
@@ -37,9 +37,9 @@ const scholarlySchema = {
     ...(name === SITE.author && { "url": SITE.url, "sameAs": [SITE.github, SITE.twitter, SITE.linkedin] }),
   })),
   "publisher": {
-    "@type": "Person",
-    "name": SITE.author,
-    "url": SITE.url,
+    "@type": "Organization",
+    "name": PUBLICATION.name,
+    "url": `${SITE.url}/blog`,
   },
   ...(paper.data.venue && { "isPartOf": { "@type": "PublicationEvent", "name": paper.data.venue } }),
   ...(paper.data.doi && { "identifier": { "@type": "PropertyValue", "propertyID": "doi", "value": paper.data.doi } }),
@@ -71,6 +71,9 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
+    <a href="/research" class="inline-block text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] hover:text-accent transition-colors mb-4">
+      {PUBLICATION.name}
+    </a>
     <Badge variant={statusColors[paper.data.status]}>
       {paper.data.status}
     </Badge>

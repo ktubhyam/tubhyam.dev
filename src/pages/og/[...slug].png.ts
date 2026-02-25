@@ -13,15 +13,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
       .filter((p) => !p.data.draft)
       .map((p) => ({
         params: { slug: `blog/${p.id}` },
-        props: { title: p.data.title, description: p.data.description, type: "Blog" },
+        props: { title: p.data.title, description: p.data.description, type: "Blog", publication: true },
       })),
     ...projects.map((p) => ({
       params: { slug: `projects/${p.id}` },
-      props: { title: p.data.title, description: p.data.description, type: "Project" },
+      props: { title: p.data.title, description: p.data.description, type: "Project", publication: false },
     })),
     ...research.map((p) => ({
       params: { slug: `research/${p.id}` },
-      props: { title: p.data.title, description: p.data.abstract, type: "Research" },
+      props: { title: p.data.title, description: p.data.abstract, type: "Research", publication: true },
     })),
     ...simulations.map((p) => ({
       params: { slug: `simulations/${p.id}` },
@@ -33,13 +33,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const GET: APIRoute = async ({ props }) => {
-  const { title, description, type } = props as {
+  const { title, description, type, publication } = props as {
     title: string;
     description?: string;
     type: string;
+    publication?: boolean;
   };
 
-  const png = await generateOgImage({ title, description, type });
+  const png = await generateOgImage({ title, description, type, publication });
 
   return new Response(png, {
     headers: {
