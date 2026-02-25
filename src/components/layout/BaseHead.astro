@@ -13,7 +13,7 @@ const { title, description, image, ogType = "website", publishedDate, modifiedDa
 
 import { SITE, PUBLICATION } from "@lib/constants";
 
-const pageTitle = title === SITE.title ? title : `${title} — ${SITE.title}`;
+const pageTitle = title;
 const pageDescription = description ?? SITE.description;
 // Generate dynamic OG image path for content pages, fallback to default
 const pathname = Astro.url.pathname.replace(/\/$/, "");
@@ -33,7 +33,7 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 <meta name="author" content={SITE.author} />
 <meta name="robots" content="index, follow" />
 <meta name="google-site-verification" content="JBzFZzb7pTB2nJeaKAciQHIJ2KkFqbVDLVPLU8ZtlxY" />
-<meta name="keywords" content="Tubhyam Karthikeyan, Karthikeyan T, computational chemistry, spectroscopy, machine learning, ICT Mumbai, Spekron, SpectraKit" />
+<meta name="keywords" content="Tubhyam Karthikeyan, Karthikeyan T, computational chemistry, spectroscopy, machine learning, ICT Mumbai, Spektron, SpectraKit" />
 <link rel="canonical" href={canonicalUrl} />
 
 <!-- Open Graph -->

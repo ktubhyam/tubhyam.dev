@@ -189,9 +189,9 @@ This is a conjecture, not a theorem. The obstruction to proving it is that the f
 
 A <span class="highlight">4:1 overdetermination ratio</span> means the combined spectra contain roughly four times more equations than unknowns. The inverse problem is not just solvable — it is well-conditioned.
 
-## The Architecture: Spekron
+## The Architecture: Spektron
 
-The theory says what is achievable. The model is designed to get there. **Spekron** is a CNN-Transformer encoder with a <span class="highlight">Variational Information Bottleneck</span> (VIB) that splits the latent space into chemistry and instrument:
+The theory says what is achievable. The model is designed to get there. **Spektron** is a CNN-Transformer encoder with a <span class="highlight">Variational Information Bottleneck</span> (VIB) that splits the latent space into chemistry and instrument:
 
 $$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
 
@@ -208,7 +208,7 @@ A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over 
   client:visible
   title="architecture.py"
   lines={[
-    { spans: [{ text: "$ python -c \"from spekron import SpectralFM; print(SpectralFM())\"", color: "muted" }] },
+    { spans: [{ text: "$ python -c \"from spektron import SpectralFM; print(SpectralFM())\"", color: "muted" }] },
     { spans: [{ text: "" }], delay: 200 },
     { spans: [{ text: "SpectralFM(", color: "white" }] },
     { spans: [
@@ -249,7 +249,7 @@ Combined with <span class="highlight">test-time training</span> — running a fe
   client:visible
   title="calibration transfer"
   beforeTitle="traditional (PDS)"
-  afterTitle="spekron (VIB + OT)"
+  afterTitle="spektron (VIB + OT)"
   before={[
     { text: "# Piecewise Direct Standardization", type: "comment" },
     { text: "F = build_transfer_matrix(X_src, X_tgt)", type: "removed" },
@@ -279,7 +279,7 @@ R² > 0.952 on corn moisture prediction (beating LoRA-CT) with ≤10 transfer sa
   client:visible
   title="project_status.sh"
   lines={[
-    { spans: [{ text: "$ spekron status", color: "muted" }] },
+    { spans: [{ text: "$ spektron status", color: "muted" }] },
     { spans: [{ text: "" }], delay: 200 },
     { spans: [{ text: "Theory", color: "white" }] },
     { spans: [
@@ -319,7 +319,7 @@ The theoretical framework is complete. The model is pretraining on QM9S (130K mo
 - **Companion post:** [Spectral Identifiability Theory](/blog/spectral-identifiability-theory) — formal treatment of the group-theoretic constraints
 - **SSM deep dive:** [State Space Models for Spectroscopy](/blog/state-space-models-for-spectroscopy) — why the CNN + D-LinOSS hybrid works
 - **ML challenges:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — the broader constraints shaping this architecture
-- **Research paper:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the Spekron architecture paper
+- **Research paper:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the Spektron architecture paper
 - **Research paper:** [Spectral Identifiability](/research/spectral-identifiability) — information-theoretic limits of spectroscopic identification
-- **Project:** [Spekron](/projects/spekron) — the foundation model implementation
+- **Project:** [Spektron](/projects/spektron) — the foundation model implementation
 - **Digital twins:** [Neural ODEs for Reactor Modeling](/blog/neural-odes-for-reactor-modeling) — parallel problem: learning dynamics from data with physics constraints

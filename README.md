@@ -13,7 +13,7 @@ Built with Astro 5, React 19, Tailwind CSS 4, and MDX. Static site deployed on V
 
 | Project | Description | Stack | Links |
 |---------|-------------|-------|-------|
-| **[Spekron](https://github.com/ktubhyam/Spekron)** | Foundation model for vibrational spectroscopy — D-LinOSS backbone, masked pretraining, VIB disentanglement, calibration transfer | Python, PyTorch | [Project page](https://tubhyam.dev/projects/spekron) |
+| **[Spektron](https://github.com/ktubhyam/Spektron)** | Foundation model for vibrational spectroscopy — D-LinOSS backbone, masked pretraining, VIB disentanglement, calibration transfer | Python, PyTorch | [Project page](https://tubhyam.dev/projects/spektron) |
 | **[ReactorTwin](https://github.com/ktubhyam/reactor-twin)** | Digital twin for chemical reactors using neural ODEs and PINNs | Python, PyTorch, FastAPI | [Project page](https://tubhyam.dev/projects/reactor-twin) |
 | **[Speklens](https://github.com/ktubhyam/Speklens)** | CNN-Transformer encoder pretrained on 350K+ molecules for spectral representation learning | Python, PyTorch | — |
 
@@ -40,7 +40,7 @@ Browser-based educational tools built with Next.js, React Three Fiber, and Three
 
 | Paper | Status | Topic |
 |-------|--------|-------|
-| [Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy](https://tubhyam.dev/research/hybrid-ssa-spectroscopy) | In preparation | Spekron architecture — wavelet embeddings, Mamba, MoE, VIB |
+| [Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy](https://tubhyam.dev/research/hybrid-ssa-spectroscopy) | In preparation | Spektron architecture — wavelet embeddings, Mamba, MoE, VIB |
 | [Information-Theoretic Limits of Spectroscopic Molecular Identification](https://tubhyam.dev/research/spectral-identifiability) | In preparation | R(G,N) completeness ratio, modal complementarity theorem |
 
 ## Blog Posts

@@ -4,13 +4,13 @@ date: 2026-01-15
 authors: ["Tubhyam Karthikeyan"]
 venue: "In preparation"
 status: "in-progress"
-abstract: "We introduce Spekron, a hybrid state-space and attention architecture for multi-task vibrational spectroscopy. The model combines wavelet-domain embeddings with selective state-space sequence modeling (Mamba), Mixture of Experts routing, and a Variational Information Bottleneck for disentangling chemical and instrumental information. Pretrained on 60K+ spectra from RRUFF and OpenSpecy, Spekron achieves competitive calibration transfer on the corn and tablet benchmark datasets with as few as 10 labeled transfer samples."
+abstract: "We introduce Spektron, a hybrid state-space and attention architecture for multi-task vibrational spectroscopy. The model combines wavelet-domain embeddings with selective state-space sequence modeling (Mamba), Mixture of Experts routing, and a Variational Information Bottleneck for disentangling chemical and instrumental information. Pretrained on 60K+ spectra from RRUFF and OpenSpecy, Spektron achieves competitive calibration transfer on the corn and tablet benchmark datasets with as few as 10 labeled transfer samples."
 tags: ["deep-learning", "spectroscopy", "state-space-models", "transformer"]
 ---
 
 ## Architecture
 
-Spekron uses a multi-stage encoder:
+Spektron uses a multi-stage encoder:
 
 1. **Wavelet Embedding:** Daubechies-4 DWT decomposes spectra into multi-scale coefficients, followed by 1D CNN patching and wavenumber-aware positional encoding.
 
@@ -30,7 +30,7 @@ Spekron uses a multi-stage encoder:
 
 ## Related
 
-- **Project:** [Spekron](/projects/spekron) — the implementation of this architecture, training on 4x RTX 5090
+- **Project:** [Spektron](/projects/spektron) — the implementation of this architecture, training on 4x RTX 5090
 - **Theory:** [Spectral Identifiability](/research/spectral-identifiability) — the information-theoretic framework motivating the VIB design
 - **Blog:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — accessible overview connecting group theory to the model architecture
-- **Preprocessing:** [SpectraKit](/projects/spectrakit) — the spectral preprocessing library used in Spekron's data pipeline
+- **Preprocessing:** [SpectraKit](/projects/spectrakit) — the spectral preprocessing library used in Spektron's data pipeline

@@ -169,7 +169,7 @@ The regularization parameter $\varepsilon$ controls the sharpness of the transpo
 
 - **$\varepsilon \to \infty$**: the entropy term dominates and the optimal plan approaches the product measure $\mu \otimes \nu$ — a uniform smear with no geometric information. The gradients become uninformative.
 
-In Spekron's training, we started with $\varepsilon = 0.05$ following the literature. In float64, this worked. When we enabled mixed-precision training (AMP) for speed, the Gibbs kernel entries fell below float16's minimum representable value ($\sim 6 \times 10^{-8}$), producing NaN within 100 training steps.
+In Spektron's training, we started with $\varepsilon = 0.05$ following the literature. In float64, this worked. When we enabled mixed-precision training (AMP) for speed, the Gibbs kernel entries fell below float16's minimum representable value ($\sim 6 \times 10^{-8}$), producing NaN within 100 training steps.
 
 The fix: increase $\varepsilon$ to 1.0 for our 128-dimensional embeddings, and use log-domain Sinkhorn for extra numerical safety:
 
@@ -243,7 +243,7 @@ This replaces $e^{-320}$ with $-320$ in log space — no underflow possible.
 
 ## OT as a Reconstruction Loss
 
-In [Spekron](/projects/spekron)'s pretraining objective, the model reconstructs masked spectral patches. The reconstruction loss needs three properties: differentiability (for backpropagation), geometric awareness (shifted peaks cost less than wrong peaks), and numerical stability under AMP.
+In [Spektron](/projects/spektron)'s pretraining objective, the model reconstructs masked spectral patches. The reconstruction loss needs three properties: differentiability (for backpropagation), geometric awareness (shifted peaks cost less than wrong peaks), and numerical stability under AMP.
 
 Sinkhorn OT satisfies all three. The OT loss for a single patch:
 
@@ -316,4 +316,4 @@ Optimal transport is not limited to training objectives. As a spectral similarit
 
 ## Related
 
-This post is part of a series on the mathematical foundations behind [Spekron](/projects/spekron). The [spectral inverse problem](/blog/spectral-inverse-problem) post covers the group-theoretic constraints on spectral inversion. The [state-space models](/blog/state-space-models-for-spectroscopy) post explains why sequence architectures outperform CNNs for spectral processing. The [spectral identifiability](/blog/spectral-identifiability-theory) post derives the information-theoretic limits of structure determination from spectra. Next: [masked pretraining for scientific spectra](/blog/masked-pretraining-scientific-spectra) — how BERT-style self-supervised learning creates general-purpose spectral representations, using OT as part of the reconstruction loss.
+This post is part of a series on the mathematical foundations behind [Spektron](/projects/spektron). The [spectral inverse problem](/blog/spectral-inverse-problem) post covers the group-theoretic constraints on spectral inversion. The [state-space models](/blog/state-space-models-for-spectroscopy) post explains why sequence architectures outperform CNNs for spectral processing. The [spectral identifiability](/blog/spectral-identifiability-theory) post derives the information-theoretic limits of structure determination from spectra. Next: [masked pretraining for scientific spectra](/blog/masked-pretraining-scientific-spectra) — how BERT-style self-supervised learning creates general-purpose spectral representations, using OT as part of the reconstruction loss.

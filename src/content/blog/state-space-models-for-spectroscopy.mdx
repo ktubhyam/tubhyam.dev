@@ -170,15 +170,15 @@ When Mamba or D-LinOSS processes an IR spectrum, the input-dependent gating lear
 
 **4. Sequence length is moderate.** At 3501 points, a spectrum is long enough that Transformers become expensive but short enough that SSMs are extremely efficient. The sweet spot for SSMs is sequences of length 1K-100K — exactly where spectral data lives.
 
-## The Hybrid Architecture in Spekron
+## The Hybrid Architecture in Spektron
 
-[Spekron](/projects/spekron) uses a <span class="highlight">CNN tokenizer → D-LinOSS backbone</span> architecture. The CNN converts the raw 3501-point spectrum into 128 tokens, each representing a ~27 cm⁻¹ window. The D-LinOSS layers then process these tokens as a sequence, building global representations:
+[Spektron](/projects/spektron) uses a <span class="highlight">CNN tokenizer → D-LinOSS backbone</span> architecture. The CNN converts the raw 3501-point spectrum into 128 tokens, each representing a ~27 cm⁻¹ window. The D-LinOSS layers then process these tokens as a sequence, building global representations:
 
 <TerminalBlock
   client:visible
-  title="spekron_architecture.py"
+  title="spektron_architecture.py"
   lines={[
-    { spans: [{ text: "$ python -c \"from spekron import SpectralFM; print(SpectralFM.encoder)\"", color: "muted" }] },
+    { spans: [{ text: "$ python -c \"from spektron import SpectralFM; print(SpectralFM.encoder)\"", color: "muted" }] },
     { spans: [{ text: "" }], delay: 200 },
     { spans: [{ text: "SpectralFM.encoder:", color: "teal" }] },
     { spans: [{ text: "" }] },
@@ -345,8 +345,8 @@ The practical upshot: on QM9S with 130K spectra, a CNN + D-LinOSS hybrid achieve
 
 ## Related
 
-- **Project:** [Spekron](/projects/spekron) — the spectral foundation model using CNN + D-LinOSS
-- **Research:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the paper describing Spekron's architecture
+- **Project:** [Spektron](/projects/spektron) — the spectral foundation model using CNN + D-LinOSS
+- **Research:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the paper describing Spektron's architecture
 - **Theory:** [Spectral Identifiability](/blog/spectral-identifiability-theory) — why combined IR + Raman provides enough information for identification
 - **Comparison:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — the broader ML challenges of spectral data
 - **Preprocessing:** [SpectraKit](/projects/spectrakit) — preprocessing pipeline that feeds the SSM

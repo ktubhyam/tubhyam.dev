@@ -116,7 +116,7 @@ This means every spectral ML project starts cold. No fine-tuning, no transfer le
 <div class="callout callout-result">
   <div class="callout-label">Why This Motivates Foundation Models</div>
 
-This is exactly why [Spekron](/projects/spekron) exists. By pretraining on QM9S (130K computed spectra) + ChEMBL (220K experimental spectra), the goal is to build the first general-purpose spectral backbone — a model that learns transferable features like peak shapes, functional group signatures, and spectral fingerprints that can be fine-tuned for downstream tasks.
+This is exactly why [Spektron](/projects/spektron) exists. By pretraining on QM9S (130K computed spectra) + ChEMBL (220K experimental spectra), the goal is to build the first general-purpose spectral backbone — a model that learns transferable features like peak shapes, functional group signatures, and spectral fingerprints that can be fine-tuned for downstream tasks.
 
 </div>
 
@@ -202,7 +202,7 @@ The differences are not random noise. They are structured biases caused by:
 
 This is the <span class="highlight">calibration transfer problem</span>. A model trained on spectra from instrument A degrades dramatically on instrument B — not because the chemistry changed, but because the instrument's signature shifted the spectral shape. In vision terms, it would be like a model trained on Canon photos failing on Nikon photos of the same scene.
 
-Traditional solutions (Piecewise Direct Standardization, Shenk-Westerhaus) require 25+ paired samples measured on both instruments. Getting these samples is expensive and logistically painful. This is one of the central problems that [Spekron's VIB architecture](/blog/spectral-inverse-problem) is designed to solve — by learning instrument-invariant representations during pretraining.
+Traditional solutions (Piecewise Direct Standardization, Shenk-Westerhaus) require 25+ paired samples measured on both instruments. Getting these samples is expensive and logistically painful. This is one of the central problems that [Spektron's VIB architecture](/blog/spectral-inverse-problem) is designed to solve — by learning instrument-invariant representations during pretraining.
 
 ## Physics Constrains the Loss Function
 
@@ -219,7 +219,7 @@ This means spectral ML benefits from <span class="highlight">physics-informed lo
 <div class="callout callout-result">
   <div class="callout-label">Physics-Informed Training</div>
 
-In [Spekron's training pipeline](/projects/spekron), the total loss combines reconstruction quality with physics constraints:
+In [Spektron's training pipeline](/projects/spektron), the total loss combines reconstruction quality with physics constraints:
 
 $$\mathcal{L} = \mathcal{L}_{\text{recon}} + \alpha \mathcal{L}_{\text{physics}} + \beta \mathcal{L}_{\text{VIB}}$$
 
@@ -289,11 +289,11 @@ Spectral ML is not a special case of computer vision. It's a different problem w
 
 </div>
 
-This is the perspective that guides the design of [Spekron](/projects/spekron) and [SpectraKit](/projects/spectrakit): build tools specifically for spectral data, not adapted from other domains.
+This is the perspective that guides the design of [Spektron](/projects/spektron) and [SpectraKit](/projects/spectrakit): build tools specifically for spectral data, not adapted from other domains.
 
 ## Related
 
-- **Foundation model:** [Spekron](/projects/spekron) — the spectral foundation model designed around these constraints
+- **Foundation model:** [Spektron](/projects/spektron) — the spectral foundation model designed around these constraints
 - **Preprocessing:** [SpectraKit](/projects/spectrakit) — functional preprocessing library for spectral data
 - **Theory:** [Spectral Identifiability](/blog/spectral-identifiability-theory) — group-theoretic limits on what spectra can reveal
-- **Architecture:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — how Spekron's design addresses these challenges
+- **Architecture:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — how Spektron's design addresses these challenges

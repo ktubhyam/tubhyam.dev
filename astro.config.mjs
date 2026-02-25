@@ -10,6 +10,9 @@ import rehypeKatex from "rehype-katex";
 export default defineConfig({
   site: "https://tubhyam.dev",
   output: "static",
+  redirects: {
+    "/projects/spekron": "/projects/spektron",
+  },
   integrations: [
     react(),
     mdx({
