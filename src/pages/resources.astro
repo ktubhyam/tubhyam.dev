@@ -1,0 +1,148 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE } from "@lib/constants";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Resources", "item": `${SITE.url}/resources` },
+  ],
+};
+---
+
+<PageLayout title="Resources" description="Curated datasets, tools, and papers for vibrational spectroscopy and machine learning — IR, Raman, molecular modeling, and spectral preprocessing.">
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <section class="py-12 max-w-3xl">
+    <h1 class="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight">Resources</h1>
+    <p class="text-text-muted mb-10">Curated datasets, tools, and papers for spectral machine learning. Updated as I find useful things.</p>
+
+    <div class="prose prose-invert prose-lg max-w-none">
+
+      <h2 id="datasets">Datasets</h2>
+
+      <h3>Computed Spectra</h3>
+      <ul>
+        <li>
+          <strong><a href="https://doi.org/10.1038/s41597-023-02043-z" target="_blank" rel="noopener noreferrer">QM9S</a></strong> — 130,831 small organic molecules (≤9 heavy atoms) with computed IR, Raman, and UV-Vis spectra at B3LYP/def2-TZVP. The dataset behind <a href="/projects/spekron">Spekron</a> pretraining.
+        </li>
+        <li>
+          <strong><a href="https://figshare.com/collections/Quantum_chemistry_structures_and_properties_of_134_kilo_molecules/978904" target="_blank" rel="noopener noreferrer">QM9</a></strong> — The parent dataset. 134K molecules with DFT-computed properties (HOMO, LUMO, dipole, etc.). No spectra, but widely used for molecular ML benchmarks.
+        </li>
+        <li>
+          <strong><a href="https://www.nature.com/articles/s41597-022-01631-z" target="_blank" rel="noopener noreferrer">QM7-X</a></strong> — 4.2M conformational geometries for 6,950 molecules with PBE0+MBD energy, forces, and multipole properties. Useful for learning conformational effects on spectra.
+        </li>
+      </ul>
+
+      <h3>Experimental Spectra</h3>
+      <ul>
+        <li>
+          <strong><a href="https://sdbs.db.aist.go.jp/" target="_blank" rel="noopener noreferrer">SDBS (AIST)</a></strong> — ~35,000 experimental IR, Raman, mass, and NMR spectra from AIST Japan. The largest free experimental spectral database. Requires manual download.
+        </li>
+        <li>
+          <strong><a href="https://rruff.info/" target="_blank" rel="noopener noreferrer">RRUFF</a></strong> — Raman spectra of ~5,000 mineral species. High-quality reference spectra with crystal structure data. Excellent for testing Raman-specific models.
+        </li>
+        <li>
+          <strong><a href="https://www.nist.gov/srd/nist-standard-reference-database-35" target="_blank" rel="noopener noreferrer">NIST Chemistry WebBook</a></strong> — Gas-phase IR spectra for ~16,000 compounds. Low resolution but well-characterized and freely available.
+        </li>
+        <li>
+          <strong><a href="https://eigenvector.com/resources/data-sets/" target="_blank" rel="noopener noreferrer">Corn Dataset (Eigenvector)</a></strong> — 80 corn samples × 3 NIR instruments × 700 channels. The standard benchmark for calibration transfer methods.
+        </li>
+      </ul>
+
+      <h2 id="tools">Tools & Libraries</h2>
+
+      <h3>Spectral Preprocessing</h3>
+      <ul>
+        <li>
+          <strong><a href="/projects/spectrakit">SpectraKit</a></strong> — My library. Functional API over NumPy arrays for baseline correction, smoothing, normalization, derivative computation, scatter correction, and file I/O. Two dependencies (numpy, scipy). <a href="/blog/spectrakit">Design philosophy</a>.
+        </li>
+        <li>
+          <strong><a href="https://github.com/raulf2012/rampy" target="_blank" rel="noopener noreferrer">rampy</a></strong> — Python library focused on Raman spectroscopy. Good for Raman-specific baseline algorithms and peak fitting.
+        </li>
+        <li>
+          <strong><a href="https://github.com/spectrocat/spectrochempy" target="_blank" rel="noopener noreferrer">SpectroChemPy</a></strong> — Full-featured spectral analysis framework. Object-oriented (unlike SpectraKit's functional approach). Supports 2D correlation spectroscopy.
+        </li>
+      </ul>
+
+      <h3>Molecular Machine Learning</h3>
+      <ul>
+        <li>
+          <strong><a href="https://github.com/pyg-team/pytorch_geometric" target="_blank" rel="noopener noreferrer">PyTorch Geometric</a></strong> — Graph neural networks for molecular property prediction. SchNet, DimeNet, SphereNet implementations.
+        </li>
+        <li>
+          <strong><a href="https://github.com/deepchem/deepchem" target="_blank" rel="noopener noreferrer">DeepChem</a></strong> — High-level molecular ML library. Built-in featurizers, splitters, and models for molecular property prediction.
+        </li>
+        <li>
+          <strong><a href="https://github.com/rdkit/rdkit" target="_blank" rel="noopener noreferrer">RDKit</a></strong> — The standard cheminformatics toolkit. Molecular descriptors, fingerprints, 3D geometry generation. Essential for any molecular ML pipeline.
+        </li>
+      </ul>
+
+      <h3>State Space Models</h3>
+      <ul>
+        <li>
+          <strong><a href="https://github.com/state-spaces/mamba" target="_blank" rel="noopener noreferrer">Mamba</a></strong> — Official Mamba implementation. Selective state space model with hardware-aware CUDA kernels. <a href="/blog/state-space-models-for-spectroscopy">Why SSMs work for spectra</a>.
+        </li>
+        <li>
+          <strong><a href="https://github.com/state-spaces/s4" target="_blank" rel="noopener noreferrer">S4</a></strong> — Structured State Spaces for Sequence Modeling. The original SSM that started the field. HiPPO initialization for long-range dependencies.
+        </li>
+      </ul>
+
+      <h2 id="papers">Key Papers</h2>
+
+      <h3>Spectral Machine Learning</h3>
+      <ul>
+        <li>
+          <strong>Karthikeyan et al. (2026)</strong> — <a href="/research/spectral-identifiability">Information-Theoretic Limits of Spectroscopic Molecular Identification</a>. When combined IR + Raman uniquely determines molecular structure.
+        </li>
+        <li>
+          <strong>Karthikeyan et al. (2026)</strong> — <a href="/research/hybrid-ssa-spectroscopy">Hybrid State Space Architecture for Vibrational Spectroscopy</a>. CNN + D-LinOSS encoder with VIB for calibration transfer.
+        </li>
+        <li>
+          <strong>Gastegger et al. (2017)</strong> — Machine learning molecular dynamics for the simulation of infrared spectra. Neural network potentials for computing spectra.
+        </li>
+        <li>
+          <strong>Schütt et al. (2018)</strong> — SchNet: A deep learning architecture for molecules and materials. Continuous-filter convolutions on molecular graphs.
+        </li>
+      </ul>
+
+      <h3>State Space Models</h3>
+      <ul>
+        <li>
+          <strong>Gu et al. (2022)</strong> — Efficiently Modeling Long Sequences with Structured State Spaces (S4). HiPPO initialization and the diagonal approximation.
+        </li>
+        <li>
+          <strong>Gu & Dao (2024)</strong> — Mamba: Linear-Time Sequence Modeling with Selective State Spaces. Input-dependent gating that breaks the convolution interpretation.
+        </li>
+      </ul>
+
+      <h3>Neural ODEs & Physics-Informed ML</h3>
+      <ul>
+        <li>
+          <strong>Chen et al. (2018)</strong> — Neural Ordinary Differential Equations. The adjoint method for backpropagating through ODE solvers. <a href="/blog/neural-odes-for-reactor-modeling">My take on reactor applications</a>.
+        </li>
+        <li>
+          <strong>Raissi et al. (2019)</strong> — Physics-informed neural networks (PINNs). Encoding PDEs as loss terms. Foundation for <a href="/projects/reactor-twin">ReactorTwin</a>.
+        </li>
+      </ul>
+
+      <h3>Calibration Transfer</h3>
+      <ul>
+        <li>
+          <strong>Wang et al. (1991)</strong> — Piecewise Direct Standardization (PDS). The classical baseline for cross-instrument transfer.
+        </li>
+        <li>
+          <strong>Mishra et al. (2021)</strong> — Deep calibration transfer. First application of deep learning to the calibration transfer problem.
+        </li>
+      </ul>
+
+      <hr />
+
+      <p class="text-sm text-text-muted">
+        Missing something? <a href="mailto:tubhyamkt@gmail.com">Let me know</a> and I'll add it.
+      </p>
+    </div>
+  </section>
+</PageLayout>
