@@ -1,16 +1,38 @@
 /**
  * ProjectSlider — Terminal-styled project showcase carousel.
  * Matches TerminalBlock aesthetic: traffic lights, title bar, scanlines, monospace.
+ * Respects prefers-reduced-motion by disabling auto-play and slide transitions.
  */
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-/** Typewriter hook — types out text character by character, resets on change. */
-function useTypewriter(text: string, speed = 25) {
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
+/** Typewriter hook — types out text character by character, resets on change.
+ *  When reducedMotion is true, shows the full text immediately without animation.
+ */
+function useTypewriter(text: string, speed = 25, reducedMotion = false) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    if (reducedMotion) {
+      setDisplayed(text);
+      setDone(true);
+      return;
+    }
     setDisplayed("");
     setDone(false);
     let i = 0;
@@ -23,7 +45,7 @@ function useTypewriter(text: string, speed = 25) {
       }
     }, speed);
     return () => clearInterval(id);
-  }, [text, speed]);
+  }, [text, speed, reducedMotion]);
 
   return { displayed, done };
 }
@@ -79,8 +101,8 @@ const DEFAULT_PROJECTS: Project[] = [
   },
 ];
 
-function TypewriterDescription({ text }: { text: string }) {
-  const { displayed, done } = useTypewriter(text, 18);
+function TypewriterDescription({ text, reducedMotion = false }: { text: string; reducedMotion?: boolean }) {
+  const { displayed, done } = useTypewriter(text, 18, reducedMotion);
   return (
     <span className="text-[#888]">
       {displayed}
@@ -90,6 +112,7 @@ function TypewriterDescription({ text }: { text: string }) {
 }
 
 export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className = "" }: Props) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
@@ -111,17 +134,20 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
     setActive((prev) => (prev - 1 + projects.length) % projects.length);
   }
 
-  // Auto-play
+  // Auto-play (disabled when prefers-reduced-motion is active)
   useEffect(() => {
+    if (prefersReducedMotion) return;
     timerRef.current = setInterval(next, 5000);
     return () => clearInterval(timerRef.current);
-  }, []);
+  }, [prefersReducedMotion]);
 
-  // Reset timer on manual interaction
+  // Reset timer on manual interaction (no auto-play restart when reduced motion)
   function interact(fn: () => void) {
     clearInterval(timerRef.current);
     fn();
-    timerRef.current = setInterval(next, 5000);
+    if (!prefersReducedMotion) {
+      timerRef.current = setInterval(next, 5000);
+    }
   }
 
   // Keyboard nav
@@ -184,11 +210,11 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
             <motion.div
               key={active}
               custom={direction}
-              variants={variants}
-              initial="enter"
+              variants={prefersReducedMotion ? undefined : variants}
+              initial={prefersReducedMotion ? false : "enter"}
               animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              exit={prefersReducedMotion ? undefined : "exit"}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
               {/* Line 1: project name */}
               <div className="flex">
@@ -234,7 +260,7 @@ export default function ProjectSlider({ projects = DEFAULT_PROJECTS, className =
               >
                 <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
                 <span className="flex-1">
-                  <TypewriterDescription key={active} text={project.description} />
+                  <TypewriterDescription key={active} text={project.description} reducedMotion={prefersReducedMotion} />
                 </span>
               </div>
 

@@ -20,5 +20,9 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# Next.js (from React islands)
+.next/
+next-env.d.ts
+
 # jetbrains setting folder
 .idea/

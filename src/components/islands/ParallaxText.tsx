@@ -1,8 +1,9 @@
 /**
  * ParallaxText — Infinite scrolling text marquee that responds to scroll velocity.
  * Creates a kinetic typography effect. Inspired by Aceternity/Magic UI.
+ * Respects prefers-reduced-motion by disabling the parallax animation.
  */
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   motion,
   useScroll,
@@ -24,7 +25,22 @@ function wrap(min: number, max: number, v: number) {
   return ((((v - min) % range) + range) % range) + min;
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
 export default function ParallaxText({ text, baseVelocity = 2, className = "" }: Props) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const baseX = useMotionValue(0);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -35,6 +51,8 @@ export default function ParallaxText({ text, baseVelocity = 2, className = "" }:
   const x = useTransform(baseX, (v) => `${wrap(-25, 0, v)}%`);
 
   useAnimationFrame((_, delta) => {
+    if (prefersReducedMotion) return;
+
     let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
     if (velocityFactor.get() < 0) {
       directionFactor.current = -1;
@@ -49,7 +67,7 @@ export default function ParallaxText({ text, baseVelocity = 2, className = "" }:
 
   return (
     <div className={`overflow-hidden whitespace-nowrap ${className}`}>
-      <motion.div className="inline-block" style={{ x }}>
+      <motion.div className="inline-block" style={prefersReducedMotion ? undefined : { x }}>
         <span className="inline-block text-[clamp(2rem,6vw,5rem)] font-heading font-medium tracking-tight">
           {repeated}
         </span>

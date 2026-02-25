@@ -1,9 +1,24 @@
 /**
  * SideNav — Right-side vertical navigation for the home page.
  * Terminal-style section tracker with line numbers and > prompt.
+ * Respects prefers-reduced-motion by reducing/disabling animations.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  return prefersReducedMotion;
+}
 
 interface Section {
   id: string;
@@ -19,15 +34,20 @@ const SECTIONS: Section[] = [
 ];
 
 export default function SideNav() {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [active, setActive] = useState("");
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const ratiosRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setVisible(true);
+      return;
+    }
     const timer = setTimeout(() => setVisible(true), 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>("[data-nav-section]");
@@ -66,21 +86,21 @@ export default function SideNav() {
   const scrollTo = useCallback((id: string) => {
     const el = document.querySelector(`[data-nav-section="${id}"]`);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
     }
-  }, []);
+  }, [prefersReducedMotion]);
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  }, [prefersReducedMotion]);
 
   return (
     <AnimatePresence>
       {visible && (
         <motion.nav
-          initial={{ opacity: 0, x: 30 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center"
           aria-label="Section navigation"
         >
@@ -126,7 +146,7 @@ export default function SideNav() {
                       color: isActive ? "#C9A04A" : "transparent",
                       opacity: isActive ? 1 : 0,
                     }}
-                    transition={{ duration: 0.15 }}
+                    transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
                   >
                     {">"}
                   </motion.span>
@@ -137,7 +157,7 @@ export default function SideNav() {
                     animate={{
                       color: isActive ? "#C9A04A" : isHovered ? "#888" : "#555",
                     }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                   >
                     {section.label}
                   </motion.span>
