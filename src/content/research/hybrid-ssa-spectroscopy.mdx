@@ -27,3 +27,10 @@ Spekron uses a multi-stage encoder:
 - Pretraining loss: 1.29 → 0.90 in first 20 steps (corpus of 61K spectra)
 - Classical baseline comparison: Direct Standardization R² = 0.69 on corn moisture
 - Target: R² > 0.95 with ≤10 transfer samples (outperforming LoRA-CT)
+
+## Related
+
+- **Project:** [Spekron](/projects/spekron) — the implementation of this architecture, training on 4x RTX 5090
+- **Theory:** [Spectral Identifiability](/research/spectral-identifiability) — the information-theoretic framework motivating the VIB design
+- **Blog:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — accessible overview connecting group theory to the model architecture
+- **Preprocessing:** [SpectraKit](/projects/spectrakit) — the spectral preprocessing library used in Spekron's data pipeline

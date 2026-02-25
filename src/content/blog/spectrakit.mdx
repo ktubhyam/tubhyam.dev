@@ -403,6 +403,12 @@ The baseline tests are the most important. ALS and ArPLS are iterative algorithm
 
 SpectraKit is stable, tested, and published. The next step is using it as the preprocessing foundation for [Spekron](/projects/spekron) — the spectral foundation model. Every spectrum that enters the Spekron training pipeline goes through SpectraKit preprocessing first. The functional API makes this trivial: the data loader calls `baseline_als`, `normalize_snv`, and resampling in sequence, each operating on raw NumPy arrays that PyTorch can consume directly.
 
+## Related
+
+- **Project page:** [SpectraKit](/projects/spectrakit) — overview, features, and installation
+- **Foundation model:** [Spekron](/projects/spekron) — uses SpectraKit as its preprocessing backbone
+- **Research:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the paper behind the Spekron training pipeline
+
 <TerminalBlock
   client:visible
   title="spectrakit — summary"
