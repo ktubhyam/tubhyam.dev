@@ -59,6 +59,12 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   "affiliation": { "@type": "Organization", "name": "ICT Mumbai" },
 })} />
 
+<!-- Vercel Analytics -->
+<script>
+  import { inject } from "@vercel/analytics";
+  inject();
+</script>
+
 <!-- Fonts: self-hosted WOFF2 (preloaded for zero render-blocking) -->
 <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
