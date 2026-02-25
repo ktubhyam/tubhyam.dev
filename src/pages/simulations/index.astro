@@ -1,12 +1,15 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
-import StaggerReveal from "@components/islands/StaggerReveal";
+
+import SymmetryExplorer from "@components/islands/SymmetryExplorer";
+import VibeScopePreview from "@components/islands/VibeScopePreview";
+import OrbitalDiagram from "@components/islands/OrbitalDiagram";
+import SpectrumViz from "@components/islands/SpectrumViz";
 
 const simulations = (await getCollection("simulations"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -23,7 +26,7 @@ const collectionSchema = {
     "itemListElement": simulations.map((sim, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `${SITE.url}/simulations/${sim.id}`,
+      "url": sim.data.launch || `${SITE.url}/simulations/${sim.id}`,
       "name": sim.data.title,
     })),
   },
@@ -57,18 +60,45 @@ const breadcrumbSchema = {
       Interactive experiments — explore physics and chemistry right in your browser.
     </p>
 
-    <StaggerReveal client:visible className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" stagger={0.08}>
-      {
-        simulations.map((sim) => (
-          <GlassCard href={`/simulations/${sim.id}`} class="group" padding="md">
-            <div class="aspect-video rounded-xl bg-bg-secondary border border-border mb-4 flex items-center justify-center overflow-hidden">
-              <span class="text-text-muted text-xs font-mono">Preview</span>
-            </div>
-            <div class="flex items-center gap-2 mb-2">
-              <Badge>{sim.data.difficulty}</Badge>
-              {sim.data.physics.slice(0, 2).map((p) => (
-                <span class="text-xs text-text-muted font-mono">{p}</span>
-              ))}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {simulations.map((sim) => (
+        <a
+          href={sim.data.launch || `/simulations/${sim.id}`}
+          target={sim.data.launch ? "_blank" : undefined}
+          rel={sim.data.launch ? "noopener noreferrer" : undefined}
+          class="group block rounded-2xl border border-border bg-bg-secondary overflow-hidden hover:border-accent/40 transition-colors no-underline"
+        >
+          <div class="pointer-events-none">
+            {sim.id === "symmetry-explorer" && (
+              <SymmetryExplorer client:visible className="rounded-none border-0" />
+            )}
+            {sim.id === "vibescope" && (
+              <VibeScopePreview client:visible className="rounded-none border-0" />
+            )}
+            {sim.id === "orbital-architect" && (
+              <OrbitalDiagram client:visible className="rounded-none border-0" />
+            )}
+            {sim.id === "normal-mode-explorer" && (
+              <SpectrumViz client:visible className="rounded-none border-0" />
+            )}
+            {sim.id === "spectrum-to-structure" && (
+              <SpectrumViz client:visible className="rounded-none border-0" title="Inverse Spectrum Analysis" />
+            )}
+            {sim.id === "spectraview-demo" && (
+              <SpectrumViz client:visible className="rounded-none border-0" title="SpectraView" />
+            )}
+          </div>
+          <div class="p-5 border-t border-border">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <Badge>{sim.data.difficulty}</Badge>
+                {sim.data.physics.slice(0, 2).map((p: string) => (
+                  <span class="text-xs text-text-muted font-mono">{p}</span>
+                ))}
+              </div>
+              <span class="text-xs font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                {sim.data.launch ? "Launch →" : "Open →"}
+              </span>
             </div>
             <h2 class="text-base font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
               {sim.data.title}
@@ -76,15 +106,15 @@ const breadcrumbSchema = {
             <p class="mt-1 text-sm text-text-muted line-clamp-2">
               {sim.data.description}
             </p>
-          </GlassCard>
-        ))
-      }
+          </div>
+        </a>
+      ))}
+    </div>
 
-      {simulations.length === 0 && (
-        <div class="card rounded-2xl p-12 text-center col-span-full">
-          <p class="text-text-muted">Simulations coming soon.</p>
-        </div>
-      )}
-    </StaggerReveal>
+    {simulations.length === 0 && (
+      <div class="card rounded-2xl p-12 text-center">
+        <p class="text-text-muted">Simulations coming soon.</p>
+      </div>
+    )}
   </section>
 </PageLayout>

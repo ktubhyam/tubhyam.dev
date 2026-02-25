@@ -41,6 +41,7 @@ const simulations = defineCollection({
     physics: z.array(z.string()).default([]),
     preview: z.string().optional(),
     component: z.string(),
+    launch: z.string().url().optional(),
   }),
 });
 
