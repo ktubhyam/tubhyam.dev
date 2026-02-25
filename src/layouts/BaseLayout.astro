@@ -11,15 +11,25 @@ interface Props {
   description?: string;
   image?: string;
   hideNav?: boolean;
+  ogType?: "website" | "article";
+  publishedDate?: string;
+  modifiedDate?: string;
 }
 
-const { title, description, image, hideNav = false } = Astro.props;
+const { title, description, image, hideNav = false, ogType, publishedDate, modifiedDate } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} image={image} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      ogType={ogType}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
+    />
   </head>
   <body class="min-h-screen">
     <AnimatedBackground />
