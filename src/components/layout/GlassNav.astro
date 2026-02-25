@@ -16,7 +16,7 @@ const currentPath = Astro.url.pathname;
     <!-- Prompt -->
     <a href="/" class="nav-prompt" aria-label="Home">
       <span class="nav-prompt-symbol">~</span>
-      <span class="nav-prompt-path">tubhyam</span>
+      <span class="nav-prompt-path">tubhyam.dev</span>
       <span class="nav-cursor"></span>
     </a>
 
@@ -209,7 +209,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-header.collapsed:hover .nav-prompt-path {
-    max-width: 80px;
+    max-width: 100px;
     opacity: 1;
   }
 
@@ -217,7 +217,7 @@ const currentPath = Astro.url.pathname;
     transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1),
                 opacity 0.3s ease,
                 color 0.2s ease;
-    max-width: 80px;
+    max-width: 100px;
     overflow: hidden;
     white-space: nowrap;
   }
