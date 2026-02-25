@@ -3,6 +3,7 @@ import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection, render } from "astro:content";
 import { formatDate } from "@lib/utils";
+import { SITE } from "@lib/constants";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -14,9 +15,49 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+const canonicalUrl = new URL(`/blog/${post.id}`, SITE.url).toString();
+
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": post.data.title,
+  "description": post.data.description,
+  "datePublished": post.data.date.toISOString(),
+  ...(post.data.updated && { "dateModified": post.data.updated.toISOString() }),
+  "url": canonicalUrl,
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
+  "author": {
+    "@type": "Person",
+    "name": SITE.author,
+    "url": SITE.url,
+    "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": SITE.author,
+    "url": SITE.url,
+  },
+  "keywords": post.data.tags.join(", "),
+  "image": new URL("/og/default.png", SITE.url).toString(),
+  "inLanguage": "en",
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${SITE.url}/blog` },
+    { "@type": "ListItem", "position": 3, "name": post.data.title, "item": canonicalUrl },
+  ],
+};
 ---
 
 <ProseLayout title={post.data.title} description={post.data.description}>
+  <script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <header class="mb-12 not-prose">
     <div class="flex flex-wrap items-center gap-2 mb-4">
       {post.data.tags.map((tag) => (

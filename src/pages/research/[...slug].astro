@@ -2,6 +2,7 @@
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import { getCollection, render } from "astro:content";
+import { SITE } from "@lib/constants";
 
 export async function getStaticPaths() {
   const papers = await getCollection("research");
@@ -19,9 +20,50 @@ const statusColors = {
   preprint: "cyan" as const,
   "in-progress": "orange" as const,
 };
+
+const canonicalUrl = new URL(`/research/${paper.id}`, SITE.url).toString();
+
+const scholarlySchema = {
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": paper.data.title,
+  "abstract": paper.data.abstract,
+  "datePublished": paper.data.date.toISOString(),
+  "url": canonicalUrl,
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
+  "author": paper.data.authors.map((name: string) => ({
+    "@type": "Person",
+    "name": name,
+    ...(name === SITE.author && { "url": SITE.url, "sameAs": [SITE.github, SITE.twitter, SITE.linkedin] }),
+  })),
+  "publisher": {
+    "@type": "Person",
+    "name": SITE.author,
+    "url": SITE.url,
+  },
+  ...(paper.data.venue && { "isPartOf": { "@type": "PublicationEvent", "name": paper.data.venue } }),
+  ...(paper.data.doi && { "identifier": { "@type": "PropertyValue", "propertyID": "doi", "value": paper.data.doi } }),
+  ...(paper.data.arxiv && { "sameAs": paper.data.arxiv }),
+  "keywords": paper.data.tags.join(", "),
+  "image": new URL("/og/default.png", SITE.url).toString(),
+  "inLanguage": "en",
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Research", "item": `${SITE.url}/research` },
+    { "@type": "ListItem", "position": 3, "name": paper.data.title, "item": canonicalUrl },
+  ],
+};
 ---
 
 <ProseLayout title={paper.data.title} description={paper.data.abstract}>
+  <script type="application/ld+json" set:html={JSON.stringify(scholarlySchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <header class="mb-12 not-prose">
     <Badge variant={statusColors[paper.data.status]}>
       {paper.data.status}

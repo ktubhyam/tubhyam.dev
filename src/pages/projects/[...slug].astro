@@ -3,6 +3,7 @@ import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import GlassButton from "@components/ui/GlassButton.astro";
 import { getCollection, render } from "astro:content";
+import { SITE } from "@lib/constants";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -20,9 +21,39 @@ const statusColors = {
   completed: "cyan" as const,
   archived: "orange" as const,
 };
+
+const canonicalUrl = new URL(`/projects/${project.id}`, SITE.url).toString();
+
+const projectSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": project.data.title,
+  "description": project.data.description,
+  ...(project.data.github && { "codeRepository": project.data.github }),
+  "author": {
+    "@type": "Person",
+    "name": SITE.author,
+    "url": SITE.url,
+    "sameAs": [SITE.github, SITE.twitter, SITE.linkedin],
+  },
+  "keywords": project.data.tags?.join(", ") ?? "",
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE.url },
+    { "@type": "ListItem", "position": 2, "name": "Projects", "item": `${SITE.url}/projects` },
+    { "@type": "ListItem", "position": 3, "name": project.data.title, "item": canonicalUrl },
+  ],
+};
 ---
 
 <ProseLayout title={project.data.title} description={project.data.description}>
+  <script type="application/ld+json" set:html={JSON.stringify(projectSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <header class="mb-12 not-prose">
     <Badge variant={statusColors[project.data.status]}>
       {project.data.status}
