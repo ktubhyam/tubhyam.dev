@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+  <rect width="800" height="200" fill="#000000"/>
+  <!-- Gold accent bar -->
+  <rect x="0" y="0" width="6" height="200" fill="#C9A04A"/>
+  <!-- Publication name -->
+  <text x="40" y="125" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="600" font-size="72" fill="#fafafa" letter-spacing="-1">Latent Chemistry</text>
+  <!-- Subtle gold underline -->
+  <rect x="40" y="148" width="180" height="3" rx="1.5" fill="#C9A04A" opacity="0.6"/>
+</svg>
