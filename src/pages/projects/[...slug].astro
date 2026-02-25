@@ -2,8 +2,11 @@
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
 import GlassButton from "@components/ui/GlassButton.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection, render } from "astro:content";
 import { SITE } from "@lib/constants";
+
+import BlurReveal from "@components/islands/BlurReveal";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -55,12 +58,16 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
+    <TerminalBreadcrumb segments={[{ label: "projects", href: "/projects" }, { label: project.data.title }]} />
     <Badge variant={statusColors[project.data.status]}>
       {project.data.status}
     </Badge>
-    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
-      {project.data.title}
-    </h1>
+    <BlurReveal
+      client:idle
+      text={project.data.title}
+      className="mt-4 text-4xl font-heading font-bold text-text-primary"
+      as="h1"
+    />
     <p class="mt-2 text-text-secondary">{project.data.description}</p>
     <div class="mt-6 flex flex-wrap gap-3">
       {project.data.github && (

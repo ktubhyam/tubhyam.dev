@@ -1,8 +1,11 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection, render } from "astro:content";
 import { SITE, PUBLICATION } from "@lib/constants";
+
+import BlurReveal from "@components/islands/BlurReveal";
 
 export async function getStaticPaths() {
   const papers = await getCollection("research");
@@ -71,15 +74,16 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
-    <a href="/research" class="inline-block text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] hover:text-accent transition-colors mb-4">
-      {PUBLICATION.name}
-    </a>
+    <TerminalBreadcrumb segments={[{ label: "research", href: "/research" }, { label: paper.data.title }]} />
     <Badge variant={statusColors[paper.data.status]}>
       {paper.data.status}
     </Badge>
-    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
-      {paper.data.title}
-    </h1>
+    <BlurReveal
+      client:idle
+      text={paper.data.title}
+      className="mt-4 text-4xl font-heading font-bold text-text-primary"
+      as="h1"
+    />
     <p class="mt-2 text-text-secondary">{paper.data.authors.join(", ")}</p>
     <p class="mt-1 text-sm text-text-muted font-mono">{paper.data.venue}</p>
     <div class="mt-6 flex flex-wrap gap-3">

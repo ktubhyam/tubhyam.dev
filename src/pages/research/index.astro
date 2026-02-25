@@ -1,12 +1,13 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import StaggerReveal from "@components/islands/StaggerReveal";
+import SpotlightCard from "@components/islands/SpotlightCard";
 
 const papers = (await getCollection("research"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -44,6 +45,7 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
+    <TerminalBreadcrumb segments={[{ label: "research" }]} />
     <BlurReveal
       client:idle
       text="Research"
@@ -51,58 +53,50 @@ const breadcrumbSchema = {
       as="h1"
     />
     <p
-      class="text-text-muted mb-10"
+      class="text-text-muted mb-2"
       style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
     >
       Papers and publications in computational chemistry, spectroscopy, and ML.
+    </p>
+    <p class="text-[11px] font-mono text-[#333] mb-10"
+       style="opacity: 0; animation: fade-up 0.5s ease-out 0.5s forwards;">
+      {papers.length} publications
     </p>
 
     <StaggerReveal client:visible className="grid gap-4" stagger={0.1}>
       {
         papers.map((paper) => (
-          <GlassCard href={`/research/${paper.id}`} class="group" padding="lg">
-            <div class="flex items-start gap-3 mb-3">
-              <Badge>{paper.data.status}</Badge>
-              <span class="text-xs text-text-muted font-mono">
-                {paper.data.venue}
-              </span>
-            </div>
-            <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
-              {paper.data.title}
-            </h2>
-            <p class="mt-1 text-sm text-text-muted">
-              {paper.data.authors.join(", ")}
-            </p>
-            <p class="mt-3 text-sm text-text-secondary line-clamp-3">
-              {paper.data.abstract}
-            </p>
-            <div class="mt-4 flex gap-3">
-              {paper.data.arxiv && (
-                <a
-                  href={paper.data.arxiv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-xs text-text-secondary hover:text-text-primary transition-colors"
-                  onclick="event.stopPropagation()"
-                  aria-label={`View ${paper.data.title} on arXiv`}
-                >
-                  arXiv &rarr;
-                </a>
-              )}
-              {paper.data.pdf && (
-                <a
-                  href={paper.data.pdf}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-xs text-text-secondary hover:text-text-primary transition-colors"
-                  onclick="event.stopPropagation()"
-                  aria-label={`Download PDF of ${paper.data.title}`}
-                >
-                  PDF &rarr;
-                </a>
-              )}
-            </div>
-          </GlassCard>
+          <SpotlightCard client:visible className="group" spotlightColor="rgba(167, 139, 250, 0.1)">
+            <a href={`/research/${paper.id}`} class="block p-8">
+              <div class="flex items-start gap-3 mb-3">
+                <Badge>{paper.data.status}</Badge>
+                <span class="text-xs text-text-muted font-mono">
+                  {paper.data.venue}
+                </span>
+              </div>
+              <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+                {paper.data.title}
+              </h2>
+              <p class="mt-1 text-sm text-text-muted">
+                {paper.data.authors.join(", ")}
+              </p>
+              <p class="mt-3 text-sm text-text-secondary line-clamp-3">
+                {paper.data.abstract}
+              </p>
+              <div class="mt-4 flex gap-3">
+                {paper.data.arxiv && (
+                  <span class="text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    arXiv &rarr;
+                  </span>
+                )}
+                {paper.data.pdf && (
+                  <span class="text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    PDF &rarr;
+                  </span>
+                )}
+              </div>
+            </a>
+          </SpotlightCard>
         ))
       }
 

@@ -2,12 +2,15 @@
 import PageLayout from "@layouts/PageLayout.astro";
 import GlassCard from "@components/cards/GlassCard.astro";
 import Badge from "@components/ui/Badge.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
+import TerminalSectionLabel from "@components/ui/TerminalSectionLabel.astro";
 import { getCollection } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
 import { SITE, PUBLICATION } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import StaggerReveal from "@components/islands/StaggerReveal";
+import SpotlightCard from "@components/islands/SpotlightCard";
 
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
@@ -52,10 +55,8 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
-    <p class="text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] mb-3"
-       style="opacity: 0; animation: fade-up 0.5s ease-out 0.2s forwards;">
-      {PUBLICATION.name}
-    </p>
+    <TerminalBreadcrumb segments={[{ label: "blog" }]} />
+    <TerminalSectionLabel text={PUBLICATION.name} class="mb-3" />
     <BlurReveal
       client:idle
       text={PUBLICATION.tagline}
@@ -63,36 +64,42 @@ const breadcrumbSchema = {
       as="h1"
     />
     <p
-      class="text-text-muted mb-10"
+      class="text-text-muted mb-2"
       style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
     >
       {PUBLICATION.description}
+    </p>
+    <p class="text-[11px] font-mono text-[#333] mb-10"
+       style="opacity: 0; animation: fade-up 0.5s ease-out 0.5s forwards;">
+      {posts.length} entries
     </p>
 
     <StaggerReveal client:visible className="grid gap-4" stagger={0.1}>
       {
         posts.map((post) => (
-          <GlassCard href={`/blog/${post.id}`} class="group" padding="lg">
-            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-2 mb-3">
-                  {post.data.tags.map((tag) => (
-                    <Badge variant="outline">{tag}</Badge>
-                  ))}
+          <SpotlightCard client:visible className="group" spotlightColor="rgba(201, 160, 74, 0.1)">
+            <a href={`/blog/${post.id}`} class="block p-8">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div class="flex-1">
+                  <div class="flex flex-wrap items-center gap-2 mb-3">
+                    {post.data.tags.map((tag) => (
+                      <Badge variant="outline">{tag}</Badge>
+                    ))}
+                  </div>
+                  <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
+                    {post.data.title}
+                  </h2>
+                  <p class="mt-2 text-sm text-text-muted line-clamp-2">
+                    {post.data.description}
+                  </p>
                 </div>
-                <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
-                  {post.data.title}
-                </h2>
-                <p class="mt-2 text-sm text-text-muted line-clamp-2">
-                  {post.data.description}
-                </p>
+                <div class="text-xs text-text-muted whitespace-nowrap font-mono text-right">
+                  <div>{formatDate(post.data.date)}</div>
+                  <div class="mt-1 text-text-muted/60">{readingTime(post.body ?? "")} min read</div>
+                </div>
               </div>
-              <div class="text-xs text-text-muted whitespace-nowrap font-mono text-right">
-                <div>{formatDate(post.data.date)}</div>
-                <div class="mt-1 text-text-muted/60">{readingTime(post.body ?? "")} min read</div>
-              </div>
-            </div>
-          </GlassCard>
+            </a>
+          </SpotlightCard>
         ))
       }
 

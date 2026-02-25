@@ -1,6 +1,7 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
 import GlassButton from "@components/ui/GlassButton.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
@@ -10,6 +11,7 @@ import StaggerReveal from "@components/islands/StaggerReveal";
 
 <PageLayout title="About" description="Tubhyam Karthikeyan — computational chemist, ML researcher, and open-source builder at ICT Mumbai.">
   <section class="py-12 max-w-3xl">
+    <TerminalBreadcrumb segments={[{ label: "about" }]} />
     <BlurReveal
       client:idle
       text="About"
@@ -45,13 +47,16 @@ import StaggerReveal from "@components/islands/StaggerReveal";
 
     <!-- Skills -->
     <div class="mt-16">
-      <TextScramble
-        client:visible
-        text="Skills"
-        className="text-xs font-mono text-text-muted uppercase tracking-widest mb-6"
-        as="h2"
-        speed={30}
-      />
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-accent font-mono text-xs">&gt;</span>
+        <TextScramble
+          client:visible
+          text="Skills"
+          className="text-xs font-mono text-text-muted uppercase tracking-widest"
+          as="h2"
+          speed={30}
+        />
+      </div>
       <StaggerReveal client:visible className="grid grid-cols-2 sm:grid-cols-3 gap-2" stagger={0.05}>
         {[
           "Python", "PyTorch", "TypeScript", "React", "Astro",

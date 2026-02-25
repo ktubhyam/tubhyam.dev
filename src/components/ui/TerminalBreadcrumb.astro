@@ -1,0 +1,34 @@
+---
+interface Props {
+  segments: { label: string; href?: string }[];
+}
+const { segments } = Astro.props;
+---
+
+<nav
+  class="flex items-center gap-1.5 text-[11px] font-mono mb-6"
+  style="opacity: 0; animation: fade-up 0.5s ease-out 0.15s forwards;"
+  aria-label="Breadcrumb"
+>
+  <span class="text-accent">~</span>
+  {segments.map((seg) => (
+    <>
+      <span class="text-[#333]">/</span>
+      {seg.href ? (
+        <a href={seg.href} class="text-text-muted hover:text-text-secondary transition-colors">
+          {seg.label}
+        </a>
+      ) : (
+        <span class="text-text-secondary">{seg.label}</span>
+      )}
+    </>
+  ))}
+  <span class="inline-block w-[5px] h-[10px] bg-accent/60 ml-0.5 animate-[cursor-blink_1.2s_step-end_infinite]" />
+</nav>
+
+<style>
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0; }
+  }
+</style>

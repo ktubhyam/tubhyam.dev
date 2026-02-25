@@ -1,9 +1,13 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
 import Badge from "@components/ui/Badge.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
+import TerminalSectionLabel from "@components/ui/TerminalSectionLabel.astro";
 import { getCollection, render } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
 import { SITE, PUBLICATION } from "@lib/constants";
+
+import BlurReveal from "@components/islands/BlurReveal";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog"))
@@ -75,17 +79,18 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
-    <a href="/blog" class="inline-block text-[11px] font-mono text-text-muted uppercase tracking-[0.2em] hover:text-accent transition-colors mb-4">
-      {PUBLICATION.name}
-    </a>
+    <TerminalBreadcrumb segments={[{ label: "blog", href: "/blog" }, { label: post.data.title }]} />
     <div class="flex flex-wrap items-center gap-2 mb-4">
       {post.data.tags.map((tag) => (
         <Badge variant="outline">{tag}</Badge>
       ))}
     </div>
-    <h1 class="text-3xl font-heading font-medium text-text-primary leading-tight tracking-tight">
-      {post.data.title}
-    </h1>
+    <BlurReveal
+      client:idle
+      text={post.data.title}
+      className="text-3xl font-heading font-medium text-text-primary leading-tight tracking-tight"
+      as="h1"
+    />
     <div class="mt-4 flex items-center gap-4 text-sm text-text-muted font-mono">
       <time datetime={post.data.date.toISOString()}>
         {formatDate(post.data.date)}
@@ -102,11 +107,12 @@ const breadcrumbSchema = {
   </header>
 
   {tocHeadings.length >= 3 && (
-    <nav class="not-prose mb-10 rounded-xl border border-border bg-bg-secondary p-5">
-      <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Table of Contents</p>
+    <nav class="not-prose mb-10 rounded-lg border border-[#1a1a1a] bg-[#0a0a0a] p-5">
+      <TerminalSectionLabel text="table of contents" class="mb-3" />
       <ul class="space-y-1.5">
-        {tocHeadings.map((h) => (
-          <li style={h.depth === 3 ? "padding-left: 1rem;" : ""}>
+        {tocHeadings.map((h, i) => (
+          <li style={h.depth === 3 ? "padding-left: 1rem;" : ""} class="flex items-center gap-2">
+            <span class="text-[9px] font-mono text-[#333] w-3 text-right select-none">{i + 1}</span>
             <a
               href={`#${h.slug}`}
               class="text-sm text-text-muted hover:text-accent transition-colors duration-200 leading-relaxed"

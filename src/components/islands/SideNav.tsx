@@ -1,7 +1,6 @@
 /**
  * SideNav — Right-side vertical navigation for the home page.
- * Tracks scroll position via IntersectionObserver and highlights the active section.
- * Desktop: glass pill with dots + labels. Mobile: minimal dots only.
+ * Terminal-style section tracker with line numbers and > prompt.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -9,16 +8,14 @@ import { motion, AnimatePresence } from "motion/react";
 interface Section {
   id: string;
   label: string;
-  color: string;
-  glow: string;
 }
 
 const SECTIONS: Section[] = [
-  { id: "research", label: "Research", color: "#4ECDC4", glow: "rgba(78, 205, 196, 0.5)" },
-  { id: "build", label: "Build", color: "#C9A04A", glow: "rgba(201, 160, 74, 0.5)" },
-  { id: "simulate", label: "Simulate", color: "#A78BFA", glow: "rgba(167, 139, 250, 0.5)" },
-  { id: "stack", label: "Stack", color: "#4ECDC4", glow: "rgba(78, 205, 196, 0.5)" },
-  { id: "contact", label: "Contact", color: "#C9A04A", glow: "rgba(201, 160, 74, 0.5)" },
+  { id: "research", label: "research" },
+  { id: "build", label: "build" },
+  { id: "simulate", label: "simulate" },
+  { id: "stack", label: "stack" },
+  { id: "contact", label: "contact" },
 ];
 
 export default function SideNav() {
@@ -27,13 +24,11 @@ export default function SideNav() {
   const [hovered, setHovered] = useState<string | null>(null);
   const ratiosRef = useRef<Record<string, number>>({});
 
-  // Delay entry animation
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  // IntersectionObserver to track which section is most visible
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>("[data-nav-section]");
     if (elements.length === 0) return;
@@ -47,7 +42,6 @@ export default function SideNav() {
           }
         });
 
-        // Find the section with the highest intersection ratio
         let maxRatio = 0;
         let maxId = "";
         for (const [id, ratio] of Object.entries(ratiosRef.current)) {
@@ -90,26 +84,23 @@ export default function SideNav() {
           className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center"
           aria-label="Section navigation"
         >
-          <div className="side-nav-pill flex flex-col items-center gap-4 md:gap-5 px-2 md:px-3 py-4 md:py-5">
+          <div className="side-nav-pill flex flex-col items-start gap-3 px-3 py-4">
             {/* Logo — scroll to top */}
             <button
               onClick={scrollToTop}
-              className="flex items-center gap-1 mb-1 group cursor-pointer"
+              className="flex items-center gap-1.5 mb-1 group cursor-pointer w-full"
               aria-label="Scroll to top"
             >
-              <span className="text-[11px] font-bold tracking-[-0.02em] text-[#C9A04A] transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(201,160,74,0.5)]"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
-                TK
+              <span className="text-[13px] font-mono font-medium text-[#C9A04A] transition-all duration-300 group-hover:drop-shadow-[0_0_6px_rgba(201,160,74,0.5)]">
+                ~
               </span>
-              <span className="w-[4px] h-[4px] rounded-full bg-[#C9A04A] animate-[dot-color_10s_ease-in-out_infinite]" />
             </button>
 
             {/* Divider */}
-            <div className="w-4 h-px bg-white/[0.06]" />
+            <div className="w-full h-px bg-[#1a1a1a]" />
 
             {/* Section items */}
-            {SECTIONS.map((section) => {
+            {SECTIONS.map((section, index) => {
               const isActive = active === section.id;
               const isHovered = hovered === section.id;
 
@@ -119,30 +110,32 @@ export default function SideNav() {
                   onClick={() => scrollTo(section.id)}
                   onMouseEnter={() => setHovered(section.id)}
                   onMouseLeave={() => setHovered(null)}
-                  className="flex items-center gap-2.5 group cursor-pointer relative"
+                  className="flex items-center gap-1.5 group cursor-pointer w-full"
                   aria-label={`Go to ${section.label}`}
                   aria-current={isActive ? "true" : undefined}
                 >
-                  {/* Dot */}
-                  <motion.div
-                    className="rounded-full flex-shrink-0"
-                    animate={{
-                      width: isActive ? 7 : 5,
-                      height: isActive ? 7 : 5,
-                      backgroundColor: isActive ? section.color : isHovered ? "#666" : "#333",
-                      boxShadow: isActive
-                        ? `0 0 8px ${section.glow}`
-                        : "none",
-                    }}
-                    transition={{ duration: 0.2 }}
-                  />
+                  {/* Line number */}
+                  <span className="text-[9px] font-mono text-[#333] w-3 text-right select-none flex-shrink-0">
+                    {index + 1}
+                  </span>
 
-                  {/* Label (hidden on mobile) */}
+                  {/* Prompt indicator */}
                   <motion.span
-                    className="hidden md:block text-[10px] font-mono uppercase tracking-[0.12em] whitespace-nowrap select-none"
+                    className="text-[10px] font-mono w-2 flex-shrink-0"
                     animate={{
-                      color: isActive ? section.color : isHovered ? "#666" : "#444",
-                      opacity: isActive ? 1 : isHovered ? 0.8 : 0.5,
+                      color: isActive ? "#C9A04A" : "transparent",
+                      opacity: isActive ? 1 : 0,
+                    }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {">"}
+                  </motion.span>
+
+                  {/* Label */}
+                  <motion.span
+                    className="text-[10px] font-mono tracking-[0.08em] whitespace-nowrap select-none"
+                    animate={{
+                      color: isActive ? "#C9A04A" : isHovered ? "#888" : "#555",
                     }}
                     transition={{ duration: 0.2 }}
                   >
@@ -153,23 +146,23 @@ export default function SideNav() {
             })}
 
             {/* Divider */}
-            <div className="w-4 h-px bg-white/[0.06]" />
+            <div className="w-full h-px bg-[#1a1a1a]" />
 
-            {/* Site links (hidden on mobile) */}
+            {/* Site links */}
             {[
-              { href: "/research", label: "Papers" },
-              { href: "/projects", label: "Projects" },
-              { href: "/blog", label: "Blog" },
+              { href: "/research", label: "papers" },
+              { href: "/projects", label: "projects" },
+              { href: "/blog", label: "blog" },
             ].map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="hidden md:flex items-center gap-2.5 group"
+                className="flex items-center gap-1.5 group w-full"
               >
-                <svg viewBox="0 0 24 24" className="w-[5px] h-[5px] flex-shrink-0 text-[#333] group-hover:text-[#666] transition-colors" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-                <span className="text-[10px] font-mono uppercase tracking-[0.12em] whitespace-nowrap select-none text-text-muted/60 opacity-50 group-hover:text-[#666] group-hover:opacity-80 transition-all duration-200">
+                <span className="text-[9px] font-mono text-[#333] w-3 text-right select-none flex-shrink-0">
+                  ~
+                </span>
+                <span className="text-[10px] font-mono tracking-[0.08em] whitespace-nowrap select-none text-[#444] group-hover:text-[#888] transition-colors duration-200 ml-2">
                   {link.label}
                 </span>
               </a>
