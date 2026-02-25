@@ -9,8 +9,7 @@ import { formatDate } from "@lib/utils";
 // Fetch latest blog posts
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 3);
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 // Custom animated islands
 import TextRevealHighlight from "@components/islands/TextRevealHighlight";
@@ -36,7 +35,6 @@ import SocialLinks from "@components/islands/SocialLinks";
 // React Bits components
 import RotatingText from "@components/islands/RotatingText";
 
-import SpotlightCard from "@components/islands/SpotlightCard";
 import DecryptedText from "@components/islands/DecryptedText";
 import GradientText from "@components/islands/GradientText";
 import StarBorder from "@components/ui/StarBorder.astro";
@@ -320,58 +318,94 @@ import OrbitalDiagram from "@components/islands/OrbitalDiagram";
       <span class="text-shimmer text-sm md:text-base font-mono uppercase tracking-[0.2em]">What I Build</span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-      <!-- Project slider (3 cols) -->
-      <div class="md:col-span-3">
-        <ProjectSlider client:visible />
+    <!-- Project slider -->
+    <ProjectSlider client:visible />
+
+    <!-- Blog — terminal style -->
+    <div class="mt-8 rounded-xl border border-border overflow-hidden bg-bg-secondary">
+      <!-- Title bar -->
+      <div class="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
+        <div class="flex items-center gap-1.5">
+          <div class="w-[10px] h-[10px] rounded-full bg-[#FF5F57]"></div>
+          <div class="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]"></div>
+          <div class="w-[10px] h-[10px] rounded-full bg-[#28C840]"></div>
+        </div>
+        <span class="ml-2 text-[10px] font-mono text-text-muted/60 select-none">blog</span>
+        <a href="/blog" class="ml-auto text-[10px] font-mono text-text-muted/40 hover:text-text-muted transition-colors">
+          all posts &rarr;
+        </a>
       </div>
 
-      <!-- Blog card (2 cols) -->
-      <div class="md:col-span-2">
-        <SpotlightCard client:visible spotlightColor="rgba(167, 139, 250, 0.12)">
-          <div class="flex items-center justify-between mb-4">
-            <Badge variant="outline">Latest Writing</Badge>
-            <a href="/blog" class="text-[10px] font-mono text-violet/50 hover:text-violet transition-colors">
-              all posts &rarr;
+      <!-- Terminal content -->
+      <div class="p-4 font-mono text-xs md:text-sm leading-relaxed">
+        <!-- Header line -->
+        <div class="flex">
+          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+          <span>
+            <span class="text-[#555]">$ </span>
+            <span class="text-[#34D399]">ls</span>
+            <span class="text-[#e0e0e0]"> -la posts/</span>
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+        </div>
+
+        <!-- Post entries -->
+        {posts.map((post, i) => {
+          const colors = ["#A78BFA", "#C9A04A", "#4ECDC4"];
+          const color = colors[i % colors.length];
+          const lineNum = i * 3 + 3;
+          const dateStr = post.data.date.toISOString().slice(0, 10);
+          return (
+            <a href={`/blog/${post.id}`} class="block group/entry hover:bg-white/[0.02] -mx-4 px-4 rounded transition-colors">
+              <div class="flex">
+                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum}</span>
+                <span class="flex-1">
+                  <span class="text-[#555]">{dateStr}  </span>
+                  <span style={`color: ${color}`} class="group-hover/entry:underline">{post.data.title}</span>
+                </span>
+              </div>
+              <div class="flex">
+                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum + 1}</span>
+                <span class="flex-1">
+                  <span class="text-[#555]">           </span>
+                  <span class="text-[#666]">{post.data.description.length > 100 ? post.data.description.slice(0, 100) + "..." : post.data.description}</span>
+                </span>
+              </div>
+              <div class="flex">
+                <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineNum + 2}</span>
+                <span class="flex-1">
+                  <span class="text-[#555]">           </span>
+                  {post.data.tags.map((tag, j) => (
+                    <span>
+                      <span style={`color: ${color}`} class="opacity-60">{tag}</span>
+                      {j < post.data.tags.length - 1 && <span class="text-[#333]"> · </span>}
+                    </span>
+                  ))}
+                </span>
+              </div>
             </a>
-          </div>
-          <a href="/blog" class="block group/blog">
-            <h3 class="text-lg font-heading font-semibold text-text-primary group-hover/blog:text-violet transition-colors">
-              From the Blog
-            </h3>
-          </a>
-          <div class="mt-4 space-y-2">
-            {posts.map((post, i) => {
-              const colors = ["violet", "accent", "teal"];
-              const color = colors[i % colors.length];
-              return (
-                <a
-                  href={`/blog/${post.id}`}
-                  class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-all hover:translate-x-0.5 cursor-pointer group/post"
-                >
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class={`w-1.5 h-1.5 rounded-full bg-${color}/60`} />
-                    <p class={`text-[10px] font-mono text-${color}/50`}>
-                      {formatDate(post.data.date)}
-                    </p>
-                  </div>
-                  <p class={`text-xs text-text-secondary leading-snug group-hover/post:text-${color}/80 transition-colors`}>
-                    {post.data.title}
-                  </p>
-                  <p class="mt-1 text-[10px] text-text-muted leading-snug line-clamp-1">
-                    {post.data.description}
-                  </p>
-                </a>
-              );
-            })}
-          </div>
-          {posts.length === 0 && (
-            <div class="mt-4 text-xs text-text-muted text-center py-4">
-              No posts yet. Check back soon.
-            </div>
-          )}
-        </SpotlightCard>
+          );
+        })}
+
+        <!-- Footer -->
+        <div class="flex mt-1">
+          <span class="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{posts.length * 3 + 3}</span>
+          <span>
+            <span class="text-[#555]">$ </span>
+            <span class="text-[#555]">{posts.length} posts</span>
+            <span class="text-[#333]"> · </span>
+            <span class="text-[#555]">click to read</span>
+          </span>
+        </div>
       </div>
+
+      <!-- Scanline overlay -->
+      <div
+        class="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px); background-size: 100% 4px;"
+      ></div>
     </div>
 
     <!-- Build visuals: File Tree + Training Log + Code Diff -->
