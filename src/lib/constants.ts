@@ -4,7 +4,7 @@ export const SITE = {
     "Tubhyam Karthikeyan — computational chemist, ML researcher, and open-source builder at ICT Mumbai. Spectroscopy, AI, and scientific computing.",
   url: "https://tubhyam.dev",
   author: "Tubhyam Karthikeyan",
-  email: "takarthikeyan25@gmail.com",
+  email: "tubhyamkt@gmail.com",
   github: "https://github.com/ktubhyam",
   twitter: "https://twitter.com/ktubhyam",
   linkedin: "https://www.linkedin.com/in/ktubhyam",
