@@ -3,6 +3,14 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import GlassButton from "@components/ui/GlassButton.astro";
 import Badge from "@components/ui/Badge.astro";
 import { SITE } from "@lib/constants";
+import { getCollection } from "astro:content";
+import { formatDate } from "@lib/utils";
+
+// Fetch latest blog posts
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
 
 // Custom animated islands
 import TextRevealHighlight from "@components/islands/TextRevealHighlight";
@@ -321,25 +329,47 @@ import OrbitalDiagram from "@components/islands/OrbitalDiagram";
       <!-- Blog card (2 cols) -->
       <div class="md:col-span-2">
         <SpotlightCard client:visible spotlightColor="rgba(167, 139, 250, 0.12)">
-          <Badge variant="outline">Latest Writing</Badge>
-          <h3 class="mt-4 text-lg font-heading font-semibold text-text-primary">
-            From the Blog
-          </h3>
-          <div class="mt-4 space-y-2.5">
-            <a href="/blog/spectral-identifiability-theory" class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-colors cursor-pointer">
-              <p class="text-[10px] font-mono text-violet/50 mb-1">Feb 2026</p>
-              <p class="text-xs text-text-secondary leading-snug">Can You Hear the Shape of a Molecule?</p>
-            </a>
-            <a href="/blog/hello-world" class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-colors cursor-pointer">
-              <p class="text-[10px] font-mono text-accent/50 mb-1">Feb 2026</p>
-              <p class="text-xs text-text-secondary leading-snug">Hello World — Building My Corner of the Internet</p>
+          <div class="flex items-center justify-between mb-4">
+            <Badge variant="outline">Latest Writing</Badge>
+            <a href="/blog" class="text-[10px] font-mono text-violet/50 hover:text-violet transition-colors">
+              all posts &rarr;
             </a>
           </div>
-          <div class="mt-5">
-            <a href="/blog" class="text-xs font-mono text-violet/70 hover:text-violet transition-colors duration-200">
-              Read all posts &rarr;
-            </a>
+          <a href="/blog" class="block group/blog">
+            <h3 class="text-lg font-heading font-semibold text-text-primary group-hover/blog:text-violet transition-colors">
+              From the Blog
+            </h3>
+          </a>
+          <div class="mt-4 space-y-2">
+            {posts.map((post, i) => {
+              const colors = ["violet", "accent", "teal"];
+              const color = colors[i % colors.length];
+              return (
+                <a
+                  href={`/blog/${post.id}`}
+                  class="block rounded-xl bg-bg-secondary border border-border p-3 hover:border-border-hover transition-all hover:translate-x-0.5 cursor-pointer group/post"
+                >
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class={`w-1.5 h-1.5 rounded-full bg-${color}/60`} />
+                    <p class={`text-[10px] font-mono text-${color}/50`}>
+                      {formatDate(post.data.date)}
+                    </p>
+                  </div>
+                  <p class={`text-xs text-text-secondary leading-snug group-hover/post:text-${color}/80 transition-colors`}>
+                    {post.data.title}
+                  </p>
+                  <p class="mt-1 text-[10px] text-text-muted leading-snug line-clamp-1">
+                    {post.data.description}
+                  </p>
+                </a>
+              );
+            })}
           </div>
+          {posts.length === 0 && (
+            <div class="mt-4 text-xs text-text-muted text-center py-4">
+              No posts yet. Check back soon.
+            </div>
+          )}
         </SpotlightCard>
       </div>
     </div>
