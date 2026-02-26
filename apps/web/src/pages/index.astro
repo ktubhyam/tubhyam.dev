@@ -83,6 +83,19 @@ const blogPosts = posts.map((post) => ({
       "query-input": "required name=search_term_string",
     },
   })} />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": ["About", "Projects", "Research", "Blog", "Simulations", "Libraries"],
+    "url": [
+      `${SITE.url}/about`,
+      `${SITE.url}/projects`,
+      `${SITE.url}/research`,
+      `${SITE.url}/blog`,
+      `${SITE.url}/simulations`,
+      `${SITE.url}/libraries`,
+    ],
+  })} />
 
   <!-- Side navigation -->
   <SideNav client:idle />

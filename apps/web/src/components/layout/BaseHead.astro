@@ -110,6 +110,17 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
   ],
 })} />
 
+<!-- WebSite schema for sitelinks search box -->
+{isHomepage && (
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": SITE.title,
+    "alternateName": SITE.shortTitle,
+    "url": SITE.url,
+  })} />
+)}
+
 <!-- Vercel Analytics -->
 <script>
   import { inject } from "@vercel/analytics";
