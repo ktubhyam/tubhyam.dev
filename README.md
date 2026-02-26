@@ -31,9 +31,9 @@ Browser-based educational tools built with Next.js 16, React Three Fiber, and Th
 | Simulation | Description | Live Demo |
 |------------|-------------|-----------|
 | **[Symmetry Explorer](https://github.com/ktubhyam/symmetry-explorer)** | 27 molecules, 15 point groups, character tables, selection rules, vibrational mode animations, point group identification flowchart | [Launch](https://symmetry.tubhyam.dev) |
-| **[Normal Mode Explorer](https://github.com/ktubhyam/normal-mode-explorer)** | Decompose molecular vibrations into normal modes with symmetry labels and selection rules | [Launch](https://nme.tubhyam.dev) |
+| **[Normal Mode Explorer](https://github.com/ktubhyam/normal-mode-explorer)** | 45 molecules, 583 normal modes — side-by-side comparison, superposition, Boltzmann panel, sonification | [Launch](https://nme.tubhyam.dev) |
 | **[Orbital Architect](https://github.com/ktubhyam/orbital-architect)** | Gamified quantum chemistry — build atoms by placing electrons following Aufbau, Pauli, and Hund's rules. 36 campaign levels. | [Launch](https://orbital.tubhyam.dev) |
-| **[VibeScope](https://github.com/ktubhyam/vibescope)** | Real-time 3D molecular vibration visualization with IR/Raman spectrum overlay | [Launch](https://vibescope.vercel.app) |
+| **[VibeScope](https://github.com/ktubhyam/vibescope)** | Real-time 3D molecular vibration visualization with IR/Raman spectrum overlay | [Launch](https://vibescope.tubhyam.dev) |
 | **[Spectrum-to-Structure](https://github.com/ktubhyam/spectrum-to-structure)** | ML model predicts 3D molecular structure from IR/Raman spectra using ONNX inference | [Launch](https://spectrum-to-structure.vercel.app) |
 
 ## Research Papers
