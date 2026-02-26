@@ -1,6 +1,6 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
-import Badge from "@components/ui/Badge.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import TerminalSectionLabel from "@components/ui/TerminalSectionLabel.astro";
 import { getCollection, render } from "astro:content";
@@ -29,6 +29,7 @@ const { Content, headings } = await render(post);
 const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 
 const minutes = readingTime(post.body ?? "");
+const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
 const canonicalUrl = new URL(`/blog/${post.id}`, SITE.url).toString();
 
 const blogPostingSchema = {
@@ -81,10 +82,19 @@ const breadcrumbSchema = {
 
   <header class="mb-12 not-prose">
     <TerminalBreadcrumb segments={[{ label: "blog", href: "/blog" }, { label: post.data.title }]} />
-    <div class="flex flex-wrap items-center gap-2 mb-4">
-      {post.data.tags.map((tag) => (
-        <Badge variant="outline">{tag}</Badge>
-      ))}
+    <div class="flex flex-wrap items-center gap-1.5 mb-4">
+      {post.data.tags.map((tag: string, i: number) => {
+        const color = accentColors[i % accentColors.length];
+        return (
+          <a
+            href={`/tags/${tag}`}
+            class="inline-flex items-center px-2 py-0.5 text-xs rounded-full font-mono hover:opacity-80 transition-opacity"
+            style={`color: ${color}; background: ${color}15; border: 1px solid ${color}30;`}
+          >
+            {tag}
+          </a>
+        );
+      })}
     </div>
     <BlurReveal
       client:idle
@@ -129,21 +139,31 @@ const breadcrumbSchema = {
   <Content />
 
   {(prevPost || nextPost) && (
-    <nav class="not-prose mt-16 pt-8 border-t border-border">
-      <div class="grid grid-cols-2 gap-4">
-        {prevPost ? (
-          <a href={`/blog/${prevPost.id}`} class="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-border-hover hover:bg-surface transition-all duration-200">
-            <span class="text-xs font-mono text-text-muted">Previous</span>
-            <span class="text-sm font-heading text-text-secondary group-hover:text-accent transition-colors line-clamp-2">{prevPost.data.title}</span>
-          </a>
-        ) : <div />}
-        {nextPost ? (
-          <a href={`/blog/${nextPost.id}`} class="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-border-hover hover:bg-surface transition-all duration-200 text-right">
-            <span class="text-xs font-mono text-text-muted">Next</span>
-            <span class="text-sm font-heading text-text-secondary group-hover:text-accent transition-colors line-clamp-2">{nextPost.data.title}</span>
-          </a>
-        ) : <div />}
-      </div>
+    <nav class="not-prose mt-16">
+      <TerminalWindow title="navigation" status="blog" statusColor="#C9A04A">
+        <div class="space-y-2">
+          {prevPost && (
+            <a href={`/blog/${prevPost.id}`} class="flex items-start gap-2 group py-1 hover:bg-[#A78BFA08] transition-colors rounded px-1 -mx-1">
+              <span class="w-6 text-right mr-1 select-none flex-shrink-0 text-[#333] font-mono text-xs">1</span>
+              <span class="text-[#A78BFA] font-mono text-xs select-none">←</span>
+              <span class="text-xs font-mono">
+                <span class="text-text-muted">prev:</span>
+                <span class="text-[#A78BFA] group-hover:underline ml-1">{prevPost.data.title}</span>
+              </span>
+            </a>
+          )}
+          {nextPost && (
+            <a href={`/blog/${nextPost.id}`} class="flex items-start gap-2 group py-1 hover:bg-[#4ECDC408] transition-colors rounded px-1 -mx-1">
+              <span class="w-6 text-right mr-1 select-none flex-shrink-0 text-[#333] font-mono text-xs">{prevPost ? "2" : "1"}</span>
+              <span class="text-[#4ECDC4] font-mono text-xs select-none">→</span>
+              <span class="text-xs font-mono">
+                <span class="text-text-muted">next:</span>
+                <span class="text-[#4ECDC4] group-hover:underline ml-1">{nextPost.data.title}</span>
+              </span>
+            </a>
+          )}
+        </div>
+      </TerminalWindow>
     </nav>
   )}
 
