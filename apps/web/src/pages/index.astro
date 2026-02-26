@@ -73,7 +73,8 @@ const blogPosts = posts.map((post) => ({
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": SITE.author,
+    "name": SITE.title,
+    "alternateName": SITE.shortTitle,
     "url": SITE.url,
     "description": SITE.description,
     "author": { "@type": "Person", "name": SITE.author, "url": SITE.url },
@@ -86,14 +87,12 @@ const blogPosts = posts.map((post) => ({
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
-    "name": ["About", "Projects", "Research", "Blog", "Simulations", "Libraries"],
+    "name": ["About", "Projects", "Research", "Blog"],
     "url": [
       `${SITE.url}/about`,
       `${SITE.url}/projects`,
       `${SITE.url}/research`,
       `${SITE.url}/blog`,
-      `${SITE.url}/simulations`,
-      `${SITE.url}/libraries`,
     ],
   })} />
 

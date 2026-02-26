@@ -78,46 +78,37 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title={PUBLICATION.name} href="/rss.xml" />
 
-<!-- Structured Data -->
-<script type="application/ld+json" set:html={JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": SITE.author,
-  "alternateName": "Karthikeyan T",
-  "url": SITE.url,
-  "email": SITE.email,
-  "image": new URL("/og/default.png", SITE.url).toString(),
-  "sameAs": [
-    SITE.github,
-    SITE.twitter,
-    SITE.linkedin,
-    "https://scholar.google.com/citations?user=ktubhyam",
-    "https://www.chess.com/member/aktubhyam",
-    "https://orcid.org/0009-0001-4424-7297",
-  ],
-  "jobTitle": "Computational Chemist & ML Researcher",
-  "affiliation": {
-    "@type": "EducationalOrganization",
-    "name": "Institute of Chemical Technology, Mumbai",
-    "alternateName": "ICT Mumbai",
-  },
-  "knowsAbout": [
-    "Spectroscopy",
-    "Machine Learning",
-    "Chemometrics",
-    "Computational Chemistry",
-    "Vibrational Spectroscopy",
-  ],
-})} />
-
-<!-- WebSite schema for sitelinks search box -->
-{isHomepage && (
+<!-- Structured Data (Person schema — skipped on homepage where ProfilePage includes it) -->
+{!isHomepage && (
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": SITE.title,
-    "alternateName": SITE.shortTitle,
+    "@type": "Person",
+    "name": SITE.author,
+    "alternateName": "Karthikeyan T",
     "url": SITE.url,
+    "email": SITE.email,
+    "image": new URL("/og/default.png", SITE.url).toString(),
+    "sameAs": [
+      SITE.github,
+      SITE.twitter,
+      SITE.linkedin,
+      "https://scholar.google.com/citations?user=ktubhyam",
+      "https://www.chess.com/member/aktubhyam",
+      "https://orcid.org/0009-0001-4424-7297",
+    ],
+    "jobTitle": "Computational Chemist & ML Researcher",
+    "affiliation": {
+      "@type": "EducationalOrganization",
+      "name": "Institute of Chemical Technology, Mumbai",
+      "alternateName": "ICT Mumbai",
+    },
+    "knowsAbout": [
+      "Spectroscopy",
+      "Machine Learning",
+      "Chemometrics",
+      "Computational Chemistry",
+      "Vibrational Spectroscopy",
+    ],
   })} />
 )}
 
