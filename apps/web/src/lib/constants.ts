@@ -1,7 +1,8 @@
 export const SITE = {
   title: "Tubhyam Karthikeyan",
+  shortTitle: "tubhyam.dev",
   description:
-    "Computational chemist and ML researcher at ICT Mumbai. Working on deep learning for vibrational spectroscopy, molecular modeling, and scientific computing.",
+    "Computational chemist and ML researcher at ICT Mumbai. Deep learning for vibrational spectroscopy, molecular modeling, and scientific computing.",
   url: "https://tubhyam.dev",
   author: "Tubhyam Karthikeyan",
   email: "tubhyamkt@gmail.com",

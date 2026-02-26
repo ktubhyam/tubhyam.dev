@@ -13,7 +13,11 @@ const { title, description, image, ogType = "website", publishedDate, modifiedDa
 
 import { SITE, PUBLICATION } from "@lib/constants";
 
-const pageTitle = title;
+// Homepage uses the full name as title; subpages get "Page | tubhyam.dev"
+// This prevents "Tubhyam Karthikeyan" repeating in search results
+const isHomepage = Astro.url.pathname === "/" || Astro.url.pathname === "";
+const pageTitle = isHomepage ? SITE.title : `${title} | ${SITE.shortTitle}`;
+const ogTitle = title; // OG/Twitter cards show just the page title (site_name is separate)
 const pageDescription = description ?? SITE.description;
 // Generate dynamic OG image path for content pages, fallback to default
 const pathname = Astro.url.pathname.replace(/\/$/, "");
@@ -28,18 +32,18 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 
 <!-- Primary Meta -->
 <title>{pageTitle}</title>
-<meta name="title" content={pageTitle} />
+<meta name="title" content={ogTitle} />
 <meta name="description" content={pageDescription} />
 <meta name="author" content={SITE.author} />
 <meta name="robots" content="index, follow" />
 <meta name="google-site-verification" content="JBzFZzb7pTB2nJeaKAciQHIJ2KkFqbVDLVPLU8ZtlxY" />
-<meta name="keywords" content="Tubhyam Karthikeyan, Karthikeyan T, computational chemistry, spectroscopy, machine learning, ICT Mumbai, Spektron, SpectraKit" />
+<!-- keywords meta tag intentionally omitted — Google ignores it and it leaks SEO strategy -->
 <link rel="canonical" href={canonicalUrl} />
 
 <!-- Open Graph -->
 <meta property="og:type" content={ogType} />
 <meta property="og:url" content={canonicalUrl} />
-<meta property="og:title" content={pageTitle} />
+<meta property="og:title" content={ogTitle} />
 <meta property="og:description" content={pageDescription} />
 <meta property="og:image" content={new URL(ogImage, SITE.url)} />
 <meta property="og:image:width" content="1200" />
@@ -63,7 +67,7 @@ const canonicalUrl = new URL(Astro.url.pathname, SITE.url);
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@ktubhyam" />
 <meta name="twitter:creator" content="@ktubhyam" />
-<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:title" content={ogTitle} />
 <meta name="twitter:description" content={pageDescription} />
 <meta name="twitter:image" content={new URL(ogImage, SITE.url)} />
 
