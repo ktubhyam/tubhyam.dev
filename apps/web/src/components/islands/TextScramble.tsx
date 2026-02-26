@@ -4,7 +4,7 @@
  * Inspired by Matrix / hacker terminal aesthetics.
  */
 import { useEffect, useRef, useState } from "react";
-import { useInView } from "motion/react";
+import { useInView, useReducedMotion } from "motion/react";
 
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
@@ -18,10 +18,15 @@ interface Props {
 export default function TextScramble({ text, className = "", speed = 30, as: Tag = "span" }: Props) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref as React.RefObject<Element>, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
   const [displayed, setDisplayed] = useState(text.replace(/[^\s]/g, " "));
   const hasAnimated = useRef(false);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayed(text);
+      return;
+    }
     if (!isInView || hasAnimated.current) return;
     hasAnimated.current = true;
 
@@ -51,7 +56,7 @@ export default function TextScramble({ text, className = "", speed = 30, as: Tag
     }, speed);
 
     return () => clearInterval(interval);
-  }, [isInView, text, speed]);
+  }, [isInView, text, speed, prefersReducedMotion]);
 
   return (
     <Tag ref={ref as React.RefObject<HTMLSpanElement>} className={`font-mono ${className}`}>

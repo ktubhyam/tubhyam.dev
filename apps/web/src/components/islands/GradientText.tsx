@@ -3,7 +3,7 @@
  * From React Bits (MIT + Commons Clause).
  */
 import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useAnimationFrame, useTransform } from "motion/react";
+import { motion, useMotionValue, useAnimationFrame, useTransform, useReducedMotion } from "motion/react";
 
 interface GradientTextProps {
   children: ReactNode;
@@ -26,6 +26,7 @@ export default function GradientText({
   pauseOnHover = false,
   yoyo = true,
 }: GradientTextProps) {
+  const prefersReducedMotion = useReducedMotion();
   const [isPaused, setIsPaused] = useState(false);
   const progress = useMotionValue(0);
   const elapsedRef = useRef(0);
@@ -86,6 +87,10 @@ export default function GradientText({
     backgroundSize: direction === "vertical" ? "100% 300%" : "300% 100%",
     backgroundRepeat: "repeat" as const,
   };
+
+  if (prefersReducedMotion) {
+    return <span className={className}>{children}</span>;
+  }
 
   return (
     <motion.span

@@ -34,7 +34,7 @@ const { title, description, image, hideNav = false, ogType, publishedDate, modif
     />
   </head>
   <body class="min-h-screen">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#0a0a0a] focus:border focus:border-[#333] focus:rounded-md focus:text-[var(--color-accent)] focus:text-sm focus:font-mono">Skip to main content</a>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <AnimatedBackground />
     {!hideNav && <GlassNav />}
     <main id="main-content" class={hideNav ? "" : "pt-24"}>

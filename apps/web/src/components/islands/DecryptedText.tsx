@@ -3,7 +3,7 @@
  * From React Bits (MIT + Commons Clause).
  */
 import { useEffect, useState, useRef } from "react";
-import { motion, type HTMLMotionProps } from "motion/react";
+import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react";
 
 interface DecryptedTextProps extends Omit<HTMLMotionProps<"span">, "children"> {
   text: string;
@@ -33,6 +33,7 @@ export default function DecryptedText({
   animateOn = "view",
   ...props
 }: DecryptedTextProps) {
+  const prefersReducedMotion = useReducedMotion();
   const [displayText, setDisplayText] = useState(text);
   const [isHovering, setIsHovering] = useState(false);
   const [isScrambling, setIsScrambling] = useState(false);
@@ -162,6 +163,10 @@ export default function DecryptedText({
           onMouseLeave: () => setIsHovering(false),
         }
       : {};
+
+  if (prefersReducedMotion) {
+    return <span className={`${parentClassName} ${className}`}>{text}</span>;
+  }
 
   return (
     <motion.span

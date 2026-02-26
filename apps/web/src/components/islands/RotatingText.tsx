@@ -6,6 +6,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useSt
 import {
   motion,
   AnimatePresence,
+  useReducedMotion,
   type Transition,
   type VariantLabels,
   type Target,
@@ -67,6 +68,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     },
     ref
   ) => {
+    const prefersReducedMotion = useReducedMotion();
     const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
     const splitIntoCharacters = (text: string): string[] => {
@@ -159,6 +161,14 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       const intervalId = setInterval(next, rotationInterval);
       return () => clearInterval(intervalId);
     }, [next, rotationInterval, auto]);
+
+    if (prefersReducedMotion) {
+      return (
+        <span className={`flex flex-wrap whitespace-pre-wrap relative ${mainClassName ?? ""}`}>
+          {texts[currentTextIndex]}
+        </span>
+      );
+    }
 
     return (
       <motion.span

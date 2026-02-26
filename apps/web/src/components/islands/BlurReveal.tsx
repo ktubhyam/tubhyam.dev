@@ -3,7 +3,7 @@
  * Used for hero titles — premium Apple-like feel.
  */
 import { useRef } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 
 interface Props {
   text: string;
@@ -15,8 +15,13 @@ interface Props {
 export default function BlurReveal({ text, className = "", delay = 0, as: Tag = "h1" }: Props) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const prefersReducedMotion = useReducedMotion();
 
   const words = text.split(" ");
+
+  if (prefersReducedMotion) {
+    return <Tag className={`flex flex-wrap gap-x-3 gap-y-1 ${className}`}>{text}</Tag>;
+  }
 
   return (
     <Tag ref={ref} className={`flex flex-wrap gap-x-3 gap-y-1 ${className}`}>

@@ -3,7 +3,7 @@
  * on scroll entry. Each child fades up with a slight delay.
  */
 import { useRef, type ReactNode } from "react";
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 
 interface Props {
   children: ReactNode;
@@ -20,6 +20,7 @@ export default function StaggerReveal({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref as React.RefObject<Element>, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
 
   const directionMap = {
     up: { y: 30, x: 0 },
@@ -29,6 +30,10 @@ export default function StaggerReveal({
   };
 
   const { x, y } = directionMap[direction];
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div
