@@ -1,0 +1,38 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import { PUBLICATION } from "@lib/constants";
+---
+
+<PageLayout title="Subscribed" description={`You're subscribed to ${PUBLICATION.name}.`}>
+  <section class="py-24 max-w-xl mx-auto text-center">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full border border-green-500/30 bg-green-500/5 mb-6">
+      <svg class="w-7 h-7 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+    </div>
+    <h1 class="text-2xl font-heading font-medium text-text-primary mb-3 tracking-tight">You're in</h1>
+    <p class="text-text-muted mb-6">
+      Your subscription to <span class="text-text-secondary">{PUBLICATION.name}</span> is confirmed. New posts go out every Thursday.
+    </p>
+    <div class="rounded-lg border border-border bg-surface p-4 text-left max-w-sm mx-auto mb-8">
+      <p class="text-xs font-mono text-[#333] uppercase tracking-widest mb-2">what to expect</p>
+      <ul class="space-y-2 text-sm text-text-muted">
+        <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">&#8226;</span>
+          Deep dives on ML for spectroscopy
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">&#8226;</span>
+          Architecture decisions and debugging stories
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">&#8226;</span>
+          Research updates from the Spektron project
+        </li>
+      </ul>
+    </div>
+    <a href="/blog" class="inline-block text-sm font-mono text-accent hover:text-accent/80 transition-colors">
+      &larr; Read the latest posts
+    </a>
+  </section>
+</PageLayout>
