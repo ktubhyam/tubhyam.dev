@@ -40,6 +40,7 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
   const [revealCount, setRevealCount] = useState(0);
   const [showFooter, setShowFooter] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [cursorVisible, setCursorVisible] = useState(true);
 
   const command = "find ./posts -type f --sort=newest";
 
@@ -60,7 +61,11 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
             setRevealCount(p);
             if (p >= posts.length) {
               clearInterval(revealId);
-              setTimeout(() => setShowFooter(true), 300);
+              setTimeout(() => {
+                setShowFooter(true);
+                // Hide footer cursor after 3s so it doesn't compete with newsletter input
+                setTimeout(() => setCursorVisible(false), 3000);
+              }, 300);
             }
           }, 120);
         }, 350);
@@ -234,7 +239,9 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
               <span className="text-[#555]">$ </span>
               <span className="text-[#34D399]">{posts.length}</span>
               <span className="text-[#555]"> posts found</span>
-              <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-1 translate-y-[1px]" />
+              {cursorVisible && (
+                <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-1 translate-y-[1px]" />
+              )}
             </span>
           </motion.div>
         )}
