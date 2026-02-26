@@ -1,8 +1,8 @@
 ---
-title: "Variational Information Bottleneck for Spectral Disentanglement"
+title: "The Variational Information Bottleneck for Spectral Disentanglement"
 date: 2026-03-05
-description: "How the VIB splits spectral representations into chemistry and instrument — separating what a molecule is from how it was measured. Gradient reversal, beta annealing, and the bug that made everything look like it worked."
-tags: ["deep-learning", "spectroscopy", "information-theory", "research"]
+description: "Splitting spectral latent space into chemistry and instrument with VIB, gradient reversal, and beta annealing. Plus: the bug that fooled us."
+tags: ["spectroscopy", "deep-learning", "information-theory", "research"]
 draft: false
 ---
 
@@ -325,9 +325,15 @@ When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of
 
 The key metric: <span class="highlight-teal">domain classification accuracy on $z_{\text{chem}}$ should be at chance level</span> (50% for two instruments). If a classifier can predict the instrument from $z_{\text{chem}}$, disentanglement has failed. On $z_{\text{inst}}$, high domain accuracy is expected — that subspace is supposed to capture instrument variation.
 
-## Current Status
+## Practical Lessons
 
-The VIB head is pretraining as part of Spektron v3 on QM9S (222K training spectra, 2 instruments simulated via augmentation). The beta annealing, gradient reversal, and MoE gating are all live. Evaluation on the corn moisture benchmark (3 real NIR instruments) is next — that's where the R² > 0.952 target will be tested.
+Three hard-won lessons from getting VIB to work in Spektron.
+
+**Test with cross-instrument data, not held-out same-instrument data.** The VIB loss can look perfect — low KL, good reconstruction, nice latent clusters — while $z_{\text{chem}}$ still leaks instrument information. The only honest evaluation is to train on instrument A and evaluate on instrument B without any transfer samples. If accuracy drops more than 5 points relative to same-instrument held-out performance, disentanglement is incomplete. During development, we saw cases where same-instrument accuracy was 89% but cross-instrument accuracy was 61%. The model had memorized instrument-specific peak shapes in $z_{\text{chem}}$ because the gradient reversal weight was too low.
+
+**The VIB loss weight matters more than you'd expect.** The total loss has at least four terms: reconstruction, VIB KL, adversarial domain classification, and optionally OT. If the VIB KL weight is too low ($< 10^{-4}$), the bottleneck is effectively absent and $z_{\text{chem}}$ encodes everything including instrument noise. If it's too high ($> 10^{-1}$), the bottleneck over-compresses and $z_{\text{chem}}$ collapses to the prior — a spherical Gaussian carrying zero information. The sweet spot is narrow, and it interacts with the beta annealing schedule. In practice, we sweep the VIB weight on a log scale $\{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}\}$ and select based on cross-instrument retrieval accuracy, not training loss.
+
+**Current status.** The VIB head is pretraining as part of Spektron v3 on QM9S (222K training spectra, 2 instruments simulated via augmentation). Beta annealing, gradient reversal, and MoE gating are all live. Evaluation on the corn moisture benchmark (3 real NIR instruments) is next — that's where the R² > 0.952 target will be tested.
 
 The theoretical framework connecting VIB to the [spectral identifiability theory](/blog/spectral-identifiability-theory) is direct: the Information Completeness Ratio $R(G, N)$ tells you how much chemistry is recoverable from spectra. The VIB's job is to extract exactly that recoverable chemistry while discarding everything else. When $R = 1$, all chemistry is in the spectrum — the VIB just needs to separate it from instrument noise.
 
