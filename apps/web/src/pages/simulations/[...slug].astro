@@ -1,6 +1,7 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
-import Badge from "@components/ui/Badge.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection, render } from "astro:content";
 import { SITE } from "@lib/constants";
 
@@ -14,6 +15,8 @@ export async function getStaticPaths() {
 
 const { sim } = Astro.props;
 const { Content } = await render(sim);
+
+const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
 
 const canonicalUrl = new URL(`/simulations/${sim.id}`, SITE.url).toString();
 
@@ -52,16 +55,29 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <header class="mb-12 not-prose">
-    <Badge>{sim.data.difficulty}</Badge>
-    <h1 class="mt-4 text-4xl font-heading font-bold text-text-primary">
-      {sim.data.title}
-    </h1>
-    <p class="mt-2 text-text-secondary">{sim.data.description}</p>
-    <div class="mt-3 flex flex-wrap gap-2">
-      {sim.data.physics.map((p: string) => (
-        <Badge variant="outline">{p}</Badge>
-      ))}
-    </div>
+    <TerminalBreadcrumb segments={[{ label: "simulations", href: "/simulations" }, { label: sim.data.title }]} />
+    <TerminalWindow title={sim.id} status={sim.data.difficulty}>
+      <h1 class="text-4xl font-heading font-bold text-text-primary">
+        {sim.data.title}
+      </h1>
+      <p class="mt-2 text-text-secondary">{sim.data.description}</p>
+
+      {sim.data.physics && sim.data.physics.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {sim.data.physics.map((p: string, i: number) => {
+            const color = accentColors[i % accentColors.length];
+            return (
+              <span
+                class="inline-flex items-center rounded-full text-xs px-2.5 py-1"
+                style={`background: ${color}15; color: ${color};`}
+              >
+                {p}
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </TerminalWindow>
   </header>
 
   <Content />

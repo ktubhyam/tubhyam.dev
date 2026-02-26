@@ -3,7 +3,8 @@ import PageLayout from "@layouts/PageLayout.astro";
 import { getCollection } from "astro:content";
 
 import BlurReveal from "@components/islands/BlurReveal";
-import StaggerReveal from "@components/islands/StaggerReveal";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 
 const posts = await getCollection("blog");
 const projects = await getCollection("projects");
@@ -19,10 +20,13 @@ const tagCounts = new Map<string, number>();
 });
 
 const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+
+const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
 ---
 
 <PageLayout title="Tags" description="Browse all content tags.">
   <section class="py-12">
+    <TerminalBreadcrumb segments={[{ label: "tags" }]} />
     <BlurReveal
       client:idle
       text="Tags"
@@ -36,17 +40,26 @@ const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
       {sortedTags.length} tags across all content.
     </p>
 
-    <StaggerReveal client:visible className="flex flex-wrap gap-2" stagger={0.04}>
-      {sortedTags.map(([tag, count]) => (
-        <a
-          href={`/tags/${tag}`}
-          class="group inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-bg-secondary hover:border-border-hover hover:bg-surface transition-all duration-200 text-sm"
-        >
-          <span class="text-text-muted group-hover:text-accent transition-colors font-mono">#</span>
-          <span class="text-text-secondary group-hover:text-text-primary transition-colors">{tag}</span>
-          <span class="text-xs text-text-muted/60 font-mono">{count}</span>
-        </a>
-      ))}
-    </StaggerReveal>
+    <TerminalWindow title="tags" status={`${sortedTags.length} tags`}>
+      <div class="flex items-center gap-2 text-text-muted mb-4">
+        <span class="text-[#34D399]">$</span>
+        <span>find . -name "*.tag" | sort -k2 -rn</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {sortedTags.map(([tag, count], i) => {
+          const color = accentColors[Math.floor(i / 5) % accentColors.length];
+          return (
+            <a
+              href={`/tags/${tag}`}
+              class="inline-flex items-center gap-1.5 rounded-full text-xs px-2.5 py-1 transition-all duration-200 hover:opacity-80"
+              style={`background: ${color}15; color: ${color};`}
+            >
+              <span>#{tag}</span>
+              <span class="text-text-muted/60 text-[10px]">{count}</span>
+            </a>
+          );
+        })}
+      </div>
+    </TerminalWindow>
   </section>
 </PageLayout>

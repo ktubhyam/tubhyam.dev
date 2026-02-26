@@ -1,16 +1,22 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import Badge from "@components/ui/Badge.astro";
 import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
-import StaggerReveal from "@components/islands/StaggerReveal";
-import SpotlightCard from "@components/islands/SpotlightCard";
 
 const papers = (await getCollection("research"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
+
+const statusColors: Record<string, string> = {
+  published: "#34D399",
+  preprint: "#60A5FA",
+  "in-progress": "#C9A04A",
+};
 
 const collectionSchema = {
   "@context": "https://schema.org",
@@ -63,48 +69,70 @@ const breadcrumbSchema = {
       {papers.length} publications
     </p>
 
-    <StaggerReveal client:visible className="grid gap-4" stagger={0.1}>
-      {
-        papers.map((paper) => (
-          <SpotlightCard client:visible className="group" spotlightColor="rgba(167, 139, 250, 0.1)">
-            <a href={`/research/${paper.id}`} class="block p-8">
-              <div class="flex items-start gap-3 mb-3">
-                <Badge>{paper.data.status}</Badge>
-                <span class="text-xs text-text-muted font-mono">
-                  {paper.data.venue}
-                </span>
-              </div>
-              <h2 class="text-lg font-heading font-medium text-text-primary group-hover:text-accent transition-colors">
-                {paper.data.title}
-              </h2>
-              <p class="mt-1 text-sm text-text-muted">
-                {paper.data.authors.join(", ")}
-              </p>
-              <p class="mt-3 text-sm text-text-secondary line-clamp-3">
-                {paper.data.abstract}
-              </p>
-              <div class="mt-4 flex gap-3">
-                {paper.data.arxiv && (
-                  <span class="text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    arXiv &rarr;
-                  </span>
-                )}
-                {paper.data.pdf && (
-                  <span class="text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    PDF &rarr;
-                  </span>
-                )}
-              </div>
-            </a>
-          </SpotlightCard>
-        ))
-      }
+    <TerminalWindow title="~/research" status={`${papers.length} papers`} statusColor="#A78BFA">
+      <div class="mb-4 text-[#555]">
+        <span class="text-[#34D399]">$</span> grep -r "published" ~/research/
+      </div>
 
       {papers.length === 0 && (
-        <div class="card rounded-2xl p-12 text-center">
-          <p class="text-text-muted">Research publications coming soon.</p>
-        </div>
+        <div class="text-[#555]">No publications found.</div>
       )}
-    </StaggerReveal>
+
+      {papers.map((paper, i) => {
+        const accent = accentColors[i % accentColors.length];
+        const sColor = statusColors[paper.data.status] || "#555";
+        const lineBase = i * 4 + 1;
+        const truncatedAbstract = paper.data.abstract.length > 100
+          ? paper.data.abstract.slice(0, 100) + "..."
+          : paper.data.abstract;
+        return (
+          <a
+            href={`/research/${paper.id}`}
+            class="block -mx-5 px-5 py-2 no-underline transition-colors duration-150"
+            style="border-left: 2px solid transparent;"
+            data-accent={accent}
+          >
+            <div class="flex items-center">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase}</span>
+              <span style={`color: ${sColor}`} class="text-xs font-mono mr-3">[{paper.data.status}]</span>
+              <span class="text-[#555] text-xs font-mono">{paper.data.venue}</span>
+            </div>
+            <div class="flex items-center mt-0.5">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 1}</span>
+              <span style={`color: ${accent}`} class="font-medium">{paper.data.title}</span>
+            </div>
+            <div class="flex items-center mt-0.5">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 2}</span>
+              <span class="text-[#555]">{paper.data.authors.join(", ")}</span>
+            </div>
+            <div class="flex items-center mt-0.5">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 3}</span>
+              <span class="text-[#444]">{truncatedAbstract}</span>
+            </div>
+          </a>
+        );
+      })}
+    </TerminalWindow>
   </section>
 </PageLayout>
+
+<style>
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('a[data-accent]').forEach((el) => {
+    const accent = el.dataset.accent || '#A78BFA';
+    el.addEventListener('mouseenter', () => {
+      el.style.borderLeftColor = accent;
+      el.style.backgroundColor = accent + '08';
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.borderLeftColor = 'transparent';
+      el.style.backgroundColor = 'transparent';
+    });
+  });
+</script>

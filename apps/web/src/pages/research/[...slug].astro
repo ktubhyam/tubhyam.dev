@@ -1,6 +1,6 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
-import Badge from "@components/ui/Badge.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection, render } from "astro:content";
 import { SITE, PUBLICATION } from "@lib/constants";
@@ -18,11 +18,13 @@ export async function getStaticPaths() {
 const { paper } = Astro.props;
 const { Content } = await render(paper);
 
-const statusColors = {
-  published: "green" as const,
-  preprint: "cyan" as const,
-  "in-progress": "orange" as const,
+const statusColorMap: Record<string, string> = {
+  published: "#34D399",
+  preprint: "#4ECDC4",
+  "in-progress": "#C9A04A",
 };
+
+const statusColor = statusColorMap[paper.data.status] ?? "#34D399";
 
 const canonicalUrl = new URL(`/research/${paper.id}`, SITE.url).toString();
 
@@ -75,29 +77,51 @@ const breadcrumbSchema = {
 
   <header class="mb-12 not-prose">
     <TerminalBreadcrumb segments={[{ label: "research", href: "/research" }, { label: paper.data.title }]} />
-    <Badge variant={statusColors[paper.data.status]}>
-      {paper.data.status}
-    </Badge>
-    <BlurReveal
-      client:idle
-      text={paper.data.title}
-      className="mt-4 text-4xl font-heading font-bold text-text-primary"
-      as="h1"
-    />
-    <p class="mt-2 text-text-secondary">{paper.data.authors.join(", ")}</p>
-    <p class="mt-1 text-sm text-text-muted font-mono">{paper.data.venue}</p>
-    <div class="mt-6 flex flex-wrap gap-3">
-      {paper.data.arxiv && (
-        <a href={paper.data.arxiv} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">
-          arXiv &rarr;
-        </a>
+    <TerminalWindow title={paper.id} status={paper.data.status} statusColor={statusColor}>
+      <BlurReveal
+        client:idle
+        text={paper.data.title}
+        className="text-4xl font-heading font-bold text-text-primary"
+        as="h1"
+      />
+      <p class="mt-2 text-[#A78BFA]">{paper.data.authors.join(", ")}</p>
+      {paper.data.venue && (
+        <p class="mt-1 text-sm font-mono text-[#C9A04A]">{paper.data.venue}</p>
       )}
-      {paper.data.pdf && (
-        <a href={paper.data.pdf} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">
-          PDF &rarr;
-        </a>
+
+      {(paper.data.arxiv || paper.data.pdf) && (
+        <div class="mt-5 space-y-1.5">
+          {paper.data.arxiv && (
+            <div class="flex items-center gap-2">
+              <span class="text-[#34D399]">$</span>
+              <span class="text-text-muted">open</span>
+              <a
+                href={paper.data.arxiv}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[#60A5FA] hover:underline"
+              >
+                {paper.data.arxiv}
+              </a>
+            </div>
+          )}
+          {paper.data.pdf && (
+            <div class="flex items-center gap-2">
+              <span class="text-[#34D399]">$</span>
+              <span class="text-text-muted">open</span>
+              <a
+                href={paper.data.pdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[#FF6B6B] hover:underline"
+              >
+                {paper.data.pdf}
+              </a>
+            </div>
+          )}
+        </div>
       )}
-    </div>
+    </TerminalWindow>
   </header>
 
   <Content />

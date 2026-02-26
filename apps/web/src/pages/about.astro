@@ -1,12 +1,11 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import GlassButton from "@components/ui/GlassButton.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 import TextScramble from "@components/islands/TextScramble";
-import StaggerReveal from "@components/islands/StaggerReveal";
 ---
 
 <PageLayout title="About" description="Tubhyam Karthikeyan — computational chemist, ML researcher, and open-source builder at ICT Mumbai.">
@@ -19,34 +18,100 @@ import StaggerReveal from "@components/islands/StaggerReveal";
       as="h1"
     />
 
-    <div
-      class="prose prose-invert prose-lg max-w-none"
-      style="opacity: 0; animation: fade-up 0.6s ease-out 0.3s forwards;"
-    >
-      <p>
-        I'm <strong>Tubhyam Karthikeyan</strong>, a computational chemist and machine learning
-        researcher at <strong>ICT Mumbai</strong>. I work at the intersection of chemistry,
-        mathematics, and AI — building tools that help scientists understand molecular behavior.
-      </p>
-
-      <p>
-        My current research focuses on the <em>spectral inverse problem</em>: can you determine
-        a molecule's structure from its vibrational spectrum? I'm developing the
-        <a href="/research/spectral-identifiability">theoretical framework</a> (group-theoretic identifiability)
-        and the ML models (<a href="/projects/spektron">Spektron</a>, a symmetry-aware transformer)
-        to answer this question.
-      </p>
-
-      <p>
-        When I'm not doing research, I build open-source Python libraries like
-        <a href="/projects/spectrakit">SpectraKit</a> for spectroscopy,
-        create <a href="/simulations">interactive browser-based simulations</a>,
-        and <a href="/blog">write about what I learn</a>.
-      </p>
-    </div>
+    <!-- Bio -->
+    <TerminalWindow title="about" status="~/.bio" class="mb-8">
+      <div class="space-y-1.5">
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+          <span class="text-[#34D399]">$</span>
+          <span class="ml-2 text-text-secondary">cat about.md</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+          <span class="text-text-secondary">
+            I'm <span class="text-text-primary font-medium">Tubhyam Karthikeyan</span>, a computational chemist and machine learning
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+          <span class="text-text-secondary">
+            researcher at <span class="text-text-primary font-medium">ICT Mumbai</span>. I work at the intersection of chemistry,
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+          <span class="text-text-secondary">
+            mathematics, and AI — building tools that help scientists understand
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
+          <span class="text-text-secondary">molecular behavior.</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">7</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">8</span>
+          <span class="text-text-secondary">
+            My current research focuses on the <span class="italic text-[#C9A04A]">spectral inverse problem</span>: can you
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">9</span>
+          <span class="text-text-secondary">
+            determine a molecule's structure from its vibrational spectrum? I'm
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">10</span>
+          <span class="text-text-secondary">
+            developing the <a href="/research/spectral-identifiability" class="text-[#A78BFA] hover:underline">theoretical framework</a> (group-theoretic identifiability)
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">11</span>
+          <span class="text-text-secondary">
+            and the ML models (<a href="/projects/spektron" class="text-[#4ECDC4] hover:underline">Spektron</a>, a symmetry-aware transformer)
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">12</span>
+          <span class="text-text-secondary">to answer this question.</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">13</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">14</span>
+          <span class="text-text-secondary">
+            When I'm not doing research, I build open-source Python libraries like
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">15</span>
+          <span class="text-text-secondary">
+            <a href="/projects/spectrakit" class="text-[#34D399] hover:underline">SpectraKit</a> for spectroscopy,
+            create <a href="/simulations" class="text-[#60A5FA] hover:underline">interactive browser-based simulations</a>,
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">16</span>
+          <span class="text-text-secondary">
+            and <a href="/blog" class="text-[#FF6B6B] hover:underline">write about what I learn</a>.
+          </span>
+        </div>
+      </div>
+    </TerminalWindow>
 
     <!-- Skills -->
-    <div class="mt-16">
+    <div class="mt-10">
       <div class="flex items-center gap-2 mb-6">
         <span class="text-accent font-mono text-xs">&gt;</span>
         <TextScramble
@@ -57,24 +122,67 @@ import StaggerReveal from "@components/islands/StaggerReveal";
           speed={30}
         />
       </div>
-      <StaggerReveal client:visible className="grid grid-cols-2 sm:grid-cols-3 gap-2" stagger={0.05}>
-        {[
-          "Python", "PyTorch", "TypeScript", "React", "Astro",
-          "Computational Chemistry", "Machine Learning", "Group Theory",
-          "Spectroscopy", "Scientific Computing", "Data Visualization", "Open Source",
-        ].map((skill) => (
-          <div class="card-interactive rounded-xl px-4 py-3 text-sm text-text-muted text-center">
-            {skill}
-          </div>
-        ))}
-      </StaggerReveal>
-    </div>
 
-    <div
-      class="mt-16 flex flex-wrap gap-4"
-      style="opacity: 0; animation: fade-up 0.5s ease-out 0.6s forwards;"
-    >
-      <GlassButton href="/#contact">Get in Touch</GlassButton>
+      <TerminalWindow title="skills" status="loaded">
+        <div class="space-y-4">
+          <!-- Languages & Frameworks -->
+          <div>
+            <div class="flex">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+              <span class="text-[#A78BFA]">$</span>
+              <span class="ml-2 text-text-secondary">cat skills/languages-and-frameworks</span>
+            </div>
+            <div class="flex mt-1.5 flex-wrap">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+              <div class="flex flex-wrap gap-1.5">
+                {["Python", "PyTorch", "TypeScript", "React", "Astro"].map((skill) => (
+                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/20">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Science & Research -->
+          <div>
+            <div class="flex">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+              <span class="text-[#C9A04A]">$</span>
+              <span class="ml-2 text-text-secondary">cat skills/science-and-research</span>
+            </div>
+            <div class="flex mt-1.5 flex-wrap">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+              <div class="flex flex-wrap gap-1.5">
+                {["Computational Chemistry", "Machine Learning", "Group Theory", "Spectroscopy"].map((skill) => (
+                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#C9A04A]/10 text-[#C9A04A] border border-[#C9A04A]/20">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Tools & Practices -->
+          <div>
+            <div class="flex">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+              <span class="text-[#4ECDC4]">$</span>
+              <span class="ml-2 text-text-secondary">cat skills/tools-and-practices</span>
+            </div>
+            <div class="flex mt-1.5 flex-wrap">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
+              <div class="flex flex-wrap gap-1.5">
+                {["Scientific Computing", "Data Visualization", "Open Source"].map((skill) => (
+                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#4ECDC4]/10 text-[#4ECDC4] border border-[#4ECDC4]/20">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </TerminalWindow>
     </div>
   </section>
 </PageLayout>

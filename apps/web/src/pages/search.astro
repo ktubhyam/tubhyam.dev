@@ -1,11 +1,14 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 
 import BlurReveal from "@components/islands/BlurReveal";
 ---
 
 <PageLayout title="Search" description="Search all content on tubhyam.dev.">
   <section class="py-12">
+    <TerminalBreadcrumb segments={[{ label: "search" }]} />
     <BlurReveal
       client:idle
       text="Search"
@@ -19,7 +22,13 @@ import BlurReveal from "@components/islands/BlurReveal";
       Find posts, projects, research, and more.
     </p>
 
-    <div id="search" class="pagefind-container"></div>
+    <TerminalWindow title="search" status="pagefind">
+      <div class="flex items-center gap-2 text-text-muted mb-4">
+        <span class="text-[#34D399]">$</span>
+        <span>find . -name "*.md" -exec grep -l</span>
+      </div>
+      <div id="search" class="pagefind-container"></div>
+    </TerminalWindow>
   </section>
 </PageLayout>
 

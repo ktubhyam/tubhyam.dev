@@ -1,6 +1,10 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
+import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { SITE } from "@lib/constants";
+
+import BlurReveal from "@components/islands/BlurReveal";
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -15,60 +19,129 @@ const breadcrumbSchema = {
 <PageLayout title="Uses" description="My tech stack, tools, and setup.">
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   <section class="py-12 max-w-3xl">
-    <h1 class="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight">Uses</h1>
-    <p class="text-text-muted mb-10">
+    <TerminalBreadcrumb segments={[{ label: "uses" }]} />
+    <BlurReveal
+      client:idle
+      text="Uses"
+      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      as="h1"
+    />
+    <p
+      class="text-text-muted mb-10 text-sm font-mono"
+      style="opacity: 0; animation: fade-up 0.5s ease-out 0.25s forwards;"
+    >
       The tools and tech I use daily for research, development, and writing.
     </p>
 
-    <div class="space-y-12">
-      {[
-        {
-          title: "Editor & IDE",
-          items: [
-            { name: "Cursor", desc: "VS Code fork with AI integration" },
-            { name: "Claude Code", desc: "AI pair programming in the terminal" },
-            { name: "Vesper", desc: "Dark theme across all editors" },
-            { name: "JetBrains Mono", desc: "Monospace font for code" },
-          ],
-        },
-        {
-          title: "Development",
-          items: [
-            { name: "TypeScript + Astro", desc: "For web projects" },
-            { name: "Python + PyTorch", desc: "For ML and scientific computing" },
-            { name: "Tailwind CSS 4", desc: "Utility-first styling" },
-            { name: "Git + lazygit", desc: "Version control" },
-          ],
-        },
-        {
-          title: "Research",
-          items: [
-            { name: "Typst", desc: "Modern typesetting for papers" },
-            { name: "Zotero", desc: "Reference management" },
-            { name: "Obsidian", desc: "Note-taking and knowledge management" },
-          ],
-        },
-        {
-          title: "Hardware",
-          items: [
-            { name: "4x RTX 5090", desc: "GPU compute for ML training" },
-          ],
-        },
-      ].map((section) => (
-        <div>
-          <h2 class="text-xs font-mono text-text-muted uppercase tracking-widest mb-4">
-            {section.title}
-          </h2>
-          <div class="grid gap-2">
-            {section.items.map((item) => (
-              <div class="card-interactive rounded-xl px-5 py-4 flex items-center justify-between">
-                <span class="text-text-primary text-sm font-medium">{item.name}</span>
-                <span class="text-xs text-text-muted">{item.desc}</span>
-              </div>
-            ))}
-          </div>
+    <TerminalWindow title="uses" status="dotfiles">
+      <div class="space-y-1.5">
+        <!-- Command -->
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+          <span class="text-[#34D399]">$</span>
+          <span class="ml-2 text-text-secondary">cat ~/.config/setup.toml</span>
         </div>
-      ))}
-    </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+
+        <!-- [editor] -->
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+          <span class="text-[#A78BFA]">[editor]</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+          <span class="text-text-primary">cursor</span>
+          <span class="text-text-muted ml-2">= "VS Code fork with AI integration"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+          <span class="text-text-primary">claude_code</span>
+          <span class="text-text-muted ml-2">= "AI pair programming in the terminal"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
+          <span class="text-text-primary">vesper</span>
+          <span class="text-text-muted ml-2">= "Dark theme across all editors"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">7</span>
+          <span class="text-text-primary">jetbrains_mono</span>
+          <span class="text-text-muted ml-2">= "Monospace font for code"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">8</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+
+        <!-- [development] -->
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">9</span>
+          <span class="text-[#C9A04A]">[development]</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">10</span>
+          <span class="text-text-primary">typescript_astro</span>
+          <span class="text-text-muted ml-2">= "For web projects"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">11</span>
+          <span class="text-text-primary">python_pytorch</span>
+          <span class="text-text-muted ml-2">= "For ML and scientific computing"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">12</span>
+          <span class="text-text-primary">tailwind_css_4</span>
+          <span class="text-text-muted ml-2">= "Utility-first styling"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">13</span>
+          <span class="text-text-primary">git_lazygit</span>
+          <span class="text-text-muted ml-2">= "Version control"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">14</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+
+        <!-- [research] -->
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">15</span>
+          <span class="text-[#4ECDC4]">[research]</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">16</span>
+          <span class="text-text-primary">typst</span>
+          <span class="text-text-muted ml-2">= "Modern typesetting for papers"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">17</span>
+          <span class="text-text-primary">zotero</span>
+          <span class="text-text-muted ml-2">= "Reference management"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">18</span>
+          <span class="text-text-primary">obsidian</span>
+          <span class="text-text-muted ml-2">= "Note-taking and knowledge management"</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">19</span>
+          <span class="text-text-secondary">&nbsp;</span>
+        </div>
+
+        <!-- [hardware] -->
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">20</span>
+          <span class="text-[#34D399]">[hardware]</span>
+        </div>
+        <div class="flex">
+          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">21</span>
+          <span class="text-text-primary">gpu</span>
+          <span class="text-text-muted ml-2">= "4x RTX 5090 — GPU compute for ML training"</span>
+        </div>
+      </div>
+    </TerminalWindow>
   </section>
 </PageLayout>

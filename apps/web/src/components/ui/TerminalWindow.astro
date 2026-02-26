@@ -1,0 +1,50 @@
+---
+/**
+ * TerminalWindow — Reusable terminal chrome wrapper.
+ * Provides traffic lights, title bar, scanline overlay, and content slot.
+ */
+interface Props {
+  title?: string;
+  status?: string;
+  statusColor?: string;
+  class?: string;
+}
+
+const {
+  title = "bash",
+  status,
+  statusColor = "#34D399",
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={["rounded-xl border border-border overflow-hidden bg-bg-secondary relative", className]}>
+  <!-- Title bar -->
+  <div class="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
+    <div class="flex items-center gap-1.5">
+      <div class="w-[10px] h-[10px] rounded-full bg-[#FF5F57]"></div>
+      <div class="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]"></div>
+      <div class="w-[10px] h-[10px] rounded-full bg-[#28C840]"></div>
+    </div>
+    <span class="ml-2 text-[10px] font-mono text-text-muted/60 select-none">{title}</span>
+    {status && (
+      <span
+        class="ml-auto text-[10px] font-mono select-none"
+        style={`color: ${statusColor}60`}
+      >
+        {status}
+      </span>
+    )}
+  </div>
+
+  <!-- Terminal content -->
+  <div class="p-5 font-mono text-xs md:text-sm leading-relaxed relative overflow-hidden">
+    <slot />
+
+    <!-- Scanline overlay -->
+    <div
+      class="pointer-events-none absolute inset-0 opacity-[0.03]"
+      style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px); background-size: 100% 4px;"
+    ></div>
+  </div>
+</div>

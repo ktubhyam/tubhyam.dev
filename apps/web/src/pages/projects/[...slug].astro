@@ -1,7 +1,6 @@
 ---
 import ProseLayout from "@layouts/ProseLayout.astro";
-import Badge from "@components/ui/Badge.astro";
-import GlassButton from "@components/ui/GlassButton.astro";
+import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { getCollection, render } from "astro:content";
 import { SITE } from "@lib/constants";
@@ -19,11 +18,15 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { Content } = await render(project);
 
-const statusColors = {
-  active: "green" as const,
-  completed: "cyan" as const,
-  archived: "orange" as const,
+const statusColorMap: Record<string, string> = {
+  active: "#34D399",
+  completed: "#4ECDC4",
+  archived: "#FF6B6B",
 };
+
+const statusColor = statusColorMap[project.data.status] ?? "#34D399";
+
+const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
 
 const canonicalUrl = new URL(`/projects/${project.id}`, SITE.url).toString();
 
@@ -59,24 +62,64 @@ const breadcrumbSchema = {
 
   <header class="mb-12 not-prose">
     <TerminalBreadcrumb segments={[{ label: "projects", href: "/projects" }, { label: project.data.title }]} />
-    <Badge variant={statusColors[project.data.status]}>
-      {project.data.status}
-    </Badge>
-    <BlurReveal
-      client:idle
-      text={project.data.title}
-      className="mt-4 text-4xl font-heading font-bold text-text-primary"
-      as="h1"
-    />
-    <p class="mt-2 text-text-secondary">{project.data.description}</p>
-    <div class="mt-6 flex flex-wrap gap-3">
-      {project.data.github && (
-        <GlassButton href={project.data.github}>GitHub</GlassButton>
+    <TerminalWindow title={project.id} status={project.data.status} statusColor={statusColor}>
+      <BlurReveal
+        client:idle
+        text={project.data.title}
+        className="text-4xl font-heading font-bold text-text-primary"
+        as="h1"
+      />
+      <p class="mt-2 text-text-secondary">{project.data.description}</p>
+
+      {project.data.tags && project.data.tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {project.data.tags.map((tag: string, i: number) => {
+            const color = accentColors[i % accentColors.length];
+            return (
+              <span
+                class="inline-flex items-center rounded-full text-xs px-2.5 py-1"
+                style={`background: ${color}15; color: ${color};`}
+              >
+                #{tag}
+              </span>
+            );
+          })}
+        </div>
       )}
-      {project.data.demo && (
-        <GlassButton href={project.data.demo} variant="secondary">Live Demo</GlassButton>
+
+      {(project.data.github || project.data.demo) && (
+        <div class="mt-5 space-y-1.5">
+          {project.data.github && (
+            <div class="flex items-center gap-2">
+              <span class="text-[#34D399]">$</span>
+              <span class="text-text-muted">open</span>
+              <a
+                href={project.data.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[#60A5FA] hover:underline"
+              >
+                {project.data.github}
+              </a>
+            </div>
+          )}
+          {project.data.demo && (
+            <div class="flex items-center gap-2">
+              <span class="text-[#34D399]">$</span>
+              <span class="text-text-muted">open</span>
+              <a
+                href={project.data.demo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[#C9A04A] hover:underline"
+              >
+                {project.data.demo}
+              </a>
+            </div>
+          )}
+        </div>
       )}
-    </div>
+    </TerminalWindow>
   </header>
 
   <Content />
