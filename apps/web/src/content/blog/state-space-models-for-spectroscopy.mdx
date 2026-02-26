@@ -9,6 +9,9 @@ draft: false
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
 import ReceptiveFieldDemo from '@components/islands/ReceptiveFieldDemo';
+import EquationReveal from '@components/islands/EquationReveal';
+import PipelineFlow from '@components/islands/PipelineFlow';
+import MetricCards from '@components/islands/MetricCards';
 
 A vibrational spectrum is conventionally treated as a fixed-length vector — 3501 intensity values spanning 500 to 4000 cm⁻¹. You feed it into a 1D CNN, extract features, and classify. This works. It also misses something fundamental.
 
@@ -71,19 +74,108 @@ Transformers solve the receptive field problem completely — full attention con
 
 ## State Space Models: The Third Option
 
-An SSM processes a sequence by maintaining a <span class="highlight">hidden state</span> that evolves according to a linear dynamical system:
+An SSM processes a sequence by maintaining a <span class="highlight">hidden state</span> that evolves according to a linear dynamical system. The formalism starts in continuous time and is discretized for computation:
 
-$$\mathbf{h}_{t+1} = \mathbf{A}\mathbf{h}_t + \mathbf{B}x_t$$
-$$y_t = \mathbf{C}\mathbf{h}_t + Dx_t$$
+<EquationReveal
+  client:visible
+  title="state space model — formulation"
+  equations={[
+    {
+      label: "Continuous SSM",
+      annotation: "Continuous-time state space",
+      segments: [
+        { text: "x", color: "variable" },
+        { text: "'", color: "operator" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " = ", color: "operator" },
+        { text: "A", color: "function" },
+        { text: "x", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " + ", color: "operator" },
+        { text: "B", color: "function" },
+        { text: "u", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: ",  ", color: "operator" },
+        { text: "y", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " = ", color: "operator" },
+        { text: "C", color: "function" },
+        { text: "x", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " + ", color: "operator" },
+        { text: "D", color: "function" },
+        { text: "u", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "t", color: "variable" },
+        { text: ")", color: "bracket" },
+      ],
+    },
+    {
+      label: "Discretized SSM",
+      annotation: "After zero-order hold discretization",
+      segments: [
+        { text: "x", color: "variable" },
+        { text: "k", color: "subscript" },
+        { text: " = ", color: "operator" },
+        { text: "A\u0304", color: "function" },
+        { text: " \u00b7 ", color: "operator" },
+        { text: "x", color: "variable" },
+        { text: "k-1", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "B\u0304", color: "function" },
+        { text: " \u00b7 ", color: "operator" },
+        { text: "u", color: "variable" },
+        { text: "k", color: "subscript" },
+      ],
+    },
+    {
+      label: "HiPPO Matrix",
+      annotation: "Optimal polynomial projection",
+      segments: [
+        { text: "A", color: "function" },
+        { text: "nk", color: "subscript" },
+        { text: " = ", color: "operator" },
+        { text: "-", color: "operator" },
+        { text: "(", color: "bracket" },
+        { text: "2n+1", color: "number" },
+        { text: ")", color: "bracket" },
+        { text: "\u00b9\u02f2", color: "number" },
+        { text: " \u00b7 ", color: "operator" },
+        { text: "(", color: "bracket" },
+        { text: "2k+1", color: "number" },
+        { text: ")", color: "bracket" },
+        { text: "\u00b9\u02f2", color: "number" },
+        { text: "  for ", color: "annotation" },
+        { text: "n", color: "variable" },
+        { text: " > ", color: "operator" },
+        { text: "k", color: "variable" },
+      ],
+    },
+  ]}
+/>
 
 The matrix $\mathbf{A}$ is the <span class="highlight-teal">state transition</span> — it determines how memory decays and which frequencies are preserved. $\mathbf{B}$ controls how new input enters the state. $\mathbf{C}$ reads from the state to produce output. The hidden state $\mathbf{h}_t$ is a compressed representation of the entire history $x_0, x_1, \ldots, x_{t-1}$.
 
-The critical innovation in S4 (Structured State Spaces for Sequence Modeling, Gu et al. 2022) is the <span class="highlight">HiPPO initialization</span> of the $\mathbf{A}$ matrix. Instead of random initialization, $\mathbf{A}$ is set to optimally compress the history under a specific measure — retaining long-range dependencies that a randomly initialized system would forget.
+The critical innovation in S4 (Structured State Spaces for Sequence Modeling, Gu et al. 2022) is the <span class="highlight">HiPPO initialization</span> of the $\mathbf{A}$ matrix. Instead of random initialization, $\mathbf{A}$ is set to optimally compress the history under a specific measure — specifically, it projects the input history onto a basis of Legendre polynomials, retaining long-range dependencies that a randomly initialized system would forget exponentially fast. The HiPPO matrix has a beautiful structure: its entries $A_{nk} = -(2n+1)^{1/2}(2k+1)^{1/2}$ for $n > k$ form a lower-triangular matrix where each state dimension captures a different polynomial moment of the history. This means the hidden state is literally a polynomial approximation of everything the model has seen.
 
 <div class="callout callout-theorem">
   <div class="callout-label">Why Linear Dynamics Work</div>
 
-The linearity of the state transition is not a limitation — it's a feature. The $\mathbf{A}\mathbf{h}_t + \mathbf{B}x_t$ recurrence can be unrolled into a convolution, enabling parallel computation during training. At inference, it reverts to a recurrence, processing each new point in $O(1)$ time. This dual interpretation — convolution for training, recurrence for inference — gives SSMs the best of both worlds.
+The linearity of the state transition is not a limitation — it's a feature. A linear SSM can be unrolled into a global convolution: $y = K * u$ where the kernel is $K = (\mathbf{CB}, \mathbf{CAB}, \mathbf{CA}^2\mathbf{B}, \ldots)$. This means a single SSM layer has a receptive field equal to the full sequence length. For a 2048-point spectrum, the kernel $K$ has 2048 entries — each output point is a weighted sum of all input points, with weights determined by the learned matrices $\mathbf{A}$, $\mathbf{B}$, and $\mathbf{C}$.
+
+This dual interpretation is what gives SSMs their computational edge. During training, the convolution view enables parallel computation across the entire sequence using FFT — compute $K$ once, then $y = \text{iFFT}(\text{FFT}(K) \odot \text{FFT}(u))$ in $O(N \log N)$ time. At inference, the recurrence view processes each new point in $O(1)$ time, maintaining a running hidden state. No other architecture has both properties simultaneously.
+
+For spectra, the full-sequence kernel matters because physical correlations are genuinely global. The C-H stretch at 2900 cm⁻¹ constrains what is possible in the fingerprint region at 1000 cm⁻¹ — these peaks arise from the same molecule and share electron density. A CNN with a 37 cm⁻¹ receptive field cannot see this constraint. An SSM encodes it directly in the convolution kernel.
 
 </div>
 
@@ -96,6 +188,44 @@ The SSM landscape has evolved rapidly. Three generations matter for spectral app
 **Mamba (2023)** — Made $\mathbf{B}$ and $\mathbf{C}$ input-dependent (selective state spaces). The transition matrices now depend on the input, allowing the model to selectively remember or forget information. This broke the convolution interpretation but enabled much better performance on language tasks.
 
 **D-LinOSS (2024)** — Diagonal Linear Operator State Space. Returns to a diagonalized state transition but with a learnable discretization step that adapts to the input. Combines S4's parallelism with Mamba's input-dependent behavior.
+
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "CNN (ResNet-18)",
+      value: 71.2,
+      suffix: "%",
+      color: "#FF6B6B",
+      sparkline: [0.3, 0.4, 0.5, 0.55, 0.6, 0.63, 0.66, 0.68, 0.70, 0.712],
+      trend: "up",
+    },
+    {
+      label: "Transformer",
+      value: 78.3,
+      suffix: "%",
+      color: "#C9A04A",
+      sparkline: [0.2, 0.35, 0.45, 0.55, 0.62, 0.68, 0.72, 0.75, 0.77, 0.783],
+      trend: "up",
+    },
+    {
+      label: "S4 + Mamba",
+      value: 82.8,
+      suffix: "%",
+      color: "#A78BFA",
+      sparkline: [0.25, 0.4, 0.5, 0.6, 0.67, 0.72, 0.76, 0.79, 0.81, 0.828],
+      trend: "up",
+    },
+    {
+      label: "CNN + D-LinOSS",
+      value: 84.2,
+      suffix: "%",
+      color: "#34D399",
+      sparkline: [0.3, 0.45, 0.55, 0.63, 0.7, 0.75, 0.79, 0.82, 0.835, 0.842],
+      trend: "up",
+    },
+  ]}
+/>
 
 <TerminalBlock
   client:visible
@@ -151,6 +281,34 @@ The SSM landscape has evolved rapidly. Three generations matter for spectral app
 
 The pure SSM outperforms the pure CNN by 9 points — the global receptive field matters. But the hybrid architecture (<span class="highlight-teal">CNN tokenizer + SSM backbone</span>) beats both, because peak shapes are inherently local features that CNNs capture better than SSMs, while cross-peak correlations are global features that SSMs capture better than CNNs.
 
+## D-LinOSS Deep Dive: Damped Oscillators as State Transitions
+
+D-LinOSS deserves more than a one-line summary, because its design is deeply connected to the physics of the signals it processes.
+
+The key innovation is replacing Mamba's data-dependent gates with a physically-motivated <span class="highlight">damped oscillator</span>. Each state dimension in D-LinOSS evolves according to:
+
+$$\mathbf{M} = \begin{pmatrix} \cos(\omega\Delta t) & \sin(\omega\Delta t)/\omega \\ -\omega\sin(\omega\Delta t) & \cos(\omega\Delta t) \end{pmatrix} \cdot e^{-\gamma\Delta t}$$
+
+This is the exact solution to a damped harmonic oscillator with frequency $\omega$ and damping $\gamma$. The state does not just accumulate information — it _oscillates_, maintaining a frequency-specific memory of the input. For vibrational spectroscopy, this is natural: each state dimension resonates at a learned frequency, acting as a tunable bandpass filter over the wavenumber axis. The damping term $e^{-\gamma\Delta t}$ controls how quickly old information decays — high damping for local features, low damping for long-range correlations.
+
+The discretization step $\Delta t$ is input-dependent (computed by a linear projection of each token), giving D-LinOSS the selectivity of Mamba while preserving the parallelizable structure of S4. When the model encounters a strong peak, it can increase $\Delta t$ to "take a bigger step" through state space, effectively allocating more representational capacity. When it encounters baseline, it can decrease $\Delta t$ to coast through.
+
+### CFL Stability: The Training Killer
+
+The damped oscillator formulation introduces a subtle but critical numerical constraint. The state transition matrix $\mathbf{M}$ is stable only when its eigenvalues remain inside the unit circle. For the discretized system, this requires:
+
+$$\alpha = \frac{\Delta t^2 \cdot A}{S} \leq 2$$
+
+where $A$ is the diagonal of the state matrix (which grows during training via gradient updates) and $S$ is a normalization constant. This is analogous to the <span class="highlight-teal">Courant-Friedrichs-Lewy (CFL) condition</span> in numerical PDE solvers — take too large a step and the simulation explodes.
+
+In practice, this manifests as NaN around steps 1000-1400 during training. The $A$ parameters grow through gradient updates, eventually violating $\alpha \leq 2$. When the eigenvalues exit the unit circle, the 2048-step recurrence diverges exponentially: a perturbation of $10^{-6}$ at step 0 becomes $10^{+6}$ at step 2048, overflowing even float32.
+
+The fix is a soft clamp that prevents $\alpha$ from reaching 2 while maintaining smooth gradients:
+
+$$\alpha_{\text{clamped}} = 1.99 \cdot \tanh(\alpha / 1.99)$$
+
+This maps $\alpha \in [0, \infty) \to [0, 1.99)$, keeping eigenvalues strictly inside the unit circle. The $\tanh$ ensures gradients flow smoothly even when $\alpha$ approaches the boundary — unlike a hard clamp, which would zero out gradients and stall learning. After applying this fix, training runs stably to 50K+ steps without a single NaN.
+
 ## Why Spectra Are Ideal for SSMs
 
 SSMs excel on sequences with specific properties — and vibrational spectra have all of them:
@@ -173,6 +331,43 @@ When Mamba or D-LinOSS processes an IR spectrum, the input-dependent gating lear
 ## The Hybrid Architecture in Spektron
 
 [Spektron](/projects/spektron) uses a <span class="highlight">CNN tokenizer → D-LinOSS backbone</span> architecture. The CNN converts the raw 3501-point spectrum into 128 tokens, each representing a ~27 cm⁻¹ window. The D-LinOSS layers then process these tokens as a sequence, building global representations:
+
+<PipelineFlow
+  client:visible
+  title="pipeline — spektron encoder"
+  stages={[
+    {
+      label: "Spectrum",
+      icon: "M3 12h1m8-9v1m-5.636 2.636l.707.707M6 12H3m2.343 5.657l.707-.707M12 18v3m5.657-2.343l-.707-.707M18 12h3m-2.343-5.657l-.707.707",
+      color: "#60A5FA",
+      detail: "IR + Raman (3501 pts)",
+    },
+    {
+      label: "1D Conv Tokenizer",
+      icon: "M4 6h16M4 10h16M4 14h16M4 18h16",
+      color: "#4ECDC4",
+      detail: "7 conv blocks, k=15→7",
+    },
+    {
+      label: "D-LinOSS ×4",
+      icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+      color: "#C9A04A",
+      detail: "d_state=128, GLU gate",
+    },
+    {
+      label: "[CLS] Token",
+      icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2",
+      color: "#A78BFA",
+      detail: "Mean pool → 256-dim",
+    },
+    {
+      label: "Output",
+      icon: "M5 12h14M12 5l7 7-7 7",
+      color: "#34D399",
+      detail: "z_chem(128) + z_inst(64)",
+    },
+  ]}
+/>
 
 <TerminalBlock
   client:visible
@@ -283,19 +478,37 @@ For 1D signal data with sharp local features and long-range correlations, the op
 
 ## Practical Considerations
 
-Training SSMs on spectral data has a few gotchas:
+Training SSMs on spectral data has a few gotchas, most of which we discovered the hard way during Spektron development.
 
-**Numerical stability.** D-LinOSS uses complex-valued state matrices that can produce extreme values (±200K) before the GLU gate. Under mixed-precision training (AMP), these overflow float16. The fix: force the SSM layers to run in float32 while allowing the rest of the model to use float16.
+### Numerical Stability: bfloat16 vs float16
 
-**Initialization.** The HiPPO initialization of $\mathbf{A}$ assumes the input is a continuous signal sampled uniformly. Spectra satisfy this — wavenumber is uniformly sampled. But if you resample to non-uniform spacing (e.g., to compress baseline regions), you need to adjust the discretization step accordingly.
+D-LinOSS uses complex-valued state matrices that can produce extreme intermediate values (±200K) before the GLU gate. Under mixed-precision training (AMP), the choice of reduced-precision format matters enormously:
 
-**State dimension.** The hidden state dimension $d_{\text{state}}$ controls how much history the SSM can remember. For 128-token spectral sequences, $d_{\text{state}} = 128$ is sufficient — the state has as many dimensions as there are tokens. Increasing beyond this shows diminishing returns.
+**float16** has a range of ±65,504. Values above this overflow to infinity, which propagates as NaN through the rest of the computation. The D-LinOSS state values routinely hit ±200K during normal operation — not a bug, but a consequence of the oscillatory dynamics. Float16 cannot represent these values.
+
+**bfloat16** has the same range as float32 (±3.4 × 10^38) but only 7 bits of mantissa precision versus float32's 23 bits. The reduced precision is acceptable for neural network training — gradient noise already introduces far more error than 7-bit rounding. But the range is critical: bfloat16 comfortably holds ±200K values without overflow.
+
+The fix is two-layered. First, use bfloat16 instead of float16 for AMP. Second, force the entire LinOSSBlock to run in float32 via `torch.amp.autocast('cuda', enabled=False)`, allowing only the rest of the model (CNN tokenizer, projections, loss computation) to use bfloat16. This costs approximately 15% more memory but eliminates the NaN failures completely.
+
+### Gradient Clipping and Weight Decay
+
+Standard gradient clipping at 1.0 is too aggressive for SSMs. The $\mathbf{A}$ matrix gradients are inherently larger than typical parameter gradients because they affect every timestep in the recurrence — a small change to $\mathbf{A}$ compounds over 2048 steps. Clipping at 1.0 throttles these gradients excessively, slowing convergence by 3-5x.
+
+We use gradient clipping at 5.0, which prevents catastrophic gradient spikes (which do occur when the CFL condition is nearly violated) while allowing the SSM parameters to learn at a reasonable rate.
+
+Weight decay must be excluded for three parameter categories: **LayerNorm** parameters (which should remain at their learned scale), **bias terms** (which regularize toward zero unnaturally with weight decay), and **embedding parameters** (including the learnable mask token used in BERT-style pretraining). Applying weight decay to these parameters creates a persistent bias toward zero that fights the learning signal, manifesting as a subtle but consistent 1-2% accuracy drop.
+
+### Initialization and State Dimension
+
+The HiPPO initialization of $\mathbf{A}$ assumes the input is a continuous signal sampled uniformly. Spectra satisfy this — wavenumber is uniformly sampled. But if you resample to non-uniform spacing (e.g., to compress baseline regions), you need to adjust the discretization step accordingly.
+
+The hidden state dimension $d_{\text{state}}$ controls how much history the SSM can remember. For 128-token spectral sequences, $d_{\text{state}} = 128$ is sufficient — the state has as many dimensions as there are tokens. Increasing beyond this shows diminishing returns.
 
 <TerminalBlock
   client:visible
   title="training_tips.py"
   lines={[
-    { spans: [{ text: "$ python train.py --ssm d-linoss --d-state 128 --amp", color: "muted" }] },
+    { spans: [{ text: "$ python train.py --ssm d-linoss --d-state 128 --amp bfloat16", color: "muted" }] },
     { spans: [{ text: "" }], delay: 200 },
     { spans: [{ text: "D-LinOSS training configuration:", color: "teal" }] },
     { spans: [{ text: "" }] },
@@ -314,8 +527,23 @@ Training SSMs on spectral data has a few gotchas:
     ] },
     { spans: [
       { text: "  AMP:           ", color: "muted" },
-      { text: "enabled", color: "green" },
-      { text: " (except SSM blocks → float32)", color: "amber" },
+      { text: "bfloat16", color: "green" },
+      { text: " (SSM blocks → float32)", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  grad_clip:     ", color: "muted" },
+      { text: "5.0", color: "white" },
+      { text: "  (not 1.0 — too tight for SSMs)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  weight_decay:  ", color: "muted" },
+      { text: "0.01", color: "white" },
+      { text: "  (excluded: LN, bias, embeds)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  CFL clamp:     ", color: "muted" },
+      { text: "α ≤ 1.99", color: "green" },
+      { text: "  (tanh soft clamp)", color: "muted" },
     ] },
     { spans: [
       { text: "  batch_size:    ", color: "muted" },
@@ -342,6 +570,8 @@ SSMs represent a shift in how we think about spectral data. The traditional view
 This distinction matters because the <span class="highlight-violet">physics is sequential</span>. The wavenumber axis is not arbitrary — it corresponds to energy, and physical correlations between modes follow from shared molecular structure. A model that respects this sequential structure learns more from less data.
 
 The practical upshot: on QM9S with 130K spectra, a CNN + D-LinOSS hybrid achieves <span class="highlight-teal">84.2% identification accuracy</span> with 12.4M parameters, matching a CNN + Transformer at 83.7% while running at linear cost. On larger datasets or higher-resolution spectra, the linear scaling advantage will compound.
+
+The deeper lesson is that architecture should follow physics. Spectra are oscillatory, long-range, and ordered — and the best model for them is a damped oscillator with a full-sequence receptive field. When your data has structure, build that structure into the model. The SSM does not just learn spectral features; it learns to resonate with them.
 
 ## Related
 

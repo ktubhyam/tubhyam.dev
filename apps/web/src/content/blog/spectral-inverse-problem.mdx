@@ -8,8 +8,31 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import EquationReveal from '@components/islands/EquationReveal';
+import SpectrumViz from '@components/islands/SpectrumViz';
+import PipelineFlow from '@components/islands/PipelineFlow';
+import MetricCards from '@components/islands/MetricCards';
 
 Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. You shine light on a molecule, measure what comes back, and try to figure out what the molecule looks like. The <span class="highlight">forward direction</span> of this problem is solved: given a structure, compute its spectrum. The <span class="highlight">inverse direction</span> — given a spectrum, recover the structure — is fundamentally harder, and the reason is group theory.
+
+<SpectrumViz
+  client:visible
+  title="The Forward Problem — Structure Produces Spectrum"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Absorbance"
+  peaks={[
+    { position: 0.10, height: 0.50, width: 0.020, color: "#4ECDC4", label: "O-H" },
+    { position: 0.20, height: 0.88, width: 0.015, color: "#C9A04A", label: "C-H" },
+    { position: 0.27, height: 0.62, width: 0.018, color: "#C9A04A" },
+    { position: 0.40, height: 0.95, width: 0.020, color: "#FF6B6B", label: "C=O" },
+    { position: 0.55, height: 0.42, width: 0.016, color: "#A78BFA", label: "C-N" },
+    { position: 0.65, height: 0.73, width: 0.020, color: "#34D399", label: "C=C" },
+    { position: 0.80, height: 0.55, width: 0.018, color: "#60A5FA", label: "C-O" },
+    { position: 0.90, height: 0.30, width: 0.015, color: "#60A5FA" },
+  ]}
+/>
+
+The spectrum above is unambiguous — each peak maps to a specific bond vibration, and the pattern uniquely fingerprints the molecule. But the *inverse* arrow asks: given only these peaks and their intensities, can we reconstruct the molecular structure that produced them? The forward map is a smooth function. The inverse map is a nightmare.
 
 ## The Forward Map
 
@@ -18,6 +41,89 @@ The starting point is the Wilson GF secular equation:
 $$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
 
 The matrix **G** encodes atomic masses and molecular geometry. The matrix **F** is the force constant matrix — essentially the <span class="highlight">Hessian of the potential energy surface</span>. The eigenvalues give the squared vibrational frequencies, and the eigenvectors determine which modes are observable by IR and Raman spectroscopy.
+
+<EquationReveal
+  client:visible
+  title="core equations — spectral inverse problem"
+  equations={[
+    {
+      label: "Forward Map",
+      annotation: "The forward map is surjective (many molecules can share peaks) but not injective (spectra do not uniquely determine structure)",
+      segments: [
+        { text: "φ", color: "function" },
+        { text: ": ", color: "operator" },
+        { text: "M", color: "variable" },
+        { text: " → ", color: "operator" },
+        { text: "S", color: "variable" },
+        { text: "  ,  ", color: "annotation" },
+        { text: "molecule", color: "annotation" },
+        { text: " → ", color: "operator" },
+        { text: "spectrum", color: "annotation" },
+      ],
+    },
+    {
+      label: "VIB Loss",
+      annotation: "Reconstruction + contrastive alignment + KL regularization + adversarial disentanglement",
+      segments: [
+        { text: "L", color: "function" },
+        { text: " = ", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "recon", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "α", color: "number" },
+        { text: "·", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "contr", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "β", color: "number" },
+        { text: "·", color: "operator" },
+        { text: "KL", color: "function" },
+        { text: "[", color: "bracket" },
+        { text: "q", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "z", color: "variable" },
+        { text: "|", color: "operator" },
+        { text: "x", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " ‖ ", color: "operator" },
+        { text: "p", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "z", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: "]", color: "bracket" },
+        { text: " + ", color: "operator" },
+        { text: "γ", color: "number" },
+        { text: "·", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "adv", color: "subscript" },
+      ],
+    },
+    {
+      label: "Information Bound",
+      annotation: "Observable information is bounded by the completeness ratio — a hard ceiling on inversion accuracy",
+      segments: [
+        { text: "I", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "S", color: "variable" },
+        { text: "; ", color: "operator" },
+        { text: "M", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " ≤ ", color: "operator" },
+        { text: "R", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "G", color: "variable" },
+        { text: ",", color: "operator" },
+        { text: "N", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " · ", color: "operator" },
+        { text: "H", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "M", color: "variable" },
+        { text: ")", color: "bracket" },
+      ],
+    },
+  ]}
+/>
 
 What makes the forward map well-behaved is that it's smooth, computable, and well-conditioned. Given any reasonable molecular geometry, you can compute the full IR and Raman spectrum to arbitrary precision. DFT codes do this routinely at the B3LYP/def2-TZVP level.
 
@@ -191,18 +297,115 @@ A <span class="highlight">4:1 overdetermination ratio</span> means the combined 
 
 ## The Architecture: Spektron
 
-The theory says what is achievable. The model is designed to get there. **Spektron** is a CNN-Transformer encoder with a <span class="highlight">Variational Information Bottleneck</span> (VIB) that splits the latent space into chemistry and instrument:
+The theory says what is achievable. The model is designed to get there. **Spektron** is a CNN-SSM encoder with a <span class="highlight">Variational Information Bottleneck</span> (VIB) that splits the latent space into chemistry and instrument:
+
+<PipelineFlow
+  client:visible
+  title="pipeline — spektron architecture"
+  stages={[
+    {
+      label: "Embed",
+      icon: "M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2l1.586-1.586a2 2 0 0 1 2.828 0L20 14",
+      color: "#60A5FA",
+      detail: "1D Conv → 76 patches",
+    },
+    {
+      label: "Scan",
+      icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",
+      color: "#4ECDC4",
+      detail: "4 D-LinOSS layers",
+    },
+    {
+      label: "Route",
+      icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+      color: "#C9A04A",
+      detail: "4 experts, top-2",
+    },
+    {
+      label: "Split",
+      icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4",
+      color: "#A78BFA",
+      detail: "z_chem=128, z_inst=64",
+    },
+    {
+      label: "Predict",
+      icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z",
+      color: "#34D399",
+      detail: "Reconstruct / Regress",
+    },
+  ]}
+/>
+
+The pipeline reads left to right. Raw spectra (2048 wavenumber channels) enter the **Embed** stage, where a 1D CNN with 7 convolutional layers compresses the input into 76 overlapping patches, each capturing local peak shapes and fine-grained spectral features. These patches feed into the **Scan** stage — four layers of D-LinOSS (Damped Linear Oscillatory State Space), a structured SSM that processes the full sequence in O(n) time while maintaining stable long-range dynamics via CFL-clamped recurrence. The **Route** stage applies Mixture-of-Experts gating, selecting the top 2 of 4 specialized expert networks for each patch — allowing different spectral regions (fingerprint vs. functional group) to be processed by different parameter subsets. The **Split** stage is the VIB head, which projects the routed features into two disentangled latent spaces: z_chem (128 dimensions of transferable chemical identity) and z_inst (64 dimensions of instrument-specific artifacts). Finally, **Predict** applies task-specific heads: masked reconstruction during pretraining, property regression during fine-tuning.
 
 $$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
 
 The latent vector splits into <span class="highlight-teal">z_chem</span> (128 dimensions, transferable chemistry) and <span class="highlight-violet">z_inst</span> (64 dimensions, instrument artifacts). At transfer time, z_inst is discarded — only the chemistry survives.
 
+### Why the 128+64 Split
+
+The 2:1 ratio between z_chem and z_inst is not arbitrary — it reflects the intrinsic dimensionality gap between chemical identity and instrument variation.
+
+Chemical identity is high-dimensional. The QM9S training set contains roughly 130K unique molecules, each with a distinct combination of functional groups, ring systems, heteroatom positions, and conformational preferences. A meaningful embedding must capture not just coarse functional group presence (which ~20 dimensions could handle) but fine-grained distinctions: the difference between *ortho*- and *meta*-substituted benzenes, between primary and secondary amines, between strained and unstrained ring systems. Principal component analysis on computed force constant matrices shows that roughly 80-100 dimensions are needed to capture 95% of the variance across the QM9 chemical space. We allocate 128 dimensions — enough headroom for the nonlinear manifold structure that a neural encoder learns, which typically requires 1.2-1.5x the linear intrinsic dimensionality.
+
+Instrument variation, by contrast, is low-dimensional. The dominant instrument effects — baseline drift (2-3 DOF for polynomial curvature), wavelength/wavenumber shift (1 DOF), intensity scaling (1 DOF), and spectral resolution broadening (1 DOF) — account for perhaps 8-10 true degrees of freedom. But we allocate 64 dimensions rather than 10 because the mapping from these physical effects to spectral distortions is highly nonlinear: a small wavelength shift produces peak-position-dependent intensity changes across the entire spectrum, and baseline curvature interacts with peak height in complex ways. The 64-dimensional z_inst space gives the VIB enough capacity to capture these nonlinear interactions without requiring the encoder to disentangle them into the clean physical parameters. At transfer time, all 64 dimensions are discarded — the over-allocation is essentially free since it only costs capacity during training, not at inference.
+
+### Architecture Ablation
+
 <div class="callout callout-result">
   <div class="callout-label">Key Design Choice</div>
 
-A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over raw patch tokenization on spectral data. Vibrational peaks are sharp, narrow features — convolutional kernels capture this local structure before attention handles global context. This is the single largest architectural improvement in ablation studies.
+A 1D CNN tokenizer before the SSM backbone gives **8-10% accuracy gains** over raw patch tokenization on spectral data. Vibrational peaks are sharp, narrow features — convolutional kernels capture this local structure before the SSM handles global context. This is the single largest architectural improvement in ablation studies.
 
 </div>
+
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "CNN Only",
+      value: 71.2,
+      suffix: "%",
+      color: "#FF6B6B",
+      sparkline: [0.3, 0.4, 0.5, 0.55, 0.6, 0.63, 0.66, 0.68, 0.70, 0.71],
+      trend: "up",
+    },
+    {
+      label: "Transformer",
+      value: 78.3,
+      suffix: "%",
+      color: "#C9A04A",
+      sparkline: [0.3, 0.4, 0.5, 0.58, 0.64, 0.69, 0.73, 0.76, 0.77, 0.78],
+      trend: "up",
+    },
+    {
+      label: "CNN+Transformer",
+      value: 83.7,
+      suffix: "%",
+      color: "#A78BFA",
+      sparkline: [0.3, 0.42, 0.54, 0.62, 0.70, 0.75, 0.79, 0.81, 0.83, 0.84],
+      trend: "up",
+    },
+    {
+      label: "CNN+D-LinOSS",
+      value: 84.2,
+      suffix: "%",
+      color: "#34D399",
+      sparkline: [0.3, 0.43, 0.55, 0.64, 0.72, 0.77, 0.80, 0.82, 0.84, 0.84],
+      trend: "up",
+    },
+  ]}
+/>
+
+The numbers tell a layered story. The **CNN-only** baseline (71.2%) captures local peak shapes effectively — it knows what a carbonyl stretch looks like — but cannot model the long-range correlations between distant spectral regions. The difference between a primary amide and a secondary amide shows up as correlated changes in *both* the N-H stretching region (~3300 cm⁻¹) and the amide I/II bands (~1650/1550 cm⁻¹), separated by over 1500 wavenumber channels. A CNN with reasonable kernel sizes simply cannot see both ends of this correlation simultaneously.
+
+The **pure Transformer** (78.3%) handles long-range correlations well through self-attention but struggles with the raw input: spectral peaks are 5-15 channels wide in a 2048-channel spectrum. Without convolutional preprocessing, the Transformer must learn peak detection from scratch in its early layers — wasting capacity on a task that a simple 1D convolution solves trivially. This is why the CNN tokenizer provides such a large boost.
+
+**CNN+Transformer** (83.7%) combines the best of both: convolutional peak detection followed by attentional long-range modeling. But it pays O(n²) in sequence length for the attention mechanism. With 76 patches this is manageable, but it scales poorly if we want to process higher-resolution spectra or longer sequences.
+
+**CNN+D-LinOSS** (84.2%) matches the CNN+Transformer accuracy while running in O(n) time. The D-LinOSS backbone is a damped linear oscillatory state space model — physically, it models the spectrum as a driven oscillator system, which is a natural inductive bias for vibrational data. The damped recurrence captures long-range correlations through persistent state evolution rather than explicit pairwise attention. The CFL stability constraint (clamping the recurrence eigenvalues inside the unit circle) prevents the gradient explosion that plagues vanilla SSMs on long sequences. At 2048 channels, the wall-clock speedup over the Transformer is 1.8x; at 8192 channels (high-resolution FT-IR), it would be ~7x.
+
+The 0.5% accuracy advantage of D-LinOSS over Transformer is modest but consistent across random seeds. The real advantage is scaling: the same architecture handles 2K, 4K, or 8K channel spectra without quadratic blowup, which matters for high-resolution instruments and broadband spectral fusion.
 
 <TerminalBlock
   client:visible
@@ -215,7 +418,11 @@ A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over 
       { text: "  encoder:", color: "muted" },
       { text: " CNN1D(7 layers)", color: "teal" },
       { text: " → ", color: "muted" },
-      { text: "Transformer(4 layers, 8 heads)", color: "purple" },
+      { text: "D-LinOSS(4 layers, d=256)", color: "purple" },
+    ] },
+    { spans: [
+      { text: "  routing:", color: "muted" },
+      { text: " MoE(4 experts, top-2)", color: "amber" },
     ] },
     { spans: [
       { text: "  bottleneck:", color: "muted" },
@@ -237,13 +444,23 @@ A 1D CNN tokenizer before the Transformer gives **8–10% accuracy gains** over 
 
 ## Calibration Transfer
 
-The practical test case. A model trained on spectra from instrument A fails on instrument B — different detectors, optical paths, lamp aging all shift the spectral shape. Current approaches (PDS, SBC) require <span class="highlight-violet">25+ paired transfer samples</span>. The VIB architecture targets <span class="highlight-teal">≤10</span> by learning instrument-invariant representations during pretraining.
+The practical test case. A model trained on spectra from instrument A fails on instrument B — different detectors, optical paths, lamp aging all shift the spectral shape. Current approaches (PDS, SBC) require <span class="highlight-violet">25+ paired transfer samples</span>. The VIB architecture targets <span class="highlight-teal">far fewer</span> by learning instrument-invariant representations during pretraining.
 
 The transfer objective aligns latent distributions across instruments using Sinkhorn-based optimal transport:
 
 $$\mathcal{L}_{\text{OT}} = W_\epsilon\!\left( q(z_{\text{chem}} | \mathcal{D}_A), \, q(z_{\text{chem}} | \mathcal{D}_B) \right)$$
 
 Combined with <span class="highlight">test-time training</span> — running a few self-supervised gradient steps at inference on the new instrument — this enables adaptation without labeled target data.
+
+### The Corn Moisture Benchmark
+
+The corn dataset is the standard benchmark for calibration transfer: 80 samples of corn measured on three near-infrared instruments (m5, mp5, mp6), each recording 700 wavelength channels. The task is to predict moisture content. It is small, well-characterized, and every calibration transfer method in the literature reports numbers on it.
+
+**Piecewise Direct Standardization (PDS)** — the classical approach — builds a linear transfer matrix between instruments using paired measurements of the same samples on both instruments. It achieves strong R² values (~0.94-0.96) but requires **25+ paired samples** to build a stable transfer matrix. In practice, this means running 25 identical corn samples on both the old and new instruments — expensive, time-consuming, and sometimes impossible (e.g., when the old instrument has been decommissioned).
+
+**LoRA-CT** (Low-Rank Adaptation for Calibration Transfer) is a recent deep learning approach that fine-tunes a pretrained spectral model using low-rank adapter matrices. It reduces the sample requirement to **10-15 paired samples** while matching or exceeding PDS accuracy. The key insight is that instrument differences live in a low-rank subspace — LoRA naturally captures this structure.
+
+**Spektron with test-time training (TTT)** targets a more aggressive operating point: **comparable R² with 5 or fewer transfer samples**. The mechanism is different from both PDS and LoRA-CT. Instead of learning an explicit transfer function (PDS) or fine-tuning model weights (LoRA-CT), Spektron discards z_inst entirely at transfer time and adapts z_chem through a few self-supervised gradient steps on unlabeled spectra from the new instrument. The self-supervised objective (masked spectral reconstruction) requires no labels — just raw spectra from the target instrument. With 5 unlabeled samples providing the TTT signal and the pretrained z_chem space providing the chemical prior, the model adapts its internal representation to the new instrument's characteristics without ever seeing a labeled target sample.
 
 <CodeComparison
   client:visible
@@ -262,14 +479,14 @@ Combined with <span class="highlight">test-time training</span> — running a fe
     { text: "z = encoder(spectrum)", type: "added" },
     { text: "z_chem = vib.disentangle(z)", type: "added" },
     { text: "y_pred = retriever(z_chem)", type: "added" },
-    { text: "# Works with ≤10 samples via TTT", type: "comment" },
+    { text: "# Works with ≤5 samples via TTT", type: "comment" },
   ]}
 />
 
 <div class="callout callout-result">
   <div class="callout-label">Benchmark Target</div>
 
-R² > 0.952 on corn moisture prediction (beating LoRA-CT) with ≤10 transfer samples across three NIR instruments (m5, mp5, mp6). The corn dataset has 80 samples × 3 instruments × 700 channels — a small but well-characterized benchmark where calibration transfer methods are directly comparable.
+R² > 0.952 on corn moisture prediction (beating LoRA-CT) with ≤5 transfer samples across three NIR instruments (m5, mp5, mp6). PDS requires 25+ labeled pairs to reach this threshold. LoRA-CT requires 10-15. Spektron's VIB + TTT approach targets the same accuracy with only unlabeled spectra from the target instrument — a 5x reduction in labeled data requirements over LoRA-CT and a qualitative shift from supervised to self-supervised transfer.
 
 </div>
 

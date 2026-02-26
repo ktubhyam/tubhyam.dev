@@ -8,10 +8,33 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import SpectrumViz from '@components/islands/SpectrumViz';
+import EquationReveal from '@components/islands/EquationReveal';
+import MetricCards from '@components/islands/MetricCards';
 
 A vibrational spectrum is a 1D signal — intensity as a function of wavenumber. An image is a 2D signal — pixel intensity as a function of spatial coordinates. Both are arrays of floats. Both feed into neural networks. The resemblance ends there.
 
 Every technique that makes deep learning work on images — transfer learning from ImageNet, data augmentation by flipping and cropping, batch normalization, large-scale pretraining — either <span class="highlight">fails outright</span> or requires non-obvious modifications when applied to spectral data. This post catalogs the differences and explains why spectral ML is a distinct problem domain.
+
+Before diving into the differences, look at what a typical mid-infrared spectrum actually contains. Each peak corresponds to a specific molecular vibration — a bond stretching, bending, or rocking at a characteristic frequency. The entire chemical identity of a molecule is encoded in the positions, intensities, and shapes of these peaks:
+
+<SpectrumViz client:visible peaks={[
+  { position: 0.08, height: 0.50, width: 0.03, color: "#4ECDC4", label: "O-H stretch" },
+  { position: 0.18, height: 0.75, width: 0.02, color: "#C9A04A", label: "C-H stretch" },
+  { position: 0.24, height: 0.55, width: 0.015, color: "#C9A04A" },
+  { position: 0.40, height: 0.95, width: 0.02, color: "#FF6B6B", label: "C=O stretch" },
+  { position: 0.55, height: 0.45, width: 0.018, color: "#A78BFA", label: "C-N stretch" },
+  { position: 0.65, height: 0.60, width: 0.015, color: "#34D399", label: "C=C stretch" },
+  { position: 0.72, height: 0.35, width: 0.012, color: "#34D399" },
+  { position: 0.80, height: 0.40, width: 0.015, color: "#60A5FA" },
+  { position: 0.85, height: 0.50, width: 0.018, color: "#60A5FA" },
+  { position: 0.90, height: 0.65, width: 0.012, color: "#60A5FA", label: "fingerprint" },
+  { position: 0.94, height: 0.30, width: 0.010, color: "#60A5FA" },
+]} title="IR Spectrum — Functional Group Regions" xLabel="Wavenumber (cm⁻¹): 4000 → 400" yLabel="Absorbance" />
+
+The O-H stretch near 3300 cm⁻¹ is broad and strong — hydrogen bonding spreads it across 200+ wavenumbers. The C-H stretches around 2900 cm⁻¹ are sharper. The C=O carbonyl at 1700 cm⁻¹ is the tallest, most distinctive peak in organic chemistry. Below 1500 cm⁻¹ lies the fingerprint region — a dense forest of overlapping peaks from coupled bending modes that uniquely identifies each molecule. No two molecules produce the same fingerprint pattern.
+
+This is the data that spectral ML must learn from. Now let's understand why it's fundamentally harder than images.
 
 ## The Shape of the Signal
 
@@ -68,6 +91,86 @@ A vibrational spectrum is the opposite. Peaks are <span class="highlight-teal">s
 
 This matters for architecture choice. In vision, a 3×3 conv kernel captures a meaningful spatial neighborhood. In spectroscopy, a kernel needs to span the full width of a peak — typically 15-40 points — to capture its shape. Too narrow and the kernel sees only the slope of a peak; too wide and it blurs adjacent peaks that encode different functional groups.
 
+## The Physics of Peak Shapes
+
+Every peak in a vibrational spectrum has a shape governed by physics — not arbitrary curves. Understanding these shapes is essential for building models that respect the underlying signal structure.
+
+<EquationReveal client:visible equations={[
+  { segments: [
+      { text: "A", color: "variable" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: ")", color: "bracket" },
+      { text: " = ", color: "operator" },
+      { text: "ε", color: "function" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: ")", color: "bracket" },
+      { text: " · ", color: "operator" },
+      { text: "c", color: "variable" },
+      { text: " · ", color: "operator" },
+      { text: "l", color: "variable" },
+    ], annotation: "Beer-Lambert Law — absorbance scales linearly with concentration (c) and path length (l)", label: "Beer-Lambert" },
+  { segments: [
+      { text: "G", color: "function" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: ")", color: "bracket" },
+      { text: " = ", color: "operator" },
+      { text: "A", color: "variable" },
+      { text: " · ", color: "operator" },
+      { text: "exp", color: "function" },
+      { text: "(", color: "bracket" },
+      { text: "-", color: "operator" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: " - ", color: "operator" },
+      { text: "ν₀", color: "number" },
+      { text: ")", color: "bracket" },
+      { text: "²", color: "number" },
+      { text: " / ", color: "operator" },
+      { text: "2σ²", color: "number" },
+      { text: ")", color: "bracket" },
+    ], annotation: "Gaussian profile — dominates in gas phase, from Doppler broadening of molecular velocities", label: "Gaussian Peak" },
+  { segments: [
+      { text: "L", color: "function" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: ")", color: "bracket" },
+      { text: " = ", color: "operator" },
+      { text: "A", color: "variable" },
+      { text: " · ", color: "operator" },
+      { text: "γ²", color: "number" },
+      { text: " / ", color: "operator" },
+      { text: "(", color: "bracket" },
+      { text: "(", color: "bracket" },
+      { text: "ν", color: "variable" },
+      { text: " - ", color: "operator" },
+      { text: "ν₀", color: "number" },
+      { text: ")²", color: "bracket" },
+      { text: " + ", color: "operator" },
+      { text: "γ²", color: "number" },
+      { text: ")", color: "bracket" },
+    ], annotation: "Lorentzian profile — dominates in condensed phase, from collision/lifetime broadening", label: "Lorentzian Peak" },
+]} title="Spectroscopic Equations" />
+
+The Beer-Lambert law governs the relationship between absorbance and concentration — it is the reason spectroscopy is quantitative at all. The molar absorptivity $\varepsilon(\nu)$ is an intrinsic molecular property, meaning the peak height encodes how strongly a particular vibration couples to infrared light.
+
+Peak shapes are either Gaussian (dominated by Doppler broadening in gas phase), Lorentzian (dominated by collision broadening in condensed phase), or Voigt (a convolution of both). In practice, most liquid and solid-state spectra show Voigt profiles. The key point for ML: these shapes are not arbitrary — the width encodes the molecular environment, and a model that generates peaks with unphysical shapes (e.g., asymmetric when symmetry demands otherwise) is producing nonsense.
+
+## The Scale Problem
+
+Before going deeper into the technical challenges, it helps to see the numbers side by side. The scale disparity between image ML and spectral ML is staggering:
+
+<MetricCards client:visible metrics={[
+  { label: "ImageNet Size", value: 14, suffix: "M images", color: "#34D399", sparkline: [0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0, 1.0], trend: "up" },
+  { label: "QM9S Size", value: 222, suffix: "K spectra", color: "#FF6B6B", sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.5, 0.8, 1.0], trend: "up" },
+  { label: "Vision Augmentations", value: 20, suffix: "+", color: "#4ECDC4", sparkline: [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 1.0], trend: "up" },
+  { label: "Spectral Augmentations", value: 3, suffix: " safe", color: "#C9A04A", sparkline: [0.8, 0.8, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], trend: "stable" },
+]} />
+
+ImageNet has 63x more samples than QM9S. Vision researchers have 20+ standard augmentations; spectroscopy has roughly 3 that don't destroy the signal. There are hundreds of pretrained vision backbones (ResNet, ViT, DINOv2, CLIP, SAM); for spectral data, the count is zero. The typical input for images is 224x224x3 = 150,528 values; a spectrum is 2048x1 = 2,048 values. This isn't just a dataset size gap — it is a fundamentally different data regime.
+
 ## No Pretrained Backbones
 
 ImageNet pretraining is the foundation of modern computer vision. A ResNet trained on 1.2M labeled images learns low-level features (edges, textures) in early layers and high-level features (objects, scenes) in later layers. These features transfer to medical imaging, satellite imagery, and manufacturing inspection with minimal fine-tuning.
@@ -120,7 +223,7 @@ This is exactly why [Spektron](/projects/spektron) exists. By pretraining on QM9
 
 </div>
 
-## Augmentation Is Severely Constrained
+## The Augmentation Problem
 
 In computer vision, data augmentation is effectively free. Horizontal flips, random crops, color jitter, cutout — these transformations preserve the semantic content of an image while expanding the training set by 10-100x.
 
@@ -149,9 +252,17 @@ Spectral augmentation is <span class="highlight">physically constrained</span>. 
   ]}
 />
 
-Flipping a spectrum reverses the wavenumber axis — the C-H stretch at 2900 cm⁻¹ moves to 600 cm⁻¹, which is a completely different physical regime. Cropping removes peaks, changing the chemical identity. Scaling the x-axis shifts peak positions, which changes functional group assignments.
+The key insight is that the wavenumber axis has <span class="highlight-teal">absolute physical meaning</span>. Each position on the x-axis corresponds to a specific vibrational frequency determined by bond force constants and reduced masses. This is fundamentally different from the spatial axes of an image, where "left" and "right" are arbitrary.
 
-The only safe augmentations are <span class="highlight-teal">additive noise</span> (simulates detector noise) and <span class="highlight-teal">small wavenumber shifts</span> (simulates calibration variation). This gives maybe a 2-3x effective dataset expansion — not the 10-100x that vision gets.
+**Horizontal flip** mirrors the wavenumber axis. A C-H stretch at 2900 cm⁻¹ would appear at ~600 cm⁻¹ after flipping — squarely in the fingerprint region where it would be confused with C-Cl bending modes. A model trained on flipped spectra learns that C-H stretches occur at 600 cm⁻¹, which is physically wrong. In image terms, this would be like flipping a photo and having the model learn that sky is below the ground.
+
+**Random crop** removes spectral regions, and therefore removes peaks. Cropping out the 1600-1800 cm⁻¹ region eliminates the C=O stretch — the single most diagnostic peak for carbonyls, esters, amides, and carboxylic acids. You have changed the apparent chemical identity of the molecule. In vision, cropping the upper-left quadrant of a dog photo still shows a dog. Cropping the carbonyl region from a spectrum of acetic acid makes it look like ethanol.
+
+**Rotation** is meaningless for 1D data. You cannot rotate a vector in 1D. Some researchers reshape spectra into 2D matrices and apply 2D augmentations, but the second axis is artificial and the rotation destroys the ordering of the wavenumber dimension.
+
+**Scaling the x-axis** shifts all peak positions. Stretching by 10% moves the O-H stretch from 3300 to 3630 cm⁻¹ — a shift that a chemist would interpret as changing from a hydrogen-bonded alcohol to a free N-H stretch. The model would learn incorrect structure-spectrum correlations.
+
+The only safe augmentations are <span class="highlight-teal">additive noise</span> (simulates detector noise — physically motivated because all real spectrometers have non-zero noise floors), <span class="highlight-teal">small wavenumber shifts</span> (simulates calibration variation between instruments, typically ±2-5 cm⁻¹), and <span class="highlight-teal">baseline perturbation</span> (simulates scattering or fluorescence backgrounds with smooth polynomial offsets). This gives maybe a 2-3x effective dataset expansion — not the 10-100x that vision gets.
 
 ## Instrument Variance
 
@@ -213,6 +324,18 @@ Spectral data obeys <span class="highlight-teal">conservation laws</span>. Total
 $$\sum_i A_i = \text{const} \quad \text{(oscillator strength sum rule)}$$
 
 $$\nu_i = \frac{1}{2\pi}\sqrt{\frac{k_i}{\mu_i}} \quad \text{(harmonic frequency-force constant relation)}$$
+
+These two equations are the most fundamental constraints in vibrational spectroscopy. The first — the **oscillator strength sum rule** (also called the Thomas-Reiche-Kuhn sum rule) — states that the total integrated absorption intensity across all vibrational modes is proportional to the number of oscillators in the molecule. A model that reconstructs a spectrum with 30% more total integrated intensity than the input has created energy from nothing. The sum rule gives a hard bound: you cannot have more total absorption than the molecule's oscillators allow.
+
+The second — the **harmonic frequency relation** — links each peak position to a specific bond force constant $k_i$ and reduced mass $\mu_i$. The C=O stretch always appears near 1700 cm⁻¹ because the C=O force constant and C/O masses are what they are. A model that places a C=O peak at 1200 cm⁻¹ has violated the relationship between force constant and frequency.
+
+Beyond these, several additional physics constraints are relevant for spectral ML:
+
+**Kramers-Kronig relations** connect the real and imaginary parts of the complex refractive index. Physically, this means the absorption spectrum and the refractive index spectrum are not independent — one determines the other through a Hilbert transform. If a model generates an absorption spectrum that violates Kramers-Kronig, the corresponding refractive index would be unphysical (violating causality). For reflection spectroscopy and ATR measurements, this is not an abstract concern — the model must respect these relations or the predicted spectrum cannot correspond to any real material.
+
+**Non-negativity of absorbance** is another hard constraint. Absorbance cannot be negative because it represents energy absorbed by the sample. Transmission can only be between 0 and 1 (0% and 100%). A model that predicts negative absorbance values is predicting that the sample emits more light than it receives at that wavelength — stimulated emission, which does not occur in passive infrared spectroscopy. Yet unconstrained neural networks routinely produce negative absorbance values in baseline regions.
+
+**Selection rules from group theory** dictate which vibrations are IR-active (requiring a change in dipole moment) and which are Raman-active (requiring a change in polarizability). For centrosymmetric molecules, IR and Raman modes are mutually exclusive — a vibration active in IR is silent in Raman, and vice versa. A model that learns to predict both IR and Raman spectra must respect this mutual exclusion rule, or it produces spectra that belong to no real molecule.
 
 This means spectral ML benefits from <span class="highlight">physics-informed losses</span>: penalty terms that enforce conservation laws, symmetry constraints, and thermodynamic bounds. These terms don't just regularize the model — they encode domain knowledge that the model would otherwise need thousands of examples to learn.
 
@@ -281,6 +404,30 @@ Given these constraints, the recipe that works for spectral ML looks very differ
 4. **Physics-informed losses** that encode conservation laws — not pure reconstruction
 5. **Domain-specific augmentation** limited to noise and small shifts — not aggressive transforms
 6. **Instrument disentanglement** in the latent space — not domain adaptation as an afterthought
+
+Let me expand on the architecture choices, because the reasoning behind each one matters.
+
+### Why 1D CNNs Work for Local Features
+
+A 1D convolution with a kernel of width 31 (covering approximately 30 cm⁻¹ at 1 cm⁻¹ resolution) spans the typical half-width of an IR absorption peak. This allows a single convolutional filter to see the entire peak shape — the rise, the maximum, the fall, and the shoulders — in one operation. A stack of wide 1D CNNs acts as an effective tokenizer, converting raw spectral points into peak-level representations.
+
+The critical difference from vision is the kernel width. In images, a 3x3 kernel is sufficient because spatial information is uniformly distributed and locally smooth. In spectra, the minimum meaningful unit is a full peak, which requires kernels 5-10x wider than typical vision kernels. Using narrow kernels on spectral data is like trying to recognize faces by looking at individual pixels — you can detect edges but never see the whole feature.
+
+Dilated convolutions offer another approach: a kernel of width 5 with dilation rate 8 covers a 40-point receptive field with only 5 parameters. This is more parameter-efficient than a width-40 kernel and can capture peak shapes at multiple scales when stacked.
+
+### Why State Space Models Capture Long-Range Correlations
+
+Vibrational peaks are not independent. The C=O stretch at 1700 cm⁻¹ and the O-H stretch at 3300 cm⁻¹ are separated by 1600 wavenumber points — but in a carboxylic acid, they are chemically coupled. The presence of one constrains the intensity and position of the other. Similarly, symmetric and antisymmetric stretches of the same functional group appear at different wavenumber positions but are fundamentally linked.
+
+State space models (SSMs) like S4, Mamba, and D-LinOSS are purpose-built for modeling long-range dependencies in sequential data. Unlike transformers, which have $O(n^2)$ attention cost with sequence length, SSMs process the full 2048-point spectrum in $O(n \log n)$ or even $O(n)$ time using parallel scans. The hidden state propagates information across the full wavenumber range, allowing the model to learn that a strong C=O peak predicts an O-H peak 1600 points away — exactly the kind of long-range chemical correlation that matters.
+
+This is why [Spektron](/projects/spektron) uses D-LinOSS as its backbone instead of a transformer. For a 2048-length spectrum, a transformer's attention matrix has 4.2 million entries. An SSM achieves equivalent receptive field coverage with a fixed-size state vector.
+
+### Why Transformers Help with Global Reasoning
+
+Despite the efficiency advantages of SSMs, attention mechanisms provide something SSMs lack: <span class="highlight-teal">content-based routing</span>. An attention head can learn that "whenever a peak appears at position X, attend to position Y to check for a correlated peak" — this is useful for functional group verification, where the presence of a spectral feature at one position has predictive value for features at distant positions.
+
+The most effective spectral architectures use a hybrid approach: 1D CNNs for local peak detection, SSMs for efficient long-range propagation, and a few attention layers for global reasoning about peak relationships. This mirrors the "local-to-global" feature hierarchy that makes vision transformers effective, adapted for the specific information structure of spectral data.
 
 <div class="callout callout-result">
   <div class="callout-label">The Takeaway</div>

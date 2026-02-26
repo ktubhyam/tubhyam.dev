@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import React, { useRef, useEffect, useCallback, useState, Suspense } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Vector3, Box3, Sphere } from "three";
@@ -11,10 +11,13 @@ import { TrajectoryTrails } from "./TrajectoryTrails";
 import { SymmetryElements } from "./SymmetryElements";
 import { GridFloor } from "./GridFloor";
 
-import { SceneEffects } from "./SceneEffects";
+/** Lazy-load postprocessing for code splitting (~200KB deferred) */
+const LazySceneEffects = React.lazy(() =>
+  import("./SceneEffects").then((m) => ({ default: m.SceneEffects }))
+);
 
 /** Delays mounting children until after initial render to reduce TBT */
-function DeferredMount({ delay = 1500, children }: { delay?: number; children: React.ReactNode }) {
+function DeferredMount({ delay = 2000, children }: { delay?: number; children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const id = setTimeout(() => setReady(true), delay);
@@ -169,9 +172,11 @@ export function MiniViewer({ molecule, modeIndex, label, accentColor }: Props) {
           <SymmetryElements molecule={molecule} />
           <GridFloor molecule={molecule} />
 
-          {/* Post-processing deferred to reduce initial TBT */}
+          {/* Post-processing deferred + code-split to reduce initial TBT */}
           <DeferredMount>
-            <SceneEffects />
+            <Suspense fallback={null}>
+              <LazySceneEffects />
+            </Suspense>
           </DeferredMount>
 
           <OrbitControls

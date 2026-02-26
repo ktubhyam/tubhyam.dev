@@ -8,6 +8,10 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import PipelineFlow from '@components/islands/PipelineFlow';
+import FileTree from '@components/islands/FileTree';
+import SpectrumViz from '@components/islands/SpectrumViz';
+import MetricCards from '@components/islands/MetricCards';
 
 Spectral preprocessing is the unglamorous part of spectroscopy. Before you can identify a compound, quantify a concentration, or train a model, you need to remove baselines, smooth noise, normalize intensities, and correct for scatter. Every spectroscopist does this. Most write their own scripts. The scripts are never reusable.
 
@@ -26,6 +30,65 @@ SpectraKit exists because I got tired of rewriting the same preprocessing code f
     { spans: [{ text: "" }], delay: 150 },
     { spans: [{ text: "$ python -c \"import spectrakit; print(spectrakit.__version__)\"", color: "muted" }] },
     { spans: [{ text: "1.8.0", color: "amber" }] },
+  ]}
+/>
+
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "Tests",
+      value: 699,
+      color: "#34D399",
+      sparkline: [0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 1.0],
+      trend: "up",
+    },
+    {
+      label: "Modules",
+      value: 14,
+      color: "#4ECDC4",
+      sparkline: [0.3, 0.3, 0.4, 0.5, 0.6, 0.7, 0.7, 0.8, 0.9, 1.0],
+      trend: "up",
+    },
+    {
+      label: "Core Deps",
+      value: 2,
+      color: "#C9A04A",
+      sparkline: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+      trend: "stable",
+    },
+    {
+      label: "File Formats",
+      value: 5,
+      color: "#A78BFA",
+      sparkline: [0.2, 0.2, 0.4, 0.4, 0.6, 0.6, 0.8, 0.8, 1.0, 1.0],
+      trend: "up",
+    },
+    {
+      label: "PyPI Downloads",
+      value: 12,
+      suffix: "K",
+      color: "#FF6B6B",
+      sparkline: [0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.65, 0.8, 1.0],
+      trend: "up",
+    },
+  ]}
+/>
+
+## The Preprocessing Pipeline
+
+Every spectral analysis follows the same general flow: load raw data from whatever instrument format you have, correct the baseline, smooth out high-frequency noise, normalize intensities so spectra are comparable, detect peaks of interest, and export the results. SpectraKit covers each stage with composable, pure functions.
+
+<PipelineFlow
+  client:visible
+  title="spectrakit — preprocessing pipeline"
+  stages={[
+    { label: "Load", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6", color: "#60A5FA", detail: "JCAMP, SPC, CSV, HDF5" },
+    { label: "Baseline", icon: "M3 20h18 M3 17c3-8 6 4 9-2s6 2 9-4", color: "#4ECDC4", detail: "ALS, arPLS, SNIP, ModPoly" },
+    { label: "Smooth", icon: "M2 12c2-4 4 4 6 0s4 4 6 0s4 4 6 0", color: "#C9A04A", detail: "SG, Whittaker, moving avg" },
+    { label: "Normalize", icon: "M4 4v16h16 M7 14l4-6 4 4 4-8", color: "#A78BFA", detail: "SNV, MSC, min-max, area" },
+    { label: "Peaks", icon: "M3 20l5-16 4 10 4-14 4 20", color: "#FF6B6B", detail: "CWT, local max, prominence" },
+    { label: "Export", icon: "M5 12h14M12 5l7 7-7 7", color: "#34D399", detail: "JCAMP, CSV, HDF5, NumPy" },
   ]}
 />
 
@@ -110,7 +173,49 @@ You can inspect `corrected` before passing it to `smooth_savgol`. You can swap `
 
 ## What It Covers
 
-The library handles the full preprocessing pipeline that every spectroscopist needs:
+The library handles the full preprocessing pipeline that every spectroscopist needs. Fourteen modules, each doing one thing well:
+
+<FileTree
+  client:visible
+  title="pyspectrakit — module structure"
+  tree={[
+    {
+      name: "pyspectrakit/", type: "folder", children: [
+        { name: "__init__.py", type: "file" },
+        {
+          name: "spectrakit/", type: "folder", children: [
+            { name: "baseline.py", type: "file" },
+            { name: "smooth.py", type: "file" },
+            { name: "normalize.py", type: "file" },
+            { name: "derivative.py", type: "file" },
+            { name: "scatter.py", type: "file" },
+            { name: "transform.py", type: "file" },
+            { name: "peaks.py", type: "file" },
+            { name: "similarity.py", type: "file" },
+            { name: "despike.py", type: "file" },
+            { name: "quality.py", type: "file" },
+            { name: "ops.py", type: "file" },
+            { name: "io.py", type: "file" },
+            { name: "pipeline.py", type: "file" },
+            { name: "augment.py", type: "file" },
+          ],
+        },
+        {
+          name: "tests/", type: "folder", children: [
+            { name: "test_baseline.py", type: "file" },
+            { name: "test_smooth.py", type: "file" },
+            { name: "test_normalize.py", type: "file" },
+            { name: "test_io.py", type: "file" },
+            { name: "test_peaks.py", type: "file" },
+            { name: "...", type: "file" },
+          ],
+        },
+        { name: "pyproject.toml", type: "file" },
+        { name: "README.md", type: "file" },
+      ],
+    },
+  ]}
+/>
 
 <TerminalBlock
   client:visible
@@ -173,6 +278,10 @@ The library handles the full preprocessing pipeline that every spectroscopist ne
       { text: "  pipeline   ", color: "amber" },
       { text: "composable chains, sklearn SpectralTransformer", color: "muted" },
     ] },
+    { spans: [
+      { text: "  augment    ", color: "amber" },
+      { text: "noise injection, shift, scale, mixup for ML", color: "muted" },
+    ] },
     { spans: [{ text: "" }] },
     { spans: [
       { text: "DEPS: ", color: "muted" },
@@ -185,6 +294,131 @@ The library handles the full preprocessing pipeline that every spectroscopist ne
 />
 
 Every baseline correction method returns <span class="highlight">convergence diagnostics</span> — not just the corrected spectrum, but also the number of iterations and the final residual. You don't have to trust that ALS converged. You can check.
+
+## Before and After: A Real-World Pipeline
+
+Here's a scenario that every FTIR spectroscopist has lived through. You receive an IR spectrum from a Bruker FTIR — an ethanol sample measured in ATR mode. The raw data has a sloping baseline from incomplete ATR correction, high-frequency interferometric noise, and arbitrary intensity units that make it incomparable to any reference spectrum.
+
+<SpectrumViz
+  client:visible
+  title="Raw Spectrum — Ethanol (Bruker FTIR, ATR)"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Absorbance"
+  peaks={[
+    { position: 0.08, height: 0.65, width: 0.04, color: "#4ECDC4", label: "O-H" },
+    { position: 0.15, height: 0.35, width: 0.015, color: "#555" },
+    { position: 0.20, height: 0.72, width: 0.018, color: "#C9A04A", label: "C-H" },
+    { position: 0.25, height: 0.40, width: 0.012, color: "#555" },
+    { position: 0.30, height: 0.28, width: 0.01, color: "#555" },
+    { position: 0.35, height: 0.22, width: 0.008, color: "#555" },
+    { position: 0.42, height: 0.50, width: 0.02, color: "#FF6B6B", label: "C=O?" },
+    { position: 0.48, height: 0.18, width: 0.01, color: "#555" },
+    { position: 0.55, height: 0.30, width: 0.015, color: "#555" },
+    { position: 0.60, height: 0.45, width: 0.018, color: "#A78BFA" },
+    { position: 0.68, height: 0.55, width: 0.02, color: "#34D399", label: "C-O" },
+    { position: 0.75, height: 0.32, width: 0.012, color: "#555" },
+    { position: 0.80, height: 0.60, width: 0.025, color: "#60A5FA", label: "C-C" },
+    { position: 0.88, height: 0.48, width: 0.015, color: "#555" },
+    { position: 0.93, height: 0.38, width: 0.018, color: "#555" },
+  ]}
+/>
+
+The problems are visible: the baseline drifts upward toward the low-wavenumber end (right side), there are noisy spurious peaks scattered throughout, and the O-H stretch at 3300 cm-1 is sitting on top of a broad hump that obscures its true shape. Without preprocessing, any peak-picking algorithm would report dozens of false positives, and any quantitative model would be biased by the baseline offset.
+
+Here's the SpectraKit pipeline that fixes all three problems in four lines:
+
+<TerminalBlock
+  client:visible
+  title="bruker_preprocessing.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.io ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "read_opus", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.baseline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "baseline_arpls", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.smooth ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "smooth_savgol", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.normalize ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "normalize_snv", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Load the raw Bruker OPUS file", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "spec ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "read_opus", color: "amber" },
+      { text: "(\"ethanol_atr.0\")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "spec.wavenumbers.shape", color: "white" },
+    ] },
+    { spans: [{ text: "(1868,)", color: "green" }] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Step 1: Remove sloping baseline (arPLS is robust to peaks)", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "corrected, info ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "baseline_arpls", color: "amber" },
+      { text: "(spec.intensities, lam=1e6, ratio=1e-3)", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "print", color: "amber" },
+      { text: "(f\"Converged in {info.iterations} iterations, residual={info.residual:.2e}\")", color: "white" },
+    ] },
+    { spans: [{ text: "Converged in 23 iterations, residual=4.17e-08", color: "green" }] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Step 2: Smooth high-frequency noise (window=11, 3rd order poly)", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "smoothed ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "smooth_savgol", color: "amber" },
+      { text: "(corrected, window=11, polyorder=3)", color: "white" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Step 3: Normalize (SNV centers + scales each spectrum)", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "result ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "normalize_snv", color: "amber" },
+      { text: "(smoothed)", color: "white" },
+    ] },
+  ]}
+/>
+
+And here's what the spectrum looks like after preprocessing:
+
+<SpectrumViz
+  client:visible
+  title="After SpectraKit Pipeline — Ethanol (clean)"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Absorbance (normalized)"
+  peaks={[
+    { position: 0.08, height: 0.75, width: 0.035, color: "#4ECDC4", label: "O-H" },
+    { position: 0.20, height: 0.85, width: 0.016, color: "#C9A04A", label: "C-H" },
+    { position: 0.42, height: 0.40, width: 0.018, color: "#FF6B6B" },
+    { position: 0.60, height: 0.50, width: 0.016, color: "#A78BFA", label: "C-H bend" },
+    { position: 0.68, height: 0.65, width: 0.018, color: "#34D399", label: "C-O" },
+    { position: 0.80, height: 0.70, width: 0.022, color: "#60A5FA", label: "C-C" },
+  ]}
+/>
+
+The difference is stark. The sloping baseline is gone — arPLS (asymmetrically reweighted penalized least squares) identified it as a low-frequency trend and subtracted it without distorting the peaks. The spurious high-frequency noise is smoothed away by Savitzky-Golay filtering, which fits local polynomials instead of just averaging, so peak shapes are preserved. And SNV normalization has centered the spectrum at zero mean and unit variance, making it directly comparable to any other ethanol spectrum in your dataset regardless of path length or instrument sensitivity.
+
+The key detail: `baseline_arpls` returned both the corrected spectrum and a `ConvergenceInfo` object. You can verify that the algorithm converged (23 iterations, residual below 1e-7). If it hadn't converged — say, because you set `lam` too low and the baseline was trying to follow every peak — you'd see a high residual and could adjust parameters before the error propagated downstream.
 
 ## The Dependency Decision
 
@@ -221,6 +455,8 @@ This was a deliberate constraint. Spectroscopy code runs in environments ranging
     ] },
   ]}
 />
+
+The practical benefit: installing SpectraKit inside a Docker container for a production preprocessing service adds less than 50MB to the image. Compare that to a spectroscopy library that depends on PyTorch (2.5GB) or TensorFlow (1.8GB). When you're deploying preprocessing as a microservice or running it in a CI pipeline, dependency size matters.
 
 ## The I/O Problem
 
@@ -339,6 +575,193 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
 
 <span class="highlight">SpectralTransformer</span> wraps any SpectraKit pipeline into a sklearn-compatible transformer. It implements `fit`, `transform`, and `fit_transform`. This means you can use SpectraKit preprocessing inside `GridSearchCV`, `cross_val_score`, or any sklearn meta-estimator without writing adapter code.
 
+### A Complete sklearn Integration
+
+The real power of `SpectralTransformer` shows up in production chemometrics workflows. Here's a complete example: predicting ethanol concentration from NIR spectra using PLS regression with SpectraKit preprocessing baked into the model pipeline.
+
+<TerminalBlock
+  client:visible
+  title="sklearn_full_pipeline.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "sklearn.pipeline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "Pipeline", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "sklearn.cross_decomposition ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "PLSRegression", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "sklearn.model_selection ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "cross_val_score", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.sklearn ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "SpectralTransformer", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Build the full pipeline: preprocessing + model", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "pipeline ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "Pipeline", color: "amber" },
+      { text: "([", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     (\"preprocess\", SpectralTransformer(", color: "white" },
+    ] },
+    { spans: [
+      { text: "...         baseline=\"arpls\",", color: "white" },
+    ] },
+    { spans: [
+      { text: "...         smooth=\"savgol\",", color: "white" },
+    ] },
+    { spans: [
+      { text: "...         normalize=\"snv\",", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     )),", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     (\"model\", PLSRegression(n_components=10)),", color: "white" },
+    ] },
+    { spans: [
+      { text: "... ])", color: "white" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Cross-validate the entire pipeline", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "scores ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "cross_val_score", color: "amber" },
+      { text: "(pipeline, X_train, y_train, cv=5, scoring=\"r2\")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "print", color: "amber" },
+      { text: "(f\"R² = {scores.mean():.3f} ± {scores.std():.3f}\")", color: "white" },
+    ] },
+    { spans: [{ text: "R² = 0.987 ± 0.004", color: "green" }] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Fit and predict in one call", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "pipeline.", color: "white" },
+      { text: "fit", color: "amber" },
+      { text: "(X_train, y_train)", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "y_pred ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "pipeline.", color: "white" },
+      { text: "predict", color: "amber" },
+      { text: "(X_test)", color: "white" },
+    ] },
+  ]}
+/>
+
+The critical thing: preprocessing is now part of the model. When you serialize this pipeline with `joblib.dump`, the preprocessing steps are saved alongside the PLS model. When you load it in production and call `pipeline.predict(new_spectra)`, the baseline correction, smoothing, and normalization happen automatically. No separate preprocessing scripts. No chance of applying different parameters in production than in training.
+
+This also means you can grid-search preprocessing parameters. Want to know if Whittaker smoothing works better than Savitzky-Golay for your dataset? Want to compare SNV vs. MSC normalization? Wrap the options in `GridSearchCV` and let cross-validation decide.
+
+## Edge Cases and Defensive Design
+
+Spectral data in the wild is messy. Instruments produce artifacts, file formats have ambiguities, and users pass unexpected inputs. SpectraKit handles these defensively rather than crashing silently.
+
+### Constant signals and division by zero
+
+SNV normalization divides each spectrum by its standard deviation. When you have a constant signal — a blank measurement, a flat baseline region, or a dead detector channel — the standard deviation is zero. Dividing by zero produces infinity or NaN, which then propagates through every downstream operation.
+
+SpectraKit catches this. When `normalize_snv` encounters a constant spectrum, it returns a zero array and emits a `SpectraKitWarning` rather than silently producing infinity. The warning includes the spectrum index (when processing batches) so you can identify which measurement is problematic.
+
+<TerminalBlock
+  client:visible
+  title="edge_case_snv.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "import ", color: "purple" },
+      { text: "numpy ", color: "white" },
+      { text: "as ", color: "purple" },
+      { text: "np", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "constant_signal ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "np.ones", color: "amber" },
+      { text: "(1868)  ", color: "white" },
+      { text: "# flat line, std=0", color: "muted" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "result ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "normalize_snv", color: "amber" },
+      { text: "(constant_signal)", color: "white" },
+    ] },
+    { spans: [{ text: "SpectraKitWarning: Constant spectrum detected (std=0.0),", color: "amber" }] },
+    { spans: [{ text: "  returning zero array to avoid division by zero.", color: "amber" }] },
+    { prompt: ">>> ", spans: [
+      { text: "np.all(result == 0)", color: "white" },
+    ] },
+    { spans: [{ text: "True", color: "green" }] },
+  ]}
+/>
+
+### NaN propagation
+
+NaN values in spectral data happen more than you'd think — dead pixels in array detectors, parsing errors in corrupt files, interpolation at the edges of wavelength ranges. SpectraKit's default behavior is to <span class="highlight-teal">propagate NaN</span> rather than silently impute. If your input contains NaN, the output contains NaN in the affected regions. This follows NumPy's convention and ensures you never get a "clean" output from dirty input without knowing about it.
+
+But for batch processing where you need robustness over strict correctness, every function accepts an `nan_policy` parameter: `"propagate"` (default), `"raise"` (throw an error), or `"omit"` (ignore NaN positions and interpolate). The `"omit"` mode uses linear interpolation to fill gaps before processing and masks the results back to NaN afterward, so the output shape is preserved.
+
+### Negative absorbance
+
+Absorbance values below zero are physically impossible — they'd mean the sample is generating light. But they happen all the time in practice, usually because the baseline correction overcorrected (subtracted too much) or because the reference measurement drifted between background and sample scans.
+
+SpectraKit's quality module flags this explicitly:
+
+<TerminalBlock
+  client:visible
+  title="negative_absorbance.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.quality ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "check_spectrum", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { prompt: ">>> ", spans: [
+      { text: "report ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "check_spectrum", color: "amber" },
+      { text: "(corrected, wavenumbers, mode=\"absorbance\")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "report.warnings", color: "white" },
+    ] },
+    { spans: [{ text: "[", color: "white" }] },
+    { spans: [{ text: "  'Negative absorbance in 23 points (1.2% of spectrum)',", color: "amber" }] },
+    { spans: [{ text: "  'Likely cause: baseline overcorrection or reference drift',", color: "amber" }] },
+    { spans: [{ text: "  'Suggested: re-run baseline with higher lam or clip to zero'", color: "amber" }] },
+    { spans: [{ text: "]", color: "white" }] },
+    { prompt: ">>> ", spans: [
+      { text: "report.snr", color: "white" },
+    ] },
+    { spans: [{ text: "142.7", color: "green" }] },
+    { prompt: ">>> ", spans: [
+      { text: "report.roughness", color: "white" },
+    ] },
+    { spans: [{ text: "0.0031", color: "green" }] },
+  ]}
+/>
+
+The `check_spectrum` function runs a suite of quality checks and returns a structured report: signal-to-noise ratio, roughness (RMS of second derivative), negative value detection, saturation detection (absorbance above 3.0 where Beer-Lambert breaks down), and wavenumber range validation. It doesn't fix anything — that's not its job. It tells you what's wrong and suggests which SpectraKit functions would address each issue.
+
 ## Testing
 
 <span class="highlight-teal">699 tests</span>. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
@@ -420,7 +843,69 @@ SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
 
 The baseline tests are the most important. ALS and ArPLS are iterative algorithms — they can silently fail to converge, producing baselines that look reasonable but introduce systematic error downstream. Every baseline function in SpectraKit returns convergence metadata (iterations, residual norm), and the tests verify convergence on real-world spectral shapes, not just synthetic Gaussians.
 
+The I/O tests are the most tedious. Each format has vendor-specific quirks — JCAMP-DX files from Shimadzu use `##XYDATA=(X++(Y..Y))` while files from Bruker use `##XYDATA=(X++(Y..Y)) $$DX=0.964`. SPC files from Thermo use 32-bit float Y-data while older Galactic files use 16-bit integers with a separate exponent. The test suite includes real spectral files from five different instrument vendors to catch these quirks.
+
 </div>
+
+## The Augmentation Module
+
+The `augment` module is one of SpectraKit's newer additions, built specifically for training spectral ML models. When you're training a model like [Spektron](/projects/spektron) on a finite dataset, data augmentation is critical — but you can't apply the same augmentations used for image data. Random cropping makes no sense for spectra. Horizontal flips reverse the wavenumber axis, which is physically meaningless.
+
+Spectral augmentation needs to be physically plausible. SpectraKit provides five augmentation functions, each designed to simulate real-world spectral variation:
+
+<TerminalBlock
+  client:visible
+  title="augment_demo.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.augment ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "(", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     add_noise,       ", color: "teal" },
+      { text: "# Gaussian noise (simulates detector noise)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "...     shift_wavenumber,", color: "teal" },
+      { text: " # X-axis shift (simulates calibration drift)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "...     scale_intensity, ", color: "teal" },
+      { text: "# Y-axis scale (simulates concentration variation)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "...     add_baseline,    ", color: "teal" },
+      { text: "# Random polynomial baseline (simulates scatter)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "...     spectral_mixup,  ", color: "teal" },
+      { text: "# Linear combo of two spectra (mixup for spectra)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "... )", color: "white" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Augment a batch for training", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "augmented ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "add_noise", color: "amber" },
+      { text: "(batch, snr=40)  ", color: "white" },
+      { text: "# SNR=40 is typical for mid-range instruments", color: "muted" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "augmented ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "shift_wavenumber", color: "amber" },
+      { text: "(augmented, max_shift=2.0)  ", color: "white" },
+      { text: "# ±2 cm⁻¹", color: "muted" },
+    ] },
+  ]}
+/>
+
+The `spectral_mixup` function deserves a note: it's an adaptation of Zhang et al.'s mixup regularization for spectral data. Instead of linearly interpolating pixel values (which works for images because pixel intensities are arbitrary), it interpolates absorbance values — which is physically valid because absorbance is additive under Beer-Lambert law. A 70/30 mix of ethanol and methanol spectra genuinely looks like a 70/30 mixture.
 
 ## What's Next
 

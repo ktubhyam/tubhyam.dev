@@ -8,10 +8,39 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
+import EquationReveal from '@components/islands/EquationReveal';
+import PipelineFlow from '@components/islands/PipelineFlow';
+import MetricCards from '@components/islands/MetricCards';
+import SpectrumViz from '@components/islands/SpectrumViz';
 
 A spectrum encodes two things: <span class="highlight">what the molecule is</span> and <span class="highlight-violet">which instrument measured it</span>. A carbonyl C=O stretch always appears near 1720 cm⁻¹, but its exact position, width, and baseline shift depend on the spectrometer — detector response, optical path length, lamp aging, even room temperature. Train a model on one instrument and it fails on another.
 
 This is the <span class="highlight">calibration transfer problem</span>, and it has been the central practical barrier to deploying spectroscopic ML in production. Traditional solutions (PDS, SBC) require 25+ paired samples measured on both instruments. The goal: get that number below 10.
+
+## The Same Molecule, Two Instruments
+
+Before diving into the theory, consider what the calibration transfer problem looks like in practice. Here is the same molecule — ethanol — measured on two different NIR spectrometers:
+
+<SpectrumViz
+  client:visible
+  peaks={[
+    { position: 0.18, height: 0.45, width: 0.025, color: "#4ECDC4", label: "O-H (inst. A)" },
+    { position: 0.20, height: 0.40, width: 0.030, color: "#C9A04A", label: "O-H (inst. B)" },
+    { position: 0.38, height: 0.72, width: 0.020, color: "#4ECDC4", label: "C-H (inst. A)" },
+    { position: 0.40, height: 0.65, width: 0.025, color: "#C9A04A", label: "C-H (inst. B)" },
+    { position: 0.62, height: 0.55, width: 0.018, color: "#4ECDC4" },
+    { position: 0.63, height: 0.48, width: 0.022, color: "#C9A04A" },
+    { position: 0.82, height: 0.38, width: 0.015, color: "#4ECDC4" },
+    { position: 0.84, height: 0.33, width: 0.020, color: "#C9A04A" },
+  ]}
+  title="spectrum — same molecule, two instruments"
+  xLabel="wavenumber (cm⁻¹)"
+  yLabel="absorbance"
+/>
+
+The teal peaks are from Instrument A; the amber peaks are from Instrument B. Same molecule, same functional groups, same bond strengths — but the peaks are shifted by 1-3 cm⁻¹, broadened differently, and sitting on different baselines. A model trained on teal will misidentify amber, not because the chemistry changed, but because the instrument signature is different.
+
+The VIB's job is to learn a representation where the teal and amber embeddings of ethanol land in the <span class="highlight-teal">same region of latent space</span>, while the instrument-specific differences are captured (and later discarded) in a separate subspace.
 
 ## The Information Bottleneck
 
@@ -23,9 +52,73 @@ The first term says: $Z$ should be <span class="highlight-teal">maximally inform
 
 In practice, we can't compute mutual information directly. The variational approximation replaces it with a tractable bound:
 
-$$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
+<EquationReveal
+  client:visible
+  title="loss — variational information bottleneck"
+  equations={[
+    {
+      label: "VIB Objective",
+      annotation: "Reconstruction quality minus information cost — the fundamental trade-off",
+      segments: [
+        { text: "L", color: "function" },
+        { text: "VIB", color: "subscript" },
+        { text: " = ", color: "operator" },
+        { text: "E", color: "function" },
+        { text: "q(z|x)", color: "subscript" },
+        { text: "[", color: "bracket" },
+        { text: "−log p", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "y", color: "variable" },
+        { text: "|", color: "operator" },
+        { text: "z", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: "]", color: "bracket" },
+        { text: " + ", color: "operator" },
+        { text: "β", color: "number" },
+        { text: " · ", color: "operator" },
+        { text: "D", color: "function" },
+        { text: "KL", color: "subscript" },
+        { text: "(", color: "bracket" },
+        { text: "q", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "z", color: "variable" },
+        { text: "|", color: "operator" },
+        { text: "x", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " ‖ ", color: "operator" },
+        { text: "p", color: "variable" },
+        { text: "(", color: "bracket" },
+        { text: "z", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: ")", color: "bracket" },
+      ],
+    },
+    {
+      label: "Full Loss",
+      annotation: "VIB + adversarial domain classification with gradient reversal",
+      segments: [
+        { text: "L", color: "function" },
+        { text: " = ", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "recon", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "β", color: "number" },
+        { text: " · ", color: "operator" },
+        { text: "D", color: "function" },
+        { text: "KL", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "γ", color: "number" },
+        { text: " · ", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "adv", color: "subscript" },
+      ],
+    },
+  ]}
+/>
 
-The first term is reconstruction loss. The second is a KL divergence that regularizes the latent space toward a standard Gaussian prior. This is the same objective as a VAE, but with a different motivation: we're not trying to generate spectra, we're trying to <span class="highlight">forget instrument-specific information</span>.
+The first term is reconstruction loss — how well can the model recover the original spectrum from $z$. The second is a KL divergence that regularizes the latent space toward a standard Gaussian prior. This is the same objective as a VAE, but with a different motivation: we're not trying to generate spectra, we're trying to <span class="highlight">forget instrument-specific information</span>.
+
+The third term is the adversarial loss from gradient reversal — the mechanism that actually enforces disentanglement between chemistry and instrument. Without it, the KL term compresses indiscriminately, discarding useful chemistry alongside instrument noise.
 
 ## Splitting the Latent Space
 
@@ -75,6 +168,14 @@ The key architectural choice in Spektron is splitting $Z$ into two subspaces:
 At training time, both subspaces are active. The reconstruction head uses the full $[z_{\text{chem}};\, z_{\text{inst}}]$ concatenation to reconstruct masked spectral patches. At transfer time, $z_{\text{inst}}$ is discarded — only the chemistry survives.
 
 But splitting the latent space alone doesn't guarantee disentanglement. Without an explicit signal, the model can encode instrument information in $z_{\text{chem}}$ (it's a bigger subspace, so why not?). We need an <span class="highlight">adversarial constraint</span>.
+
+### Why 128 + 64?
+
+The asymmetric split reflects an information-theoretic prior: molecular structure has more intrinsic degrees of freedom than instrument response.
+
+Chemical identity is high-dimensional. The QM9S training set contains ~130K unique molecules, each with a distinct combination of functional groups, ring systems, heteroatom positions, and conformational preferences. A meaningful embedding must capture fine-grained distinctions: the difference between *ortho*- and *meta*-substituted benzenes, between primary and secondary amines, between strained and unstrained ring systems. PCA on computed force constant matrices shows ~80-100 dimensions needed for 95% variance coverage across QM9 chemical space. We allocate 128 — headroom for the nonlinear manifold structure a neural encoder learns.
+
+Instrument variation, by contrast, is low-dimensional. The dominant effects — baseline drift (2-3 DOF for polynomial curvature), wavelength shift (1 DOF), intensity scaling (1 DOF), and resolution broadening (1 DOF) — account for ~8-10 true degrees of freedom. We allocate 64 rather than 10 because the mapping from these physical effects to spectral distortions is highly nonlinear: a small wavelength shift produces peak-position-dependent intensity changes across the entire spectrum, and baseline curvature interacts with peak height in complex ways. At transfer time, all 64 dimensions are discarded — the over-allocation costs capacity during training only, not at inference.
 
 ## Gradient Reversal: The Right Way
 
@@ -215,22 +316,59 @@ $$\beta(t) = \beta_{\text{end}} + \frac{1}{2}(\beta_{\text{start}} - \beta_{\tex
 
 The intuition: in early training, a high $\beta$ prevents the model from collapsing $z_{\text{chem}}$ into a narrow region of the latent space. The KL penalty keeps the posterior spread out, forcing the encoder to use the full capacity of the 128-dimensional space. As training progresses and the encoder has learned meaningful structure, decreasing $\beta$ allows the model to form tighter, more discriminative clusters — each molecule gets its own region of latent space.
 
+Without annealing, fixed $\beta$ presents a dilemma. High $\beta$ (0.1) early training produces well-spread latent codes but prevents the encoder from forming tight molecular clusters — chemistry resolution plateaus. Low $\beta$ (0.001) allows tight clusters but risks posterior collapse: the encoder discovers a few high-density modes early and never explores the rest of the latent space, leaving most of the 128 dimensions unused.
+
+The cosine schedule resolves this: explore first (high $\beta$), then exploit (low $\beta$). The 60% annealing window was determined empirically — shorter windows don't allow enough exploration, while longer windows delay the tightening phase and reduce final discriminability.
+
 ## Why Not Just Use Domain Adaptation?
 
 Standard domain adaptation (MMD, CORAL, DANN) aligns the <span class="highlight-violet">entire</span> representation across domains. This is problematic for spectra because some domain-specific information is useful during training. The instrument response function affects peak shapes, and the model needs to understand these shapes to reconstruct masked patches correctly.
 
 The VIB split preserves this: $z_{\text{inst}}$ keeps instrument information available for reconstruction, while $z_{\text{chem}}$ is cleaned of it. At transfer time, you discard $z_{\text{inst}}$ and keep the clean chemistry.
 
-<div class="callout callout-theorem">
-  <div class="callout-label">Why 128 + 64?</div>
+The differences between VIB and standard domain adaptation approaches are worth examining in detail, because the choice has practical consequences for transfer performance.
 
-The asymmetric split (128 chemistry, 64 instrument) reflects an information-theoretic prior: molecular structure has more degrees of freedom than instrument response. A molecule with $N$ atoms has $3N-6$ internal coordinates, each contributing multiple spectral features. An instrument has roughly a dozen parameters (resolution, detector linearity, wavelength calibration, baseline polynomial). The 2:1 capacity ratio matches this asymmetry.
+**Maximum Mean Discrepancy (MMD)** minimizes the distance between the mean embeddings of source and target distributions in a reproducing kernel Hilbert space. For spectral data, this forces the model to produce similar *average* representations across instruments — but it says nothing about the structure within each domain. Two instruments might have the same mean embedding but completely different internal organization (e.g., different functional group clusters swapped in position). MMD alignment can succeed at matching marginal statistics while failing at the molecular-level correspondence that transfer actually requires.
+
+**Correlation Alignment (CORAL)** goes further: it matches both the mean and covariance of the source and target feature distributions. This is more robust than MMD for spectral data because it preserves the correlational structure (which peaks co-vary). But CORAL treats all dimensions equally — it aligns the entire 256-dimensional backbone output, including dimensions that encode genuinely instrument-specific information. For calibration transfer, this over-alignment is counterproductive: CORAL tries to make a spectrum from Instrument A "look like" one from Instrument B in every dimension, rather than extracting the instrument-independent chemistry.
+
+**Domain-Adversarial Neural Networks (DANN)** are the closest relative of the VIB approach. DANN also uses gradient reversal to learn domain-invariant features. The key difference is where the reversal is applied: DANN applies it to the *entire* representation, while VIB applies it only to $z_{\text{chem}}$. The separate $z_{\text{inst}}$ subspace in VIB acts as a "pressure release valve" — it gives the encoder somewhere to put instrument information without contaminating the chemistry representation. Without this valve (as in DANN), the encoder faces a harder optimization: it must encode instrument information nowhere, which means the reconstruction head loses access to useful instrument-specific features during pretraining.
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Key Insight</div>
+
+Domain adaptation methods force the model to be instrument-blind everywhere. The VIB split forces it to be instrument-blind only where it matters ($z_{\text{chem}}$) while preserving instrument awareness where it helps ($z_{\text{inst}}$ for reconstruction). At transfer time, you discard the instrument-aware part. This is strictly better than domain adaptation whenever the training objective benefits from instrument information — which is always the case for spectral reconstruction.
 
 </div>
 
 ## The Transfer Pipeline
 
 At deployment, calibration transfer works in three steps:
+
+<PipelineFlow
+  client:visible
+  title="pipeline — calibration transfer"
+  stages={[
+    {
+      label: "Encode",
+      icon: "M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2l1.586-1.586a2 2 0 0 1 2.828 0L20 14",
+      color: "#60A5FA",
+      detail: "Spectrum → z_chem + z_inst",
+    },
+    {
+      label: "TTT",
+      icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",
+      color: "#C9A04A",
+      detail: "3 self-supervised steps",
+    },
+    {
+      label: "Retrieve",
+      icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
+      color: "#34D399",
+      detail: "k-NN in z_chem space",
+    },
+  ]}
+/>
 
 <TerminalBlock
   client:visible
@@ -256,9 +394,19 @@ At deployment, calibration transfer works in three steps:
       { text: "self-supervised masked reconstruction", color: "white" },
     ] },
     { spans: [
+      { text: "  LR:        ", color: "muted" },
+      { text: "1e-5", color: "amber" },
+      { text: "  (10x lower than pretraining)", color: "muted" },
+    ] },
+    { spans: [
       { text: "  Adapts:    ", color: "muted" },
-      { text: "encoder + VIB head only", color: "amber" },
-      { text: " (backbone frozen)", color: "muted" },
+      { text: "LayerNorm + VIB head only", color: "amber" },
+      { text: "  (backbone frozen)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Mask ratio:", color: "muted" },
+      { text: " 35%", color: "white" },
+      { text: "  (same as pretraining)", color: "muted" },
     ] },
     { spans: [{ text: "" }] },
     { spans: [{ text: "Step 3: Predict via retrieval", color: "teal" }] },
@@ -282,11 +430,60 @@ At deployment, calibration transfer works in three steps:
   ]}
 />
 
-The test-time training step is critical. Even with a well-disentangled $z_{\text{chem}}$, there's residual instrument leakage. Running a few self-supervised gradient steps on the new instrument's spectra — using the model's own masked reconstruction objective — fine-tunes the encoder to the new instrument without any labels. Three steps is typically sufficient.
+### Test-Time Training in Detail
+
+The test-time training (TTT) step is critical. Even with a well-disentangled $z_{\text{chem}}$, there's residual instrument leakage — the encoder was trained on instruments A and B, but the target might be instrument C with characteristics the model has never seen.
+
+TTT adapts the model to the new instrument without any labels. The procedure:
+
+1. **Take $K$ unlabeled spectra from the target instrument** ($K = 5$-$10$ typically)
+2. **Apply the same masked reconstruction objective used in pretraining** — mask 35% of patches, reconstruct, compute MSE loss
+3. **Update only the lightweight parameters** — LayerNorm affine parameters and the VIB projection heads. The D-LinOSS backbone and MoE experts are frozen. This prevents catastrophic forgetting while allowing the normalization layers to adapt to the target instrument's intensity scale and the VIB head to adjust its chemistry/instrument split for the new domain.
+4. **Run 3 gradient steps** at LR $= 10^{-5}$ (10x lower than pretraining LR of $10^{-4}$). More steps risk overfitting to the $K$ samples; fewer steps leave residual domain shift.
+
+The key insight: the self-supervised reconstruction loss doesn't need labels — it uses the spectrum itself as the target. The model adapts by learning to reconstruct the new instrument's spectra, which implicitly teaches the VIB head what "instrument noise" looks like for this particular instrument. After TTT, $z_{\text{inst}}$ captures the new instrument's characteristics, and $z_{\text{chem}}$ is cleaned of them.
 
 ## What the Latent Space Looks Like
 
 When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of which instrument recorded the spectrum. When it fails, you see instrument-specific sub-clusters — the same molecule occupies different regions of latent space depending on the source instrument.
+
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "z_chem Domain Acc",
+      value: 52.1,
+      suffix: "%",
+      color: "#34D399",
+      sparkline: [0.85, 0.78, 0.71, 0.65, 0.60, 0.57, 0.55, 0.53, 0.52, 0.521],
+      trend: "down",
+    },
+    {
+      label: "z_inst Domain Acc",
+      value: 94.7,
+      suffix: "%",
+      color: "#C9A04A",
+      sparkline: [0.55, 0.65, 0.72, 0.80, 0.85, 0.88, 0.91, 0.93, 0.94, 0.947],
+      trend: "up",
+    },
+    {
+      label: "z_chem Mol Acc",
+      value: 87.3,
+      suffix: "%",
+      color: "#4ECDC4",
+      sparkline: [0.4, 0.5, 0.58, 0.65, 0.72, 0.77, 0.81, 0.84, 0.86, 0.873],
+      trend: "up",
+    },
+    {
+      label: "Chance Level",
+      value: 50,
+      suffix: "%",
+      color: "#A78BFA",
+      sparkline: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+      trend: "stable",
+    },
+  ]}
+/>
 
 <TerminalBlock
   client:visible
@@ -325,15 +522,62 @@ When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of
 
 The key metric: <span class="highlight-teal">domain classification accuracy on $z_{\text{chem}}$ should be at chance level</span> (50% for two instruments). If a classifier can predict the instrument from $z_{\text{chem}}$, disentanglement has failed. On $z_{\text{inst}}$, high domain accuracy is expected — that subspace is supposed to capture instrument variation.
 
+The sparklines in the metric cards tell the training story. The $z_{\text{chem}}$ domain accuracy starts high (~85% early in training, when the encoder hasn't learned to hide instrument information) and drops toward chance as the gradient reversal takes effect. The $z_{\text{inst}}$ accuracy rises in the opposite direction — as $z_{\text{chem}}$ stops encoding instrument information, $z_{\text{inst}}$ takes on more of that burden. The molecule accuracy on $z_{\text{chem}}$ rises steadily throughout, confirming that chemistry information is being preserved even as instrument information is removed.
+
 ## Practical Lessons
 
-Three hard-won lessons from getting VIB to work in Spektron.
+Five hard-won lessons from getting VIB to work in Spektron.
 
-**Test with cross-instrument data, not held-out same-instrument data.** The VIB loss can look perfect — low KL, good reconstruction, nice latent clusters — while $z_{\text{chem}}$ still leaks instrument information. The only honest evaluation is to train on instrument A and evaluate on instrument B without any transfer samples. If accuracy drops more than 5 points relative to same-instrument held-out performance, disentanglement is incomplete. During development, we saw cases where same-instrument accuracy was 89% but cross-instrument accuracy was 61%. The model had memorized instrument-specific peak shapes in $z_{\text{chem}}$ because the gradient reversal weight was too low.
+**1. Test with cross-instrument data, not held-out same-instrument data.** The VIB loss can look perfect — low KL, good reconstruction, nice latent clusters — while $z_{\text{chem}}$ still leaks instrument information. The only honest evaluation is to train on instrument A and evaluate on instrument B without any transfer samples. If accuracy drops more than 5 points relative to same-instrument held-out performance, disentanglement is incomplete. During development, we saw cases where same-instrument accuracy was 89% but cross-instrument accuracy was 61%. The model had memorized instrument-specific peak shapes in $z_{\text{chem}}$ because the gradient reversal weight was too low.
 
-**The VIB loss weight matters more than you'd expect.** The total loss has at least four terms: reconstruction, VIB KL, adversarial domain classification, and optionally OT. If the VIB KL weight is too low ($< 10^{-4}$), the bottleneck is effectively absent and $z_{\text{chem}}$ encodes everything including instrument noise. If it's too high ($> 10^{-1}$), the bottleneck over-compresses and $z_{\text{chem}}$ collapses to the prior — a spherical Gaussian carrying zero information. The sweet spot is narrow, and it interacts with the beta annealing schedule. In practice, we sweep the VIB weight on a log scale $\{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}\}$ and select based on cross-instrument retrieval accuracy, not training loss.
+**2. The VIB loss weight matters more than you'd expect.** The total loss has at least four terms: reconstruction, VIB KL, adversarial domain classification, and optionally OT. If the VIB KL weight is too low ($< 10^{-4}$), the bottleneck is effectively absent and $z_{\text{chem}}$ encodes everything including instrument noise. If it's too high ($> 10^{-1}$), the bottleneck over-compresses and $z_{\text{chem}}$ collapses to the prior — a spherical Gaussian carrying zero information. The sweet spot is narrow, and it interacts with the beta annealing schedule. In practice, we sweep the VIB weight on a log scale $\{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}\}$ and select based on cross-instrument retrieval accuracy, not training loss.
 
-**Current status.** The VIB head is pretraining as part of Spektron v3 on QM9S (222K training spectra, 2 instruments simulated via augmentation). Beta annealing, gradient reversal, and MoE gating are all live. Evaluation on the corn moisture benchmark (3 real NIR instruments) is next — that's where the R² > 0.952 target will be tested.
+**3. Gradient reversal strength needs warmup.** Setting the reversal coefficient $\alpha$ to 1.0 from step 0 destabilizes training — the adversarial signal overwhelms the reconstruction gradient before the encoder has learned any useful features. We warm up $\alpha$ linearly from 0 to 1.0 over the first 5K steps. This lets the encoder establish basic spectral representations first, then gradually introduces the adversarial pressure. Without warmup, training loss oscillates wildly and the encoder learns degenerate constant-output features.
+
+**4. Simulate instruments during pretraining.** QM9S contains computed (not measured) spectra — there is no real instrument variation. To train the VIB's disentanglement during pretraining, we simulate instrument effects via augmentation: random wavenumber shifts ($\pm$3 cm$^{-1}$), Gaussian noise (SNR 30-60 dB), polynomial baseline drift (order 2-4), and resolution broadening (Gaussian convolution, $\sigma$ = 2-8 cm$^{-1}$). Each spectrum is randomly assigned to one of 4 simulated "instruments" with consistent augmentation parameters per instrument. This gives the domain classifier something to learn and the gradient reversal something to reverse.
+
+**5. Current status.** The VIB head is pretraining as part of Spektron v3 on QM9S (222K training spectra, 4 simulated instruments). Beta annealing, gradient reversal with warmup, and MoE gating are all live. Evaluation on the corn moisture benchmark (3 real NIR instruments) is next — that's where the R² > 0.952 target will be tested.
+
+<TerminalBlock
+  client:visible
+  title="deployment_checklist.sh"
+  lines={[
+    { spans: [{ text: "$ spektron transfer --checklist", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Deployment checklist for instrument transfer:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  [✓] ", color: "green" },
+      { text: "z_chem domain accuracy at chance ", color: "white" },
+      { text: "(52.1% ≈ 50%)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  [✓] ", color: "green" },
+      { text: "z_chem molecule accuracy > 85%  ", color: "white" },
+      { text: "(87.3%)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  [✓] ", color: "green" },
+      { text: "Cross-instrument gap < 5pp      ", color: "white" },
+      { text: "(3.2pp)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  [ ] ", color: "amber" },
+      { text: "Corn benchmark R² > 0.952       ", color: "white" },
+      { text: "(pending)", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  [ ] ", color: "amber" },
+      { text: "TTT convergence in ≤5 steps     ", color: "white" },
+      { text: "(pending)", color: "amber" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "3/5 passed, 2 pending corn eval", color: "amber" },
+    ] },
+  ]}
+/>
 
 The theoretical framework connecting VIB to the [spectral identifiability theory](/blog/spectral-identifiability-theory) is direct: the Information Completeness Ratio $R(G, N)$ tells you how much chemistry is recoverable from spectra. The VIB's job is to extract exactly that recoverable chemistry while discarding everything else. When $R = 1$, all chemistry is in the spectrum — the VIB just needs to separate it from instrument noise.
 

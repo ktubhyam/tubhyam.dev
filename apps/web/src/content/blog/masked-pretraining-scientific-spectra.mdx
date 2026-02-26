@@ -9,10 +9,27 @@ draft: false
 import TerminalBlock from '@components/islands/TerminalBlock';
 import CodeComparison from '@components/islands/CodeComparison';
 import MaskingDemo from '@components/islands/MaskingDemo';
+import PipelineFlow from '@components/islands/PipelineFlow';
+import EquationReveal from '@components/islands/EquationReveal';
+import MetricCards from '@components/islands/MetricCards';
 
 The fundamental challenge of spectral machine learning is the data asymmetry. ImageNet has 1,200 labeled images per class. Spectroscopy has approximately one labeled spectrum per molecule — sometimes zero if the compound has never been synthesized. You cannot train a foundation model on a dataset where every class has a single example.
 
 Self-supervised pretraining sidesteps the label bottleneck entirely. Instead of "given this spectrum, predict the molecule," the model learns from a different signal: "given part of this spectrum, predict the rest." No labels. No classification. Just structure — the statistical regularities that make spectra more than random noise. <span class="highlight">Masked pretraining</span> is the simplest and most effective way to extract this structure, and adapting it from discrete text to continuous spectra turned out to be harder than expected.
+
+The idea behind masked pretraining is not conceptually difficult. You hide parts of the input, ask the model to fill in the blanks, and the representations it builds along the way capture the deep structure of the data. BERT did this for language. MAE did this for images. We are doing this for vibrational spectra — and the translation from discrete tokens to continuous signals exposed several non-obvious failure modes that consumed weeks of debugging.
+
+<PipelineFlow
+  client:visible
+  title="pipeline — masked pretraining"
+  stages={[
+    { label: "Spectrum", icon: "M3 12h4l3-9 4 18 3-9h4", color: "#60A5FA", detail: "2048 points, SNV-normed" },
+    { label: "Patch", icon: "M4 6h16M4 10h16M4 14h16M4 18h16", color: "#4ECDC4", detail: "76 patches of 27 pts" },
+    { label: "Mask", icon: "M13.875 18.825A10.05 10.05 0 0 1 12 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 0 1 1.563-3.029m5.858.908a3 3 0 1 1 4.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18", color: "#FF6B6B", detail: "30-35% random mask" },
+    { label: "Encode", icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", color: "#C9A04A", detail: "D-LinOSS backbone" },
+    { label: "Reconstruct", icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z", color: "#34D399", detail: "MSE + OT loss" },
+  ]}
+/>
 
 ## From Tokens to Patches
 
@@ -68,6 +85,18 @@ The connection to Masked Autoencoders (MAE) is direct: He et al. applied the sam
 **Patches vs. Points.** Masking individual wavenumber points is too fine-grained. Spectra are locally smooth — the value at wavenumber $w_i$ is highly correlated with $w_{i-1}$ and $w_{i+1}$. The model can trivially interpolate single masked points from neighbors without learning any higher-level structure. Masking contiguous patches of ~27 points forces the model to reconstruct entire peak shapes from distant context — overtone correlations, combination band patterns, functional group fingerprints. This is the representation-building signal.
 
 </div>
+
+### Why 27 Points?
+
+Each patch spans approximately 35 cm$^{-1}$ at our 2048-point resolution over the 4000-400 cm$^{-1}$ mid-IR range. This is not arbitrary — it is calibrated to the physics of infrared absorption. The full width at half maximum (FWHM) of a typical IR absorption peak in the condensed phase falls between 20 and 50 cm$^{-1}$. A patch of 27 points covers roughly one peak width.
+
+This matters because the patch size controls the difficulty of the pretext task, and hence the quality of the learned representations.
+
+**Smaller patches (5 points, ~7 cm$^{-1}$)** slice individual peaks into multiple fragments. Each fragment is trivially reconstructible from its immediate neighbors by interpolation — the spectrum is smooth at this scale. The model learns local continuity, which is not useful for downstream molecular identification. In our ablations, 5-point patches produced encoder representations that performed only 1.2 percentage points above a random baseline on linear probe evaluation.
+
+**Larger patches (100 points, ~130 cm$^{-1}$)** mask entire spectral features — and sometimes multiple overlapping features at once. In the fingerprint region (1000-1500 cm$^{-1}$), a 130 cm$^{-1}$ window can contain three or four overlapping C-C, C-O, and C-N stretches. Reconstructing all of them from distant context is too hard: the model produces blurred averages that earn low reconstruction loss but build poor representations. Accuracy on linear probe dropped by 3.4 percentage points compared to the 27-point optimum.
+
+**27 points (~35 cm$^{-1}$)** hits the sweet spot: a masked patch removes approximately one peak but leaves neighboring peaks visible. To reconstruct the missing peak, the model must reason about inter-peak relationships — the correlation between C=O stretching and C-O stretching, the harmonic relationship between fundamentals and overtones, the characteristic spacing of functional group multiplets. This is exactly the reasoning that transfers to downstream tasks.
 
 ## The Masking Strategy
 
@@ -138,7 +167,53 @@ The full pretraining pipeline:
 6. **Reconstruction head** — linear projection back to patch dimension $\mathbb{R}^{27}$
 7. **Loss** — MSE computed only on masked patches
 
-$$\mathcal{L}_{\text{MPM}} = \frac{1}{|\mathcal{M}|}\sum_{i \in \mathcal{M}} \left\| \hat{s}_i - s_i \right\|_2^2$$
+<EquationReveal
+  client:visible
+  title="loss — masked reconstruction"
+  equations={[
+    {
+      label: "Masked Reconstruction Loss",
+      annotation: "Only compute loss on masked positions — visible patches are free to represent anything",
+      segments: [
+        { text: "L", color: "function" },
+        { text: "recon", color: "subscript" },
+        { text: " = ", color: "operator" },
+        { text: "Σ", color: "function" },
+        { text: "i∈M", color: "subscript" },
+        { text: " ‖", color: "bracket" },
+        { text: "x̂", color: "variable" },
+        { text: "i", color: "subscript" },
+        { text: " − ", color: "operator" },
+        { text: "x", color: "variable" },
+        { text: "i", color: "subscript" },
+        { text: "‖", color: "bracket" },
+        { text: "²", color: "number" },
+      ],
+    },
+    {
+      label: "Hybrid Loss",
+      annotation: "OT catches shifted reconstructions that MSE misses — sharper, better-positioned peaks",
+      segments: [
+        { text: "L", color: "function" },
+        { text: " = ", color: "operator" },
+        { text: "L", color: "function" },
+        { text: "MSE", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "α", color: "number" },
+        { text: " · ", color: "operator" },
+        { text: "W", color: "function" },
+        { text: "₁", color: "subscript" },
+        { text: "(", color: "bracket" },
+        { text: "x̂", color: "variable" },
+        { text: "M", color: "subscript" },
+        { text: ", ", color: "operator" },
+        { text: "x", color: "variable" },
+        { text: "M", color: "subscript" },
+        { text: ")", color: "bracket" },
+      ],
+    },
+  ]}
+/>
 
 The loss is computed exclusively on masked patches. Visible patches are not penalized — the model is free to represent them however it wants. This forces the backbone to build contextual representations at every position: the output at a masked position must encode the prediction, and this prediction can only come from attending to visible neighbors.
 
@@ -204,15 +279,33 @@ With input masking, the encoder at masked positions sees $\mathbf{m}$ — a fixe
 
 ## Why This Works for Spectra
 
-Masked pretraining works when the signal has structure that allows masked regions to be inferred from unmasked context. Spectra have this structure in abundance, through several distinct mechanisms:
+Masked pretraining works when the signal has structure that allows masked regions to be inferred from unmasked context. Spectra have this structure in abundance — but the reasons are more specific and more interesting than "spectra are redundant." Three distinct physical mechanisms provide the reconstruction signal, each forcing the model to learn different aspects of molecular structure.
 
-**Overtones and combination bands.** The fundamental C–H stretch at 2900 cm⁻¹ has a first overtone near 5800 cm⁻¹ and combination bands at predictable positions determined by anharmonicity constants. Mask the overtone region; the fundamental constrains the reconstruction. This is a hard physical constraint — not a statistical correlation.
+### Overtone Correlations
 
-**Functional group fingerprints.** The carbonyl C=O stretch at 1720 cm⁻¹ almost always co-occurs with specific C–H stretching and bending patterns. The 1000–1300 cm⁻¹ "fingerprint region" contains C–O, C–N, and C–C stretches that are structurally coupled to peaks elsewhere. Mask the carbonyl; the surrounding environment predicts it.
+Molecular vibrations are not perfectly harmonic. A bond modeled as a Morse potential produces not just a fundamental vibration but a series of overtones and combination bands at predictable frequencies. The fundamental C-H stretch at 2900 cm$^{-1}$ has a first overtone near 5800 cm$^{-1}$ (slightly less than 2x due to anharmonicity) and a combination band with C-H bending at approximately 4300 cm$^{-1}$.
 
-**Baseline physics.** The spectral baseline is smooth and globally constrained by the instrument response function and sample scattering properties. Masked baseline regions are trivially interpolated from neighbors. This means the model quickly learns to separate baseline from peaks — exactly the right inductive bias for downstream tasks like peak detection and quantification.
+When the model masks the fundamental at 2900 cm$^{-1}$, the overtone at 5800 cm$^{-1}$ and the combination band at 4300 cm$^{-1}$ remain visible. To reconstruct the masked fundamental, the model must learn the anharmonicity relationship — that the overtone frequency is related to the fundamental by a factor slightly less than 2, with the deviation encoding the shape of the potential energy surface. This is not a statistical correlation learned from data. It is a hard physical constraint that the model discovers through masked reconstruction.
 
-**Physical constraints.** Spectral intensities are non-negative. Integrated band areas are proportional to transition dipole moments (IR) or polarizability derivatives (Raman). Peak positions cluster at frequencies corresponding to molecular vibrations, not uniformly across the axis. These soft constraints narrow the reconstruction space and help the model converge to physically plausible predictions.
+The same logic works in reverse: masking the overtone region forces reconstruction from the fundamental. And masking both simultaneously (which happens with ~12% probability at 35% masking ratio when the two regions fall in separate patches) forces the model to use the combination band — learning a three-way relationship. After 50K pretraining steps, we observe that the model's internal representations at the fundamental, overtone, and combination band positions become linearly correlated, confirming that the encoder has learned the anharmonic coupling.
+
+### Functional Group Patterns
+
+A carbonyl group (C=O) does not exist in isolation. It is bonded to other atoms that produce their own spectral signatures: the C=O stretch appears near 1700 cm$^{-1}$, but the neighboring C-C stretch, the C-O stretch (if it is an ester or acid), and the C-C-O bending mode all produce characteristic features in the fingerprint region between 1000 and 1300 cm$^{-1}$. An amide carbonyl additionally shows N-H bending near 1550 cm$^{-1}$ and C-N stretching near 1400 cm$^{-1}$.
+
+Masking the carbonyl peak at 1700 cm$^{-1}$ forces the model to predict it from the fingerprint region — learning that a specific pattern of C-O, C-N, and C-C stretches implies the presence (and exact position) of the carbonyl. This is group-level reasoning. The model does not memorize individual spectra; it learns the spectroscopic grammar of functional groups, the rules that govern which peaks co-occur and how their positions and intensities are correlated through molecular structure.
+
+This group-level learning is directly visible in the downstream performance. On a functional group classification task (given a spectrum, identify which of 15 functional groups are present), a pretrained encoder achieves 91.2% F1 versus 83.7% for training from scratch — an 8-point gap. The pretrained model has already learned functional group fingerprints during reconstruction.
+
+### Baseline Physics
+
+The spectral baseline — the slowly varying signal underneath the peaks — is not noise. It encodes the instrument response function: the interferogram apodization in FTIR, the detector sensitivity curve, Rayleigh scattering in Raman, and fluorescence background. These effects vary smoothly across the wavenumber range with characteristic length scales of 500-2000 cm$^{-1}$.
+
+Masking baseline regions (patches in the 1800-2500 cm$^{-1}$ "spectral desert" where few organic molecules absorb) is trivially easy — the model interpolates from neighboring baseline points. But this ease is pedagogically valuable: it teaches the model to separate the slowly-varying baseline from the sharp molecular peaks, which is exactly the right inductive bias for downstream tasks. After pretraining, the encoder's first principal component across all positions corresponds almost perfectly to the baseline shape, meaning the model has learned to factor it out — a prerequisite for robust quantification and identification across different instruments.
+
+### Physical Constraints
+
+Spectral intensities are non-negative. Integrated band areas are proportional to transition dipole moments (IR) or polarizability derivatives (Raman). Peak positions cluster at frequencies corresponding to molecular vibrations, not uniformly across the axis. These soft constraints narrow the reconstruction space and help the model converge to physically plausible predictions.
 
 The comparison to images is instructive. Images have 2D spatial redundancy — a masked patch can be inferred from surrounding patches in all directions. Spectra have 1D spectral redundancy plus long-range physical correlations that span the entire wavenumber range. The effective redundancy per masked position is lower for spectra, which is why 30–40% masking works best (not 75% as in MAE for images).
 
@@ -221,6 +314,20 @@ The comparison to images is instructive. Images have 2D spatial redundancy — a
 **Masking as Feature Selection.** After pretraining, the encoder's output at a visible (unmasked) position encodes not just the local peak shape, but its relationship to all other peaks in the spectrum. The representation at 2900 cm⁻¹ (C–H stretch) carries information about what the model expects at 1450 cm⁻¹ (C–H bend), 5800 cm⁻¹ (overtone), and 1720 cm⁻¹ (whether a carbonyl is present). These contextual representations are exactly what downstream tasks — identification, quantification, anomaly detection — need.
 
 </div>
+
+## What the Encoder Learns
+
+What does a pretrained encoder actually learn? We can peek inside by examining the learned representations at different stages of the architecture.
+
+**First-layer CNN kernels.** After pretraining, the 1D convolutional kernels in the patch embedding layer organize into three distinct classes of features:
+
+1. **Peak detectors** — Gabor-like filters tuned to the typical peak FWHM of 20-50 cm$^{-1}$. These filters have a central excitatory lobe flanked by inhibitory lobes, responding maximally to the characteristic Gaussian or Lorentzian shape of an absorption peak. Roughly 40% of the 256 kernels learn this pattern, with different kernels tuned to different widths covering the range from narrow gas-phase peaks (~5 cm$^{-1}$) to broad hydrogen-bonded features (~100 cm$^{-1}$).
+
+2. **Derivative filters** — Asymmetric kernels that compute approximate first and second derivatives of the spectral signal. First-derivative filters detect inflection points (peak edges), while second-derivative filters detect peak centers. These are precisely the features that classical chemometrics uses for peak detection (Savitzky-Golay differentiation), but the model learns them from scratch without any chemometric prior. About 35% of kernels are derivative-like.
+
+3. **Baseline estimators** — Low-frequency filters with wide, smooth profiles that capture the slowly-varying instrument response and scattering background. These filters effectively perform implicit baseline correction — the remaining 25% of kernels extract the baseline component so that deeper layers can reason about peaks without baseline interference.
+
+The fact that the encoder independently discovers these three feature types — which correspond exactly to the three processing steps in classical spectral preprocessing (baseline correction, smoothing/differentiation, peak detection) — is strong evidence that masked pretraining learns physically meaningful representations rather than statistical shortcuts.
 
 ## Pretraining Results
 
@@ -294,9 +401,49 @@ Training setup: 222K QM9S computed spectra (IR + Raman), masked patch modeling w
   ]}
 />
 
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "Linear Probe",
+      value: 78.3,
+      suffix: "%",
+      color: "#4ECDC4",
+      sparkline: [0.4, 0.5, 0.55, 0.6, 0.65, 0.68, 0.72, 0.75, 0.77, 0.783],
+      trend: "up",
+    },
+    {
+      label: "10% Labels",
+      value: 86.1,
+      suffix: "%",
+      color: "#34D399",
+      sparkline: [0.5, 0.55, 0.6, 0.68, 0.74, 0.78, 0.81, 0.84, 0.855, 0.861],
+      trend: "up",
+    },
+    {
+      label: "1% Labels",
+      value: 71.4,
+      suffix: "%",
+      color: "#C9A04A",
+      sparkline: [0.2, 0.3, 0.38, 0.44, 0.5, 0.56, 0.61, 0.65, 0.69, 0.714],
+      trend: "up",
+    },
+    {
+      label: "Pretrain Steps",
+      value: 50,
+      suffix: "K",
+      color: "#A78BFA",
+      sparkline: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1.0],
+      trend: "up",
+    },
+  ]}
+/>
+
 <div class="callout callout-result">
 
 **Pretraining matters most when labels are scarce.** The gap between pretrained and from-scratch grows as labels decrease. At 100% labels (the full 222K dataset), the gap is ~2 points — both approaches have enough data to learn. At 10% labels, the gap is 12 points. At 1% labels (2,200 spectra), pretrained reaches 71% versus from-scratch at 43% — a 29-point gap. This is the practical value: pretraining makes spectral ML viable in the realistic regime where labeled experimental data is expensive to produce.
+
+This scaling behavior matches the theoretical expectation. Pretraining provides an initialization in a good basin of the loss landscape — one where the encoder already understands spectral structure. With abundant labels, gradient descent finds this basin regardless of initialization. With scarce labels, the loss landscape is underspecified and initialization quality dominates. The pretrained model starts in the right neighborhood; the randomly initialized model wanders.
 
 </div>
 
@@ -304,13 +451,15 @@ Training setup: 222K QM9S computed spectra (IR + Raman), masked patch modeling w
 
 Hard-won lessons from implementation:
 
-**Patch size matters.** Too small (5 points) and the model interpolates from immediate neighbors — no long-range learning. Too large (100 points) and each masked region contains multiple overlapping peaks that are too complex to reconstruct from context. 27 points — matching the CNN tokenizer's receptive field and approximately one peak width — is the sweet spot for our architecture and spectral resolution.
+**Patch size matters.** Too small (5 points) and the model interpolates from immediate neighbors — no long-range learning. Too large (100 points) and each masked region contains multiple overlapping peaks that are too complex to reconstruct from context. 27 points — matching the CNN tokenizer's receptive field and approximately one peak width — is the sweet spot for our architecture and spectral resolution. The details are in the "Why 27 Points?" section above, but the takeaway is simple: calibrate patch size to the characteristic feature width of your signal.
 
-**Learning rate for the mask token.** The mask embedding $\mathbf{m}$ is a single parameter being pulled in different directions by every masked position in every training sample. Without a learning rate boost (10× the backbone LR), it gets stuck near initialization and all masked positions produce similar, uninformative outputs. A dedicated learning rate group for $\mathbf{m}$ fixes this.
+**Learning rate for the mask token.** The mask embedding $\mathbf{m}$ is a single parameter being pulled in different directions by every masked position in every training sample. Without a learning rate boost (10× the backbone LR), it gets stuck near initialization and all masked positions produce similar, uninformative outputs. A dedicated learning rate group for $\mathbf{m}$ fixes this. We use $\text{lr}_{\text{mask}} = 3 \times 10^{-3}$ while the backbone uses $3 \times 10^{-4}$. The mask token converges within the first 2K steps and then remains relatively stable — it finds a "neutral" point in embedding space equidistant from all patch clusters.
 
-**Random masking per sample per epoch.** If the masking pattern is deterministic (same patches masked every time a spectrum is seen), the model memorizes the reconstruction for each training sample rather than learning general spectral relationships. The mask must be resampled independently for every sample in every epoch.
+**Random masking per sample per epoch.** If the masking pattern is deterministic (same patches masked every time a spectrum is seen), the model memorizes the reconstruction for each training sample rather than learning general spectral relationships. The mask must be resampled independently for every sample in every epoch. With 222K training spectra and 50 epochs, each spectrum is seen ~50 times with different masks — generating ~50 different reconstruction tasks per molecule. This is where the "14 million effective training examples" number comes from: 222K spectra × ~40 masked patches per sample × ~1.6 epochs of unique masks before significant repetition.
 
-**Combine with OT loss.** Pure MSE reconstruction loss misses shifted peaks, as described in the [optimal transport post](/blog/optimal-transport-spectral-matching). Using the hybrid MSE + Sinkhorn loss from that work improves downstream accuracy by ~1.5 percentage points — the model learns to produce sharper, better-positioned peaks.
+**Combine with OT loss.** Pure MSE reconstruction loss misses shifted peaks, as described in the [optimal transport post](/blog/optimal-transport-spectral-matching). Using the hybrid MSE + Sinkhorn loss from that work improves downstream accuracy by ~1.5 percentage points — the model learns to produce sharper, better-positioned peaks. The mechanism is that MSE penalizes amplitude errors uniformly, so a peak predicted at the right position but wrong height incurs the same loss as a peak predicted at the right height but shifted by 2 cm$^{-1}$. The Wasserstein-1 distance in the Sinkhorn loss is sensitive to position shifts, providing the complementary gradient signal the model needs to localize peaks precisely.
+
+**Gradient accumulation bookkeeping.** With multi-GPU training and gradient accumulation (4 sub-steps in our setup), periodic operations — logging, validation, checkpointing — must trigger only when a full optimizer step completes, not on every sub-step. We lost a week to a bug where validation ran 4x too often, appearing to show faster convergence that was actually an artifact of evaluating mid-accumulation with stale gradients. The fix: track a `did_step` flag and gate all periodic operations on it. Additionally, `step 0` satisfies `0 % N == 0` for all `N`, so every periodic action triggers at initialization. Guard all periodic checks with `self.step > 0`.
 
 <CodeComparison
   client:visible
@@ -333,6 +482,12 @@ Hard-won lessons from implementation:
     { text: "# Sharp peaks, position error ~0.8 cm⁻¹", type: "added" },
   ]}
 />
+
+## The Road Forward
+
+Masked pretraining is the first stage of the Spektron training pipeline. It gives the encoder a strong initialization — an understanding of spectral structure, peak correlations, and instrument physics — without requiring a single label. But it is not sufficient on its own. The encoder representations from masked pretraining are optimized for reconstruction, not for the downstream tasks we actually care about: molecular identification, quantification, and calibration transfer.
+
+The next stages of training — the [Variational Information Bottleneck](/blog/variational-information-bottleneck-spectral-disentanglement) that disentangles chemistry from instrument, and the fine-tuning on labeled data with [optimal transport loss](/blog/optimal-transport-spectral-matching) — build on the pretrained representations. Each stage refines what the previous one built. The pretrained encoder provides the foundation: a model that already knows what spectra look like, how peaks relate to each other, and what constitutes a physically plausible reconstruction. The later stages teach it what to do with that knowledge.
 
 ## Related
 

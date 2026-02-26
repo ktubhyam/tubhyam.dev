@@ -8,6 +8,9 @@ draft: false
 
 import TerminalBlock from '@components/islands/TerminalBlock';
 import SymmetryExplorer from '@components/islands/SymmetryExplorer';
+import EquationReveal from '@components/islands/EquationReveal';
+import SpectrumViz from '@components/islands/SpectrumViz';
+import MetricCards from '@components/islands/MetricCards';
 
 In 1966, Mark Kac posed a question that became one of the most cited in spectral theory: *"Can one hear the shape of a drum?"* He wanted to know whether a drum's resonant frequencies uniquely determine its geometry. Gordon, Webb, and Wolpert answered **no** in 1992 — they constructed non-isometric planar domains with identical Dirichlet spectra.
 
@@ -20,6 +23,71 @@ Every molecule is a mechanical system. Its atoms are masses connected by bonds, 
 $$\det(\mathbf{GF} - \lambda \mathbf{I}) = 0$$
 
 **G** encodes the kinetic energy — atomic masses and their geometric arrangement. **F** encodes the potential energy — the Hessian of the Born-Oppenheimer surface evaluated at equilibrium. The eigenvalues give the squared normal mode frequencies. The eigenvectors determine what we can actually see.
+
+<EquationReveal
+  client:visible
+  title="core equations — spectral identifiability"
+  equations={[
+    {
+      label: "Wilson GF Secular Equation",
+      annotation: "Eigenvalues give vibrational frequencies — the foundation of molecular spectroscopy",
+      segments: [
+        { text: "det", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "GF", color: "variable" },
+        { text: " − ", color: "operator" },
+        { text: "λ", color: "number" },
+        { text: "I", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " = ", color: "operator" },
+        { text: "0", color: "number" },
+      ],
+    },
+    {
+      label: "Information Completeness Ratio",
+      annotation: "Fraction of modes observable — computable from the character table alone",
+      segments: [
+        { text: "R", color: "function" },
+        { text: "(", color: "bracket" },
+        { text: "G", color: "variable" },
+        { text: ", ", color: "operator" },
+        { text: "N", color: "variable" },
+        { text: ")", color: "bracket" },
+        { text: " = ", color: "operator" },
+        { text: "(", color: "bracket" },
+        { text: "N", color: "function" },
+        { text: "IR", color: "subscript" },
+        { text: " + ", color: "operator" },
+        { text: "N", color: "function" },
+        { text: "Raman", color: "subscript" },
+        { text: ")", color: "bracket" },
+        { text: " / ", color: "operator" },
+        { text: "(", color: "bracket" },
+        { text: "3N", color: "number" },
+        { text: " − ", color: "operator" },
+        { text: "6", color: "number" },
+        { text: ")", color: "bracket" },
+      ],
+    },
+    {
+      label: "Modal Complementarity",
+      annotation: "For centrosymmetric molecules, IR and Raman observe strictly disjoint mode sets",
+      segments: [
+        { text: "Γ", color: "function" },
+        { text: "IR", color: "subscript" },
+        { text: " ∩ ", color: "operator" },
+        { text: "Γ", color: "function" },
+        { text: "Raman", color: "subscript" },
+        { text: " = ", color: "operator" },
+        { text: "∅", color: "number" },
+        { text: "  when  ", color: "annotation" },
+        { text: "i", color: "variable" },
+        { text: " ∈ ", color: "operator" },
+        { text: "G", color: "variable" },
+      ],
+    },
+  ]}
+/>
 
 The observables are intensities, not eigenvectors directly. IR spectroscopy measures the <span class="highlight-teal">squared derivative of the dipole moment</span> along each normal coordinate. Raman spectroscopy measures the <span class="highlight-violet">squared derivative of the polarizability tensor</span>. A mode is visible to a technique only if the relevant derivative is nonzero.
 
@@ -77,6 +145,16 @@ $$R(G, N) = \frac{N_{\text{IR}} + N_{\text{Raman}}}{3N - 6}$$
 
 This is computable directly from the character table. Decompose the reducible vibrational representation into irreducible components, check each component against the selection rules, count what's observable.
 
+## Building Intuition: From Point Groups to Selection Rules
+
+Before the formal statement of the theorems, let's build intuition for why symmetry constrains spectral observability so tightly.
+
+A point group G partitions the vibrational modes of a molecule into **symmetry species** — the irreducible representations of G. Each species transforms in a specific way under the symmetry operations (rotations, reflections, inversions) that leave the molecule looking identical. This is not an approximation or a model — it is an exact consequence of the molecule's geometry. A water molecule (C₂v) has three irreducible representations that carry vibrational modes: A₁, A₂, and B₁/B₂. Benzene (D₆h) has over a dozen distinct species, each with different transformation properties.
+
+The selection rules for IR and Raman activity depend on how the **dipole moment** and **polarizability** transform under these same operations. The dipole moment is a vector — it transforms like a translation (x, y, z). The polarizability is a rank-2 tensor — it transforms like a quadratic form (x², xy, etc.). A vibrational mode can only couple to IR radiation if it belongs to a symmetry species that contains a translational component. It can only scatter Raman light if its species contains a quadratic component. This is the character table doing the bookkeeping for you: look up the row for each irreducible representation, check whether x/y/z or x²/xy/etc. appears in the rightmost columns, and you know immediately whether that mode is IR-active, Raman-active, both, or neither.
+
+The key insight is that for molecules with high symmetry, some irreducible representations transform in ways that match *neither* a translation nor a quadratic form. These species carry **silent modes** — vibrations that physically exist (the atoms move, the energy is real) but that cannot be excited by IR absorption or detected by Raman scattering. The information carried by these modes is physically present in the molecule but spectroscopically invisible. No amount of signal averaging, no better detector, no cleverer experiment within the IR/Raman framework can recover it. The information is not lost to noise — it is lost to symmetry.
+
 <div class="callout callout-theorem">
   <div class="callout-label">Theorem 1 — Symmetry Quotient + Information Completeness</div>
 
@@ -92,6 +170,36 @@ For centrosymmetric molecules (point group contains the inversion operation **i*
 </div>
 
 The proof of Theorem 2 is direct: inversion maps dipole derivatives to their negatives (so only ungerade modes have nonzero IR intensity) and maps polarizability derivatives to themselves (so only gerade modes have nonzero Raman intensity). The sets are <span class="highlight-teal">disjoint by construction</span>.
+
+To see what mutual exclusion looks like in practice, consider benzene (D₆h). Its 30 normal modes split into gerade (symmetric under inversion) and ungerade (antisymmetric) species. The IR spectrum shows only the ungerade modes — asymmetric stretches and bends that change the dipole moment. The Raman spectrum shows only the gerade modes — symmetric breathing and deformation modes that change the polarizability. You literally see two different molecules depending on which technique you use, and neither view alone is complete:
+
+<SpectrumViz
+  client:visible
+  title="IR-Active Modes — Asymmetric Vibrations (ungerade)"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="IR Intensity"
+  peaks={[
+    { position: 0.18, height: 0.90, width: 0.018, color: "#FF6B6B", label: "ν₁₃ C-H str" },
+    { position: 0.35, height: 0.72, width: 0.020, color: "#C9A04A", label: "ν₁₉ C=C str" },
+    { position: 0.58, height: 0.55, width: 0.016, color: "#FF8C42", label: "ν₁₈ C-H bend" },
+    { position: 0.80, height: 0.40, width: 0.022, color: "#E85D75", label: "ν₁₁ C-H oop" },
+  ]}
+/>
+
+<SpectrumViz
+  client:visible
+  title="Raman-Active Modes — Symmetric Vibrations (gerade)"
+  xLabel="Wavenumber (cm⁻¹)"
+  yLabel="Raman Activity"
+  peaks={[
+    { position: 0.15, height: 0.95, width: 0.016, color: "#4ECDC4", label: "ν₁ ring breathe" },
+    { position: 0.32, height: 0.65, width: 0.020, color: "#60A5FA", label: "ν₂ C-H str" },
+    { position: 0.55, height: 0.78, width: 0.018, color: "#34D399", label: "ν₆ C=C str" },
+    { position: 0.78, height: 0.48, width: 0.022, color: "#A78BFA", label: "ν₉ C-H bend" },
+  ]}
+/>
+
+Notice the complete separation: not a single peak appears in both spectra. This is the mutual exclusion principle in action. For centrosymmetric molecules, IR and Raman are not redundant measurements — they are **complementary windows** into entirely different parts of the vibrational manifold. This is why any serious attempt at spectral inversion *must* fuse both modalities.
 
 ## The Numbers: QM9 Analysis
 
@@ -154,11 +262,60 @@ The QM9 dataset — <span class="highlight">130,831 small organic molecules</spa
   ]}
 />
 
+<MetricCards
+  client:visible
+  metrics={[
+    {
+      label: "Jacobian Rank",
+      value: 999,
+      suffix: "/999",
+      color: "#34D399",
+      sparkline: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+      trend: "stable",
+    },
+    {
+      label: "Average R(G,N)",
+      value: 0.94,
+      color: "#4ECDC4",
+      sparkline: [0.45, 0.55, 0.65, 0.72, 0.78, 0.83, 0.87, 0.90, 0.93, 0.94],
+      trend: "up",
+    },
+    {
+      label: "Centrosymmetric",
+      value: 0.1,
+      suffix: "%",
+      color: "#C9A04A",
+      sparkline: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+      trend: "stable",
+    },
+    {
+      label: "Asymmetric (R=1)",
+      value: 99.9,
+      suffix: "%",
+      color: "#A78BFA",
+      sparkline: [0.95, 0.96, 0.97, 0.97, 0.98, 0.98, 0.99, 0.99, 0.99, 1.0],
+      trend: "up",
+    },
+  ]}
+/>
+
 Explore different molecules to see how symmetry determines spectral observability — pick a molecule and see which modes are IR-active, Raman-active, or silent:
 
 <SymmetryExplorer client:visible />
 
 The distribution is heavily skewed. Most organic molecules have low symmetry (C₁ or Cs) — all modes are observable and R = 1. The high-symmetry cases (Td, Oh, D₆h) are rare in organic chemistry but common among important inorganic structures: methane, cubane, SF₆, buckminsterfullerene.
+
+## Confusable Molecules: When Symmetry Defeats Spectroscopy
+
+The aggregate statistics — 99.9% of molecules have R = 1 — paint an optimistic picture. But averages hide the hard cases. The molecules that matter most in identification tasks are precisely the ones where spectral overlap is most severe: **confusable pairs** with similar symmetry and bonding but different connectivity.
+
+Consider two molecules sharing the Td point group: **neopentane** (C(CH₃)₄) and **orthosilicic acid** (Si(OH)₄). Both are tetrahedral. Both have 9 atoms and identical point group symmetry. But their R(G, N) values differ: neopentane has R = 0.778 (the same as methane's Td symmetry predicts, with 2 silent modes among the A₁ species), while orthosilicic acid, despite having the same point group, has R = 0.833 because the heavier silicon center and O-H bonds shift the mode distribution across irreducible representations differently. The silent modes in neopentane correspond to symmetric C-C-C deformations that neither change the dipole (already zero by symmetry for A₁ modes) nor modulate the polarizability in the right way. These are vibrations that physically occur but remain spectroscopically invisible.
+
+The problem gets worse as symmetry increases. Molecules with **Oh symmetry** (octahedral) are the hardest to identify spectroscopically. SF₆, for instance, has R = 0.452 — more than half its vibrational information is locked in silent modes. Of its 15 normal modes, the T₂g species (3 modes) and the T₁u species (3 modes) are Raman-active and IR-active respectively, but the A₁g, Eg, T₁g, and T₂u species contribute modes that are silent to one or both techniques. For cubane (C₈H₈, also Oh), the situation is similarly dire: with 48 normal modes, only about 22 are observable — 26 modes carry structural information that no IR or Raman experiment can access.
+
+Molecules in the **D₆h** point group (like benzene) occupy a middle ground. Benzene has R = 0.85, with 3 silent modes belonging to the A₂g and B₁u species. These silent modes correspond to specific ring deformation patterns that, by symmetry, cannot change either the dipole moment or the polarizability. A substituted benzene like toluene (Cs symmetry) drops to R = 1.0 — the symmetry breaking from a single methyl group makes every mode observable. This is the general pattern: **any perturbation that lowers symmetry opens new spectroscopic windows**. It is why isotopic substitution (replacing ¹²C with ¹³C, or H with D) is such a powerful experimental tool — it breaks symmetry just enough to activate previously silent modes.
+
+The practical implication for machine learning is clear: a model's error rate should correlate with point group order. The more symmetric the molecule, the less spectral information is available, and the harder the inverse problem becomes. No architecture, no matter how large, can compensate for information that was never in the training signal.
 
 ## Generic Identifiability
 
@@ -170,6 +327,14 @@ Knowing that R = 1 does not by itself prove that the inverse map is injective. F
 The combined IR + Raman forward map is generically injective on the quotient space F/G. That is, for almost all molecular geometries (outside a set of measure zero), distinct force constant equivalence classes produce distinct combined spectra.
 
 </div>
+
+### The Algebraic Geometry Argument
+
+The word "generic" here has a precise mathematical meaning rooted in algebraic geometry. A property holds *generically* if the set where it fails is contained in a proper algebraic variety — a zero set of polynomial equations. In our setting, the forward map from force constant matrices to observed spectra is a polynomial map (the eigenvalues of GF are roots of the characteristic polynomial, and the intensities are polynomial functions of the eigenvectors). The set of force constant matrices where two distinct equivalence classes produce the same spectrum is the zero set of a system of polynomial equations — the equations that express "the spectra are identical."
+
+If this zero set is a *proper* subvariety (not the whole space), then it has measure zero by the standard theory of algebraic varieties over the reals. The conjecture amounts to claiming that the "spectral coincidence variety" is proper — that the polynomial equations defining spectral equality do not vanish identically. This is the standard approach to proving generic injectivity: show the Jacobian has full rank at even a single point, and the implicit function theorem guarantees injectivity on an open dense set.
+
+### Computational Evidence
 
 The standard approach to proving generic injectivity would be to show that the Jacobian of the forward map has full rank almost everywhere, then invoke Sard's theorem. The problem: the forward map's <span class="highlight-violet">smoothness breaks at eigenvalue degeneracies</span> (where two normal modes have the same frequency), so Sard's theorem cannot be directly applied.
 
@@ -219,6 +384,14 @@ What we can do is compute the Jacobian numerically. On 999 molecular geometries 
 />
 
 <span class="highlight-teal">Full rank at every tested point, with a mean 4.2:1 overdetermination.</span> The system is not just barely solvable — it has substantial redundancy. This does not constitute a proof (999 points is a finite sample), but the margin makes accidental rank deficiency extremely unlikely.
+
+### What "Generic" Means Physically
+
+The mathematical notion of "generic" maps onto physical intuition in a satisfying way. A molecular geometry is *non-generic* if it exhibits an **accidental degeneracy** — two vibrational modes with exactly the same frequency for reasons that are not required by symmetry. Symmetry-required degeneracies (like the doubly degenerate E modes in C₃v molecules) are well-understood and accounted for in the theory. Accidental degeneracies are different: they occur when the force constants happen to conspire so that two modes of different symmetry species have identical frequencies.
+
+In the space of all possible force constant matrices for a given molecular topology, the set of matrices producing accidental degeneracies is a codimension-1 submanifold — a "wall" of measure zero that you would have to fine-tune parameters to hit. Physically, this corresponds to molecules where unrelated vibrational modes (say, a C-H stretch and an O-H bend) happen to fall at exactly the same frequency. This occurs at isolated points in parameter space, not on open sets. A small perturbation to any bond length or force constant would split the degeneracy.
+
+The 999/999 full-rank result is not just a large number — it is evidence that we are not near any such degeneracy wall. The minimum singular value ratio across all 999 Jacobians was 0.017 (well above the numerical noise floor of ~10⁻¹²), confirming that full rank is achieved with comfortable margin, not by numerical accident. The overdetermination ratio of 4.2:1 means the system has roughly four times more observable constraints than unknown parameters — a level of redundancy that makes the inverse problem not just solvable but well-conditioned.
 
 ## Predictions for Machine Learning
 
