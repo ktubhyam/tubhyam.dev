@@ -1,9 +1,9 @@
 # tubhyam.dev
 
-Personal portfolio and research site for **Tubhyam Karthikeyan** — computational chemistry, machine learning, and open source.
+Personal portfolio and research site for **Tubhyam Karthikeyan** — computational chemistry, machine learning, and open source tooling for vibrational spectroscopy.
 
 **Live:** [tubhyam.dev](https://tubhyam.dev)
-**Publication:** [Latent Chemistry](https://tubhyam.dev/blog) — deep learning for chemical sciences
+**Blog:** [Latent Chemistry](https://tubhyam.dev/blog) — technical writing on deep learning for chemical sciences
 
 Built with Astro 5, React 19, Tailwind CSS 4, and MDX. Static site deployed on Vercel.
 
@@ -13,34 +13,34 @@ Built with Astro 5, React 19, Tailwind CSS 4, and MDX. Static site deployed on V
 
 | Project | Description | Stack | Links |
 |---------|-------------|-------|-------|
-| **[Spektron](https://github.com/ktubhyam/Spektron)** | Foundation model for vibrational spectroscopy — D-LinOSS backbone, masked pretraining, VIB disentanglement, calibration transfer | Python, PyTorch | [Project page](https://tubhyam.dev/projects/spektron) |
-| **[ReactorTwin](https://github.com/ktubhyam/reactor-twin)** | Digital twin for chemical reactors using neural ODEs and PINNs | Python, PyTorch, FastAPI | [Project page](https://tubhyam.dev/projects/reactor-twin) |
+| **[Spektron](https://github.com/ktubhyam/Spektron)** | Foundation model for vibrational spectroscopy — D-LinOSS backbone, masked pretraining on 350K spectra, VIB disentanglement, Sinkhorn OT calibration transfer | Python, PyTorch | [Project page](https://tubhyam.dev/projects/spektron) |
+| **[ReactorTwin](https://github.com/ktubhyam/reactor-twin)** | Digital twin for chemical reactors using neural ODEs and PINNs — 1000x faster than CFD | Python, PyTorch, FastAPI | [Project page](https://tubhyam.dev/projects/reactor-twin) |
 | **[Speklens](https://github.com/ktubhyam/Speklens)** | CNN-Transformer encoder pretrained on 350K+ molecules for spectral representation learning | Python, PyTorch | — |
 
 ## Libraries
 
 | Library | Description | Install | Links |
 |---------|-------------|---------|-------|
-| **[SpectraKit](https://github.com/ktubhyam/spectrakit)** | Spectral preprocessing — baseline correction, smoothing, normalization, peak detection, multi-format I/O. Functional API, 699 tests, 2 core deps | `pip install pyspectrakit` | [Docs](https://ktubhyam.github.io/spectrakit/) · [PyPI](https://pypi.org/project/pyspectrakit/) · [API Reference](https://tubhyam.dev/libraries/spectrakit/api) |
-| **[SpectraView](https://github.com/ktubhyam/spectraview)** | Interactive React component for vibrational spectroscopy visualization — peak picking, multi-spectrum overlay, region highlighting | `npm i spectraview` | [npm](https://www.npmjs.com/package/spectraview) |
+| **[SpectraKit](https://github.com/ktubhyam/spectrakit)** | Spectral preprocessing — baseline correction, smoothing, normalization, peak detection, multi-format I/O (JCAMP, SPC, OPUS, HDF5). Functional API, 699 tests, 2 core deps | `pip install pyspectrakit` | [Docs](https://ktubhyam.github.io/spectrakit/) · [PyPI](https://pypi.org/project/pyspectrakit/) · [API Reference](https://tubhyam.dev/libraries/spectrakit/api) |
+| **[SpectraView](https://github.com/ktubhyam/spectraview)** | Interactive React component for vibrational spectroscopy — canvas rendering with LTTB downsampling (10K+ pts at 60fps), peak picking, multi-spectrum overlay | `npm i spectraview` | [npm](https://www.npmjs.com/package/spectraview) |
 
 ## Interactive Simulations
 
-Browser-based educational tools built with Next.js, React Three Fiber, and Three.js.
+Browser-based educational tools built with Next.js 16, React Three Fiber, and Three.js.
 
 | Simulation | Description | Live Demo |
 |------------|-------------|-----------|
-| **[Normal Mode Explorer](https://github.com/ktubhyam/normal-mode-explorer)** | Decompose molecular vibrations into normal modes with symmetry labels and selection rules | [Launch](https://normal-mode-explorer.vercel.app) |
-| **[Orbital Architect](https://github.com/ktubhyam/orbital-architect)** | Gamified quantum chemistry — build atoms by placing electrons following Aufbau, Pauli, and Hund's rules | [Launch](https://orbital.tubhyam.dev) |
+| **[Symmetry Explorer](https://github.com/ktubhyam/symmetry-explorer)** | 27 molecules, 15 point groups, character tables, selection rules, vibrational mode animations, point group identification flowchart | [Launch](https://symmetry.tubhyam.dev) |
+| **[Normal Mode Explorer](https://github.com/ktubhyam/normal-mode-explorer)** | Decompose molecular vibrations into normal modes with symmetry labels and selection rules | [Launch](https://nme.tubhyam.dev) |
+| **[Orbital Architect](https://github.com/ktubhyam/orbital-architect)** | Gamified quantum chemistry — build atoms by placing electrons following Aufbau, Pauli, and Hund's rules. 36 campaign levels. | [Launch](https://orbital.tubhyam.dev) |
 | **[VibeScope](https://github.com/ktubhyam/vibescope)** | Real-time 3D molecular vibration visualization with IR/Raman spectrum overlay | [Launch](https://vibescope.vercel.app) |
-| **[Symmetry Explorer](https://github.com/ktubhyam/symmetry-explorer)** | Visualize point groups, symmetry operations, and character tables for spectroscopic selection rules | [Launch](https://symmetry-explorer.vercel.app) |
 | **[Spectrum-to-Structure](https://github.com/ktubhyam/spectrum-to-structure)** | ML model predicts 3D molecular structure from IR/Raman spectra using ONNX inference | [Launch](https://spectrum-to-structure.vercel.app) |
 
 ## Research Papers
 
 | Paper | Status | Topic |
 |-------|--------|-------|
-| [Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy](https://tubhyam.dev/research/hybrid-ssa-spectroscopy) | In preparation | Spektron architecture — wavelet embeddings, Mamba, MoE, VIB |
+| [Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy](https://tubhyam.dev/research/hybrid-ssa-spectroscopy) | In preparation | Spektron architecture — D-LinOSS, MoE, VIB, calibration transfer |
 | [Information-Theoretic Limits of Spectroscopic Molecular Identification](https://tubhyam.dev/research/spectral-identifiability) | In preparation | R(G,N) completeness ratio, modal complementarity theorem |
 
 ## Blog Posts
