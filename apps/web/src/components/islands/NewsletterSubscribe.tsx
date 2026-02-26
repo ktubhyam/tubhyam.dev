@@ -19,6 +19,7 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
   const [typed, setTyped] = useState("");
   const [cmdDone, setCmdDone] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [emailLen, setEmailLen] = useState(0);
 
   const command = "subscribe --newsletter latent-chemistry";
 
@@ -134,16 +135,15 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
                   autoComplete="email"
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
+                  onChange={(e) => setEmailLen(e.target.value.length)}
                   className="w-full bg-transparent text-[#e0e0e0] outline-none caret-transparent font-mono text-xs md:text-sm peer"
                   style={{ caretColor: "transparent" }}
                 />
-                {/* Custom blinking cursor */}
+                {/* Custom blinking cursor — uses ch units for accurate monospace positioning */}
                 {focused && (
                   <span
                     className="absolute top-0 inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink translate-y-[1px] pointer-events-none"
-                    style={{
-                      left: `${(inputRef.current?.value.length ?? 0) * 0.6}em`,
-                    }}
+                    style={{ left: `${emailLen}ch` }}
                   />
                 )}
               </div>
