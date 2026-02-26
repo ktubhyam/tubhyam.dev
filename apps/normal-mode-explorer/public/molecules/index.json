@@ -1,0 +1,362 @@
+[
+  {
+    "id": "hydrogen_chloride",
+    "name": "Hydrogen Chloride",
+    "formula": "HCl",
+    "smiles": "[H]Cl",
+    "atomCount": 2,
+    "modeCount": 1
+  },
+  {
+    "id": "hydrogen_fluoride",
+    "name": "Hydrogen Fluoride",
+    "formula": "HF",
+    "smiles": "[H]F",
+    "atomCount": 2,
+    "modeCount": 1
+  },
+  {
+    "id": "carbon_dioxide",
+    "name": "Carbon Dioxide",
+    "formula": "CO2",
+    "smiles": "O=C=O",
+    "atomCount": 3,
+    "modeCount": 4
+  },
+  {
+    "id": "hydrogen_cyanide",
+    "name": "Hydrogen Cyanide",
+    "formula": "CHN",
+    "smiles": "C#N",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "hydrogen_sulfide",
+    "name": "Hydrogen Sulfide",
+    "formula": "H2S",
+    "smiles": "S",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "nitrogen_dioxide",
+    "name": "Nitrogen Dioxide",
+    "formula": "NO2",
+    "smiles": "[O]N=O",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "nitrous_oxide",
+    "name": "Nitrous Oxide",
+    "formula": "N2O",
+    "smiles": "[N-]=[N+]=O",
+    "atomCount": 3,
+    "modeCount": 4
+  },
+  {
+    "id": "ozone",
+    "name": "Ozone",
+    "formula": "O3",
+    "smiles": "[O-][O+]=O",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "sulfur_dioxide",
+    "name": "Sulfur Dioxide",
+    "formula": "SO2",
+    "smiles": "O=S=O",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "water",
+    "name": "Water",
+    "formula": "H2O",
+    "smiles": "O",
+    "atomCount": 3,
+    "modeCount": 3
+  },
+  {
+    "id": "acetylene",
+    "name": "Acetylene",
+    "formula": "C2H2",
+    "smiles": "C#C",
+    "atomCount": 4,
+    "modeCount": 6
+  },
+  {
+    "id": "ammonia",
+    "name": "Ammonia",
+    "formula": "H3N",
+    "smiles": "N",
+    "atomCount": 4,
+    "modeCount": 6
+  },
+  {
+    "id": "boron_trifluoride",
+    "name": "Boron Trifluoride",
+    "formula": "BF3",
+    "smiles": "FB(F)F",
+    "atomCount": 4,
+    "modeCount": 6
+  },
+  {
+    "id": "cyanogen",
+    "name": "Cyanogen",
+    "formula": "C2N2",
+    "smiles": "N#CC#N",
+    "atomCount": 4,
+    "modeCount": 7
+  },
+  {
+    "id": "formaldehyde",
+    "name": "Formaldehyde",
+    "formula": "CH2O",
+    "smiles": "C=O",
+    "atomCount": 4,
+    "modeCount": 6
+  },
+  {
+    "id": "phosphine",
+    "name": "Phosphine",
+    "formula": "PH3",
+    "smiles": "P",
+    "atomCount": 4,
+    "modeCount": 6
+  },
+  {
+    "id": "carbon_tetrachloride",
+    "name": "Carbon Tetrachloride",
+    "formula": "CCl4",
+    "smiles": "ClC(Cl)(Cl)Cl",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "chloroform",
+    "name": "Chloroform",
+    "formula": "CHCl3",
+    "smiles": "ClC(Cl)Cl",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "formic_acid",
+    "name": "Formic Acid",
+    "formula": "CH2O2",
+    "smiles": "OC=O",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "methane",
+    "name": "Methane",
+    "formula": "CH4",
+    "smiles": "C",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "methyl_fluoride",
+    "name": "Methyl Fluoride",
+    "formula": "CH3F",
+    "smiles": "CF",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "nitric_acid",
+    "name": "Nitric Acid",
+    "formula": "HNO3",
+    "smiles": "[O-][N+](=O)O",
+    "atomCount": 5,
+    "modeCount": 9
+  },
+  {
+    "id": "acetonitrile",
+    "name": "Acetonitrile",
+    "formula": "C2H3N",
+    "smiles": "CC#N",
+    "atomCount": 6,
+    "modeCount": 12
+  },
+  {
+    "id": "ethylene",
+    "name": "Ethylene",
+    "formula": "C2H4",
+    "smiles": "C=C",
+    "atomCount": 6,
+    "modeCount": 12
+  },
+  {
+    "id": "formamide",
+    "name": "Formamide",
+    "formula": "CH3NO",
+    "smiles": "NC=O",
+    "atomCount": 6,
+    "modeCount": 12
+  },
+  {
+    "id": "hydrazine",
+    "name": "Hydrazine",
+    "formula": "N2H4",
+    "smiles": "NN",
+    "atomCount": 6,
+    "modeCount": 12
+  },
+  {
+    "id": "methanol",
+    "name": "Methanol",
+    "formula": "CH4O",
+    "smiles": "CO",
+    "atomCount": 6,
+    "modeCount": 12
+  },
+  {
+    "id": "acetaldehyde",
+    "name": "Acetaldehyde",
+    "formula": "C2H4O",
+    "smiles": "CC=O",
+    "atomCount": 7,
+    "modeCount": 15
+  },
+  {
+    "id": "allene",
+    "name": "Allene",
+    "formula": "C3H4",
+    "smiles": "C=C=C",
+    "atomCount": 7,
+    "modeCount": 15
+  },
+  {
+    "id": "methylamine",
+    "name": "Methylamine",
+    "formula": "CH5N",
+    "smiles": "CN",
+    "atomCount": 7,
+    "modeCount": 15
+  },
+  {
+    "id": "propyne",
+    "name": "Propyne",
+    "formula": "C3H4",
+    "smiles": "CC#C",
+    "atomCount": 7,
+    "modeCount": 15
+  },
+  {
+    "id": "sulfur_hexafluoride",
+    "name": "Sulfur Hexafluoride",
+    "formula": "SF6",
+    "smiles": "FS(F)(F)(F)(F)F",
+    "atomCount": 7,
+    "modeCount": 15
+  },
+  {
+    "id": "acetic_acid",
+    "name": "Acetic Acid",
+    "formula": "C2H4O2",
+    "smiles": "CC(=O)O",
+    "atomCount": 8,
+    "modeCount": 18
+  },
+  {
+    "id": "ethane",
+    "name": "Ethane",
+    "formula": "C2H6",
+    "smiles": "CC",
+    "atomCount": 8,
+    "modeCount": 19
+  },
+  {
+    "id": "urea",
+    "name": "Urea",
+    "formula": "CH4N2O",
+    "smiles": "NC(=O)N",
+    "atomCount": 8,
+    "modeCount": 18
+  },
+  {
+    "id": "cyclopropane",
+    "name": "Cyclopropane",
+    "formula": "C3H6",
+    "smiles": "C1CC1",
+    "atomCount": 9,
+    "modeCount": 22
+  },
+  {
+    "id": "dimethyl_ether",
+    "name": "Dimethyl Ether",
+    "formula": "C2H6O",
+    "smiles": "COC",
+    "atomCount": 9,
+    "modeCount": 21
+  },
+  {
+    "id": "ethanol",
+    "name": "Ethanol",
+    "formula": "C2H6O",
+    "smiles": "CCO",
+    "atomCount": 9,
+    "modeCount": 21
+  },
+  {
+    "id": "acetone",
+    "name": "Acetone",
+    "formula": "C3H6O",
+    "smiles": "CC(=O)C",
+    "atomCount": 10,
+    "modeCount": 24
+  },
+  {
+    "id": "glycine",
+    "name": "Glycine",
+    "formula": "C2H5NO2",
+    "smiles": "NCC(=O)O",
+    "atomCount": 10,
+    "modeCount": 24
+  },
+  {
+    "id": "propane",
+    "name": "Propane",
+    "formula": "C3H8",
+    "smiles": "CCC",
+    "atomCount": 11,
+    "modeCount": 27
+  },
+  {
+    "id": "benzene",
+    "name": "Benzene",
+    "formula": "C6H6",
+    "smiles": "C1=CC=CC=C1",
+    "atomCount": 12,
+    "modeCount": 30
+  },
+  {
+    "id": "cyclobutane",
+    "name": "Cyclobutane",
+    "formula": "C4H8",
+    "smiles": "C1CCC1",
+    "atomCount": 12,
+    "modeCount": 30
+  },
+  {
+    "id": "isobutane",
+    "name": "Isobutane",
+    "formula": "C4H10",
+    "smiles": "CC(C)C",
+    "atomCount": 14,
+    "modeCount": 36
+  },
+  {
+    "id": "toluene",
+    "name": "Toluene",
+    "formula": "C7H8",
+    "smiles": "Cc1ccccc1",
+    "atomCount": 15,
+    "modeCount": 39
+  }
+]

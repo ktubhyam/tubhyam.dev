@@ -1,0 +1,369 @@
+---
+title: "Neural ODEs for Chemical Reactor Modeling"
+date: 2026-01-08
+description: "How neural ordinary differential equations learn continuous-time reactor dynamics, why physics-informed constraints matter more than architecture size, and what makes digital twins of chemical reactors a fundamentally different problem from weather forecasting."
+tags: ["neural-odes", "chemical-engineering", "digital-twin", "deep-learning"]
+draft: false
+---
+
+import TerminalBlock from '@components/islands/TerminalBlock';
+import CodeComparison from '@components/islands/CodeComparison';
+import CSTRSimulator from '@components/islands/CSTRSimulator';
+
+A chemical reactor is a dynamical system. Raw materials flow in, chemical reactions transform them, and products flow out. The state of the reactor — temperatures, concentrations, pressures — evolves continuously in time according to coupled differential equations. If you know the rate laws, the heat transfer coefficients, and the flow patterns, you can write down these equations and solve them numerically.
+
+The problem is that <span class="highlight">you rarely know all the parameters</span>. Rate constants depend on catalyst condition. Heat transfer coefficients change as fouling accumulates on surfaces. Flow patterns shift when internals degrade. A first-principles model calibrated on commissioning data drifts out of accuracy within months.
+
+Neural ODEs offer a way to learn the dynamics directly from operating data — and to do it in a physically consistent way.
+
+## The Classical Approach
+
+A continuous stirred-tank reactor (CSTR) with a single exothermic reaction obeys:
+
+$$\frac{dC_A}{dt} = \frac{F}{V}(C_{A0} - C_A) - k_0 e^{-E_a/RT} C_A^n$$
+
+$$\frac{dT}{dt} = \frac{F}{V}(T_0 - T) + \frac{(-\Delta H_r)}{\rho C_p} k_0 e^{-E_a/RT} C_A^n - \frac{UA}{\rho C_p V}(T - T_c)$$
+
+These are elegant equations with clear physical meaning. Each term corresponds to a specific physical process: flow, reaction, heat generation, heat removal. The parameters — $k_0$, $E_a$, $n$, $U$, $\Delta H_r$ — have units and physical interpretations.
+
+<TerminalBlock
+  client:visible
+  title="classical_cstr.py"
+  lines={[
+    { spans: [{ text: "$ python simulate_cstr.py --reactor single_cstr", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "CSTR parameters (from commissioning):", color: "teal" }] },
+    { spans: [
+      { text: "  k₀ = ", color: "muted" },
+      { text: "7.2e10 s⁻¹", color: "amber" },
+      { text: "      Eₐ = ", color: "muted" },
+      { text: "72.3 kJ/mol", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  ΔHᵣ = ", color: "muted" },
+      { text: "-45.2 kJ/mol", color: "amber" },
+      { text: "   UA = ", color: "muted" },
+      { text: "5.0 kW/K", color: "amber" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "Validation against plant data:", color: "teal" }] },
+    { spans: [
+      { text: "  Day 1:    ", color: "muted" },
+      { text: "RMSE = 0.8 K", color: "green" },
+      { text: "   (freshly calibrated)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Month 3:  ", color: "muted" },
+      { text: "RMSE = 4.2 K", color: "amber" },
+      { text: "   (catalyst aging)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Month 6:  ", color: "muted" },
+      { text: "RMSE = 11.7 K", color: "red" },
+      { text: "  (fouling + aging)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Model drift: parameters change faster than recalibration cycles", color: "red" },
+    ] },
+  ]}
+/>
+
+The model works perfectly on day one and degrades steadily. Recalibration requires taking the reactor offline, running test batches, and re-fitting parameters — a process that costs tens of thousands of dollars in lost production. You need <span class="highlight-teal">continuous adaptation</span>.
+
+## Neural ODEs: The Idea
+
+A neural ODE replaces (or augments) the right-hand side of the differential equation with a neural network:
+
+$$\frac{d\mathbf{x}}{dt} = f_\theta(\mathbf{x}, t, \mathbf{u})$$
+
+where $\mathbf{x}$ is the state vector, $\mathbf{u}$ is the input (feed conditions, coolant temperature), and $f_\theta$ is a neural network parameterized by $\theta$. The key insight from Chen et al. (2018): you can train this by backpropagating through the ODE solver using the <span class="highlight">adjoint method</span>.
+
+$$\frac{d\mathbf{a}}{dt} = -\mathbf{a}^T \frac{\partial f_\theta}{\partial \mathbf{x}} \quad \text{(adjoint equation)}$$
+
+The adjoint equation runs backward in time, computing gradients without storing intermediate states. Memory cost is $O(1)$ in the number of solver steps — you can integrate over arbitrarily long time horizons without running out of GPU memory.
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Why This Matters for Reactors</div>
+
+Chemical reactor dynamics unfold over hours to days. A batch reactor might run for 8 hours with measurements every 30 seconds — that's 960 time steps. Standard backpropagation through an RNN would require storing all 960 hidden states. The adjoint method makes this tractable: solve forward, solve the adjoint backward, compute gradients, update parameters.
+
+</div>
+
+## Pure Neural vs. Physics-Informed
+
+The naive approach is to replace the entire right-hand side with a neural network. This works for interpolation — predicting behavior within the training distribution — but fails catastrophically for extrapolation:
+
+<TerminalBlock
+  client:visible
+  title="pure_vs_hybrid.py"
+  lines={[
+    { spans: [{ text: "$ python benchmark.py --model pure_neural --test extrapolation", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Pure neural ODE (3-layer MLP, 256 hidden):", color: "teal" }] },
+    { spans: [
+      { text: "  Interpolation RMSE:  ", color: "muted" },
+      { text: "0.3 K", color: "green" },
+      { text: "  (within training T range)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Extrapolation RMSE:  ", color: "muted" },
+      { text: "47.2 K", color: "red" },
+      { text: " (15% above training T range)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Energy conservation: ", color: "muted" },
+      { text: "violated", color: "red" },
+      { text: " (temperature diverges)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "$ python benchmark.py --model hybrid --test extrapolation", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Physics-informed neural ODE:", color: "teal" }] },
+    { spans: [
+      { text: "  Interpolation RMSE:  ", color: "muted" },
+      { text: "0.5 K", color: "green" },
+      { text: "  (slightly worse — constrained)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Extrapolation RMSE:  ", color: "muted" },
+      { text: "2.8 K", color: "green" },
+      { text: "  (physically bounded)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Energy conservation: ", color: "muted" },
+      { text: "satisfied", color: "green" },
+      { text: " (temperature stable)", color: "muted" },
+    ] },
+  ]}
+/>
+
+The physics-informed version is slightly worse at interpolation (the constraints limit expressiveness) but <span class="highlight-teal">17x better at extrapolation</span>. More importantly, it never produces physically impossible states — temperatures don't diverge, concentrations don't go negative, energy is conserved.
+
+## The Hybrid Architecture
+
+The architecture that works is not "neural network replaces physics" but <span class="highlight">neural network corrects physics</span>. Keep the known structure — mass balances, energy balances, thermodynamic constraints — and use the neural network only for the uncertain terms:
+
+$$\frac{dC_A}{dt} = \underbrace{\frac{F}{V}(C_{A0} - C_A)}_{\text{known: mass balance}} - \underbrace{r_\theta(C_A, T)}_{\text{learned: reaction rate}}$$
+
+$$\frac{dT}{dt} = \underbrace{\frac{F}{V}(T_0 - T)}_{\text{known: enthalpy balance}} + \underbrace{q_\theta(C_A, T, T_c)}_{\text{learned: heat terms}}$$
+
+The neural network $r_\theta$ learns the effective reaction rate — absorbing catalyst deactivation, mixing imperfections, and side reactions that the first-principles model doesn't capture. The network $q_\theta$ learns the effective heat transfer — absorbing fouling, flow maldistribution, and ambient losses.
+
+<CodeComparison
+  client:visible
+  title="architecture comparison"
+  beforeTitle="pure neural ODE"
+  afterTitle="hybrid neural ODE"
+  before={[
+    { text: "# Everything learned from data", type: "comment" },
+    { text: "dx_dt = neural_net(x, t, u)", type: "removed" },
+    { text: "x_next = odeint(dx_dt, x0, t)", type: "removed" },
+    { text: "# No physics constraints", type: "comment" },
+    { text: "# Violates conservation laws", type: "comment" },
+  ]}
+  after={[
+    { text: "# Known physics + learned corrections", type: "comment" },
+    { text: "dC_dt = flow_term(C, F, V) - r_net(C, T)", type: "added" },
+    { text: "dT_dt = enthalpy_term(T, F) + q_net(C, T)", type: "added" },
+    { text: "x_next = odeint([dC_dt, dT_dt], x0, t)", type: "added" },
+    { text: "# Mass/energy conservation built in", type: "comment" },
+  ]}
+/>
+
+Explore the CSTR dynamics yourself — adjust the coolant temperature, dilution rate, and activation energy to see how operating conditions affect the phase portrait. Toggle "neural ODE" to see how the learned correction shifts the trajectory:
+
+<CSTRSimulator client:visible />
+
+<div class="callout callout-result">
+  <div class="callout-label">Key Design Principle</div>
+
+The neural network should learn the *residual* between the first-principles model and reality — not the entire dynamics. This residual is typically much simpler than the full dynamics: it's smooth, low-dimensional, and bounded. A small network (2-3 layers, 64-128 hidden units) suffices, reducing overfitting risk and training time.
+
+</div>
+
+## Training: What the Loss Function Needs
+
+The loss function for a reactor digital twin has three components:
+
+$$\mathcal{L} = \underbrace{\mathcal{L}_{\text{data}}}_{\text{match measurements}} + \lambda_1 \underbrace{\mathcal{L}_{\text{physics}}}_{\text{conservation laws}} + \lambda_2 \underbrace{\mathcal{L}_{\text{stability}}}_{\text{bounded dynamics}}$$
+
+**Data loss** is standard: MSE between predicted and measured state trajectories. But measurements are sparse — temperature every 30 seconds, composition every 15 minutes (requires lab analysis). The ODE solver fills in between measurements, but the gradient signal is weak when observations are far apart.
+
+**Physics loss** enforces conservation laws that hold regardless of operating conditions:
+
+$$\mathcal{L}_{\text{physics}} = \left\| \frac{d(\text{total mass})}{dt} - (\dot{m}_{\text{in}} - \dot{m}_{\text{out}}) \right\|^2$$
+
+**Stability loss** prevents the neural network from learning dynamics that diverge:
+
+$$\mathcal{L}_{\text{stability}} = \max\left(0, \frac{\partial f_\theta}{\partial \mathbf{x}} - \epsilon\right)$$
+
+This is a soft constraint on the Jacobian eigenvalues — the learned dynamics must be locally dissipative. Without this, the neural ODE can find solutions that fit the training data but blow up under slightly different initial conditions.
+
+<TerminalBlock
+  client:visible
+  title="training.py"
+  lines={[
+    { spans: [{ text: "$ python train_reactor.py --model hybrid --epochs 200 --lr 1e-3", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 300 },
+    { spans: [{ text: "Training hybrid neural ODE:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Epoch  50: ", color: "muted" },
+      { text: "L_data=0.42  L_phys=0.08  L_stab=0.01", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Epoch 100: ", color: "muted" },
+      { text: "L_data=0.11  L_phys=0.02  L_stab=0.00", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Epoch 150: ", color: "muted" },
+      { text: "L_data=0.04  L_phys=0.01  L_stab=0.00", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Epoch 200: ", color: "muted" },
+      { text: "L_data=0.02  L_phys=0.00  L_stab=0.00", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "  Validation RMSE:     ", color: "muted" },
+      { text: "1.2 K", color: "green" },
+      { text: " (24h ahead)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Conservation error:  ", color: "muted" },
+      { text: "< 0.1%", color: "green" },
+    ] },
+    { spans: [
+      { text: "  Stability margin:    ", color: "muted" },
+      { text: "all eigenvalues < 0", color: "green" },
+    ] },
+  ]}
+/>
+
+## Why Reactors ≠ Weather
+
+Weather forecasting with neural ODEs (Pangu-Weather, GraphCast) has attracted enormous attention. Chemical reactor modeling seems similar — both are dynamical systems governed by PDEs. But the <span class="highlight-violet">operating regime is fundamentally different</span>:
+
+<TerminalBlock
+  client:visible
+  title="reactor_vs_weather.py"
+  lines={[
+    { spans: [{ text: "$ python compare_domains.py", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Problem structure comparison:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Weather forecasting:", color: "white" },
+    ] },
+    { spans: [
+      { text: "    State dim:     ", color: "muted" },
+      { text: "~10⁸", color: "amber" },
+      { text: " (global grid × variables)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Training data: ", color: "muted" },
+      { text: "40+ years", color: "green" },
+      { text: " of reanalysis", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Control inputs:", color: "muted" },
+      { text: " none", color: "green" },
+      { text: " (nature does what it wants)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Safety:        ", color: "muted" },
+      { text: "wrong forecast → carry umbrella", color: "green" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Chemical reactor:", color: "white" },
+    ] },
+    { spans: [
+      { text: "    State dim:     ", color: "muted" },
+      { text: "~10²", color: "amber" },
+      { text: " (temperatures, concentrations)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Training data: ", color: "muted" },
+      { text: "months", color: "red" },
+      { text: " of operation (maybe)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Control inputs:", color: "muted" },
+      { text: " active", color: "amber" },
+      { text: " (feed rate, temperature setpoints)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    Safety:        ", color: "muted" },
+      { text: "wrong prediction → thermal runaway", color: "red" },
+    ] },
+  ]}
+/>
+
+Reactors have <span class="highlight">active control inputs</span> that change the dynamics. The operator adjusts feed rates, setpoints, and coolant flow in response to the model's predictions. This creates a feedback loop: the model influences the data it will be trained on. Weather forecasting has no such loop — the atmosphere doesn't respond to forecasts.
+
+Reactors also have <span class="highlight-teal">hard safety constraints</span>. A temperature prediction that's wrong by 20 K might trigger a thermal runaway. The model must be conservative — it's better to predict slightly worse performance than to miss a dangerous excursion. This asymmetric loss structure doesn't exist in weather.
+
+## Online Adaptation
+
+The real value of a neural ODE reactor model is <span class="highlight">continuous online learning</span>. As new operating data arrives, the neural network parameters update to track slow drifts in reactor behavior:
+
+<TerminalBlock
+  client:visible
+  title="online_adaptation.py"
+  lines={[
+    { spans: [{ text: "$ python reactor_twin.py --mode online --adapt-lr 1e-4", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Online adaptation (streaming plant data):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Week 1:  ", color: "muted" },
+      { text: "RMSE = 1.1 K", color: "green" },
+      { text: "  (initial model)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Week 8:  ", color: "muted" },
+      { text: "RMSE = 1.4 K", color: "green" },
+      { text: "  (catalyst aging detected, r_θ adapting)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Week 16: ", color: "muted" },
+      { text: "RMSE = 1.3 K", color: "green" },
+      { text: "  (fouling detected, q_θ adapting)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  Week 24: ", color: "muted" },
+      { text: "RMSE = 1.5 K", color: "green" },
+      { text: "  (still tracking after 6 months)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Classical model (no adaptation) at week 24:", color: "muted" }] },
+    { spans: [
+      { text: "  Week 24: ", color: "muted" },
+      { text: "RMSE = 11.7 K", color: "red" },
+      { text: " (drifted out of calibration)", color: "muted" },
+    ] },
+  ]}
+/>
+
+The neural ODE maintains &lt;1.5 K accuracy over 6 months with no manual recalibration. The classical model degrades to 11.7 K — nearly 10x worse. The key is that only the neural network parameters ($r_\theta$, $q_\theta$) are updated online; the physics structure (mass balances, energy balances) is fixed. This prevents the model from learning spurious dynamics during transients.
+
+<div class="callout callout-result">
+  <div class="callout-label">Practical Impact</div>
+
+A reactor digital twin that stays accurate for 6+ months without manual recalibration eliminates the most expensive part of model maintenance in process industries. Recalibration campaigns typically cost $50-200K in lost production and engineering time. Continuous neural adaptation replaces this with a compute cost of ~$10/month on a single GPU.
+
+</div>
+
+## What's Next
+
+The [ReactorTwin](/projects/reactor-twin) project implements this architecture with PyTorch's `torchdiffeq` solver. Current work focuses on multi-reactor networks — cascaded CSTRs and tubular reactors where the outlet of one unit feeds the inlet of the next. The challenge is that neural corrections in upstream reactors propagate through the entire network, requiring careful gradient management to avoid instability.
+
+## Related
+
+- **Project:** [ReactorTwin](/projects/reactor-twin) — the digital twin implementation using neural ODEs and PINNs
+- **Foundation model:** [Spektron](/projects/spektron) — uses similar physics-informed training for spectral data
+- **Theory:** [Spectral Identifiability](/blog/spectral-identifiability-theory) — information-theoretic constraints on inverse problems (parallel problem structure)
+- **Tools:** [SpectraKit](/projects/spectrakit) — functional preprocessing for the spectral data pipeline

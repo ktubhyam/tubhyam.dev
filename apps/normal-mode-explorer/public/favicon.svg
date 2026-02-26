@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#030308"/>
+  <!-- Central atom -->
+  <circle cx="16" cy="14" r="4" fill="#00D8FF" opacity="0.9"/>
+  <!-- Left atom -->
+  <circle cx="8" cy="22" r="3" fill="#FF0D0D" opacity="0.8"/>
+  <!-- Right atom -->
+  <circle cx="24" cy="22" r="3" fill="#FF0D0D" opacity="0.8"/>
+  <!-- Bonds -->
+  <line x1="13" y1="17" x2="10" y2="20" stroke="#555" stroke-width="1.5"/>
+  <line x1="19" y1="17" x2="22" y2="20" stroke="#555" stroke-width="1.5"/>
+  <!-- Displacement arrows -->
+  <line x1="8" y1="22" x2="5" y2="25" stroke="#00D8FF" stroke-width="1" opacity="0.6"/>
+  <line x1="24" y1="22" x2="27" y2="25" stroke="#00D8FF" stroke-width="1" opacity="0.6"/>
+  <!-- Glow -->
+  <circle cx="16" cy="14" r="6" fill="#00D8FF" opacity="0.15"/>
+</svg>

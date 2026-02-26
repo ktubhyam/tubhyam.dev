@@ -1,0 +1,335 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #e8e8e8;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --surface-3: #1a1a1a;
+  --border: #1e1e1e;
+  --border-bright: #333333;
+
+  /* Subshell colors */
+  --orbital-s: #4A90D9;
+  --orbital-p: #E8913A;
+  --orbital-d: #A78BFA;
+  --orbital-f: #F472B6;
+
+  /* Glow variants */
+  --glow-s: #6BB3FF;
+  --glow-p: #FFB366;
+  --glow-d: #C4B5FD;
+  --glow-f: #F9A8D4;
+
+  /* Game UI colors */
+  --success: #22C55E;
+  --error: #EF4444;
+  --warning: #D4A24A;
+  --info: #4A90D9;
+
+  /* Accent — gold */
+  --accent: #C9A04A;
+  --accent-glow: #D4B15E;
+  --accent-dim: #8B7035;
+
+  /* Cyan — secondary terminal accent */
+  --cyan: #00D8FF;
+  --cyan-dim: #007A99;
+  --cyan-glow: #66EEFF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
+  --color-orbital-s: var(--orbital-s);
+  --color-orbital-p: var(--orbital-p);
+  --color-orbital-d: var(--orbital-d);
+  --color-orbital-f: var(--orbital-f);
+  --color-glow-s: var(--glow-s);
+  --color-glow-p: var(--glow-p);
+  --color-glow-d: var(--glow-d);
+  --color-glow-f: var(--glow-f);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-dim: var(--accent-dim);
+  --color-cyan: var(--cyan);
+  --color-cyan-dim: var(--cyan-dim);
+  --color-cyan-glow: var(--cyan-glow);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* ─── Terminal Panel ─── */
+.term-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.term-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.008) 2px,
+    rgba(255, 255, 255, 0.008) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Terminal Header Bar ─── */
+.term-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.4);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+}
+
+.term-header::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  flex-shrink: 0;
+  animation: glow-breathe 2s ease-in-out infinite;
+}
+
+/* ─── Shine Border ─── */
+@keyframes shine {
+  from { background-position: 200% center; }
+  to { background-position: -200% center; }
+}
+
+.shine-border {
+  position: relative;
+}
+
+.shine-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent) 25%,
+    var(--accent-glow) 50%,
+    var(--accent) 75%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: shine 6s linear infinite;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ─── Grid Background ─── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.dot-bg {
+  background-image: radial-gradient(circle, var(--border-bright) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ─── Blinking Cursor ─── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ─── Animations ─── */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes orbital-fill {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes border-travel {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+/* ─── New: Glow Breathe ─── */
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.7; box-shadow: 0 0 4px currentColor; }
+  50% { opacity: 1; box-shadow: 0 0 10px currentColor; }
+}
+
+/* ─── New: Scan Line ─── */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ─── New: Border Beam ─── */
+@keyframes border-beam-x {
+  0% { left: -10%; }
+  100% { left: 110%; }
+}
+
+@keyframes border-beam-y {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+
+/* ─── New: Data Flicker ─── */
+@keyframes flicker {
+  0%, 97%, 100% { opacity: 1; }
+  98% { opacity: 0.7; }
+  99% { opacity: 0.9; }
+}
+
+/* ─── New: Text Shimmer ─── */
+@keyframes text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--cyan) 40%,
+    var(--accent-glow) 60%,
+    var(--accent) 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 4s linear infinite;
+}
+
+/* ─── New: Glow Text ─── */
+.glow-cyan {
+  text-shadow: 0 0 8px var(--cyan), 0 0 20px rgba(0, 216, 255, 0.3);
+}
+
+.glow-accent {
+  text-shadow: 0 0 8px var(--accent), 0 0 20px rgba(201, 160, 74, 0.3);
+}
+
+/* ─── New: Active Row Indicator ─── */
+@keyframes row-pulse {
+  0%, 100% { border-left-color: transparent; }
+  50% { border-left-color: var(--cyan); }
+}
+
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-orbital-fill { animation: orbital-fill 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-shake { animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.animate-float-up { animation: float-up 1s ease-out forwards; }
+.animate-star-pop { animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-flicker { animation: flicker 4s infinite; }
+
+/* ─── Orbital Slot ─── */
+.orbital-slot {
+  transition: all 0.2s ease;
+}
+.orbital-slot:hover {
+  transform: scale(1.05);
+}
+
+/* ─── Electron ─── */
+.electron {
+  cursor: grab;
+  transition: all 0.15s ease;
+}
+.electron:hover {
+  box-shadow: 0 0 12px var(--cyan-dim);
+}
+.electron:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+.electron.dragging {
+  opacity: 0.5;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Legacy Glass Panel (fallback) ─── */
+.glass-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}

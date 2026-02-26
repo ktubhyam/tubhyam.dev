@@ -1,0 +1,483 @@
+---
+title: "SpectraKit: A Functional API for Spectral Preprocessing"
+date: 2026-01-22
+description: "Why spectral preprocessing libraries shouldn't have classes, how SpectraKit's functional API over NumPy arrays works, and what 699 tests actually test. Design decisions behind a spectroscopy toolkit with two core dependencies."
+tags: ["python", "spectroscopy", "open-source", "software-design"]
+draft: false
+---
+
+import TerminalBlock from '@components/islands/TerminalBlock';
+import CodeComparison from '@components/islands/CodeComparison';
+
+Spectral preprocessing is the unglamorous part of spectroscopy. Before you can identify a compound, quantify a concentration, or train a model, you need to remove baselines, smooth noise, normalize intensities, and correct for scatter. Every spectroscopist does this. Most write their own scripts. The scripts are never reusable.
+
+SpectraKit exists because I got tired of rewriting the same preprocessing code for every project. It's a Python library — <span class="highlight">pip install pyspectrakit</span> — that provides a functional API over NumPy arrays. No classes, no state, no framework lock-in. Every function takes arrays in and returns arrays out.
+
+<TerminalBlock
+  client:visible
+  title="install + verify"
+  lines={[
+    { spans: [{ text: "$ pip install pyspectrakit", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "Successfully installed ", color: "muted" },
+      { text: "pyspectrakit-1.8.0", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [{ text: "$ python -c \"import spectrakit; print(spectrakit.__version__)\"", color: "muted" }] },
+    { spans: [{ text: "1.8.0", color: "amber" }] },
+  ]}
+/>
+
+## Why Functional
+
+Most preprocessing libraries for spectroscopy are object-oriented. You create a `Spectrum` object, call methods on it, and the object mutates internal state. This design has two problems.
+
+First, it <span class="highlight-violet">forces a data model</span>. Your spectra live in whatever container the library invented — `Spectrum`, `SpectralCollection`, `Dataset`. You can't use plain NumPy arrays. You can't use pandas DataFrames without wrapping them. Integration with any other tool requires conversion.
+
+Second, it makes composition opaque. When you chain `spectrum.baseline().smooth().normalize()`, you can't easily inspect intermediate results, swap one step for another, or build a pipeline that sklearn can use. The method chain is convenient but rigid.
+
+SpectraKit takes the opposite approach. Every function signature follows the same pattern: <span class="highlight-teal">ndarray in, ndarray out</span>.
+
+<TerminalBlock
+  client:visible
+  title="api_pattern.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.baseline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "baseline_als", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.smooth ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "smooth_savgol", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.normalize ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "normalize_snv", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Every function: ndarray → ndarray", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "corrected ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "baseline_als", color: "amber" },
+      { text: "(raw_spectrum)", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "smoothed  ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "smooth_savgol", color: "amber" },
+      { text: "(corrected, window=11, polyorder=3)", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "normed    ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "normalize_snv", color: "amber" },
+      { text: "(smoothed)", color: "white" },
+    ] },
+  ]}
+/>
+
+You can inspect `corrected` before passing it to `smooth_savgol`. You can swap `baseline_als` for `baseline_snip` without changing anything else. You can use these functions inside a for loop, a multiprocessing pool, or a PyTorch data loader.
+
+<CodeComparison
+  client:visible
+  title="API design comparison"
+  beforeTitle="object-oriented (typical)"
+  afterTitle="functional (SpectraKit)"
+  before={[
+    { text: "# Typical OOP spectral library", type: "comment" },
+    { text: "spec = Spectrum.from_file('ethanol.dx')", type: "removed" },
+    { text: "spec.baseline_correct(method='als')", type: "removed" },
+    { text: "spec.smooth(window=11)", type: "removed" },
+    { text: "spec.normalize(method='snv')", type: "removed" },
+    { text: "result = spec.intensities  # mutated", type: "removed" },
+  ]}
+  after={[
+    { text: "# SpectraKit — no objects, no mutation", type: "comment" },
+    { text: "spec = read_jcamp('ethanol.dx')", type: "added" },
+    { text: "c = baseline_als(spec.intensities)", type: "added" },
+    { text: "s = smooth_savgol(c, window=11)", type: "added" },
+    { text: "result = normalize_snv(s)  # pure", type: "added" },
+  ]}
+/>
+
+## What It Covers
+
+The library handles the full preprocessing pipeline that every spectroscopist needs:
+
+<TerminalBlock
+  client:visible
+  title="spectrakit — module overview"
+  lines={[
+    { spans: [{ text: "$ python -c \"import spectrakit; help(spectrakit)\"", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "spectrakit v1.8.0 — Spectral Preprocessing Toolkit", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "MODULES:", color: "white" }] },
+    { spans: [
+      { text: "  baseline   ", color: "amber" },
+      { text: "ALS, ArPLS, SNIP, polynomial, rubberband", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  smooth     ", color: "amber" },
+      { text: "Savitzky-Golay, Whittaker (wavenumber-aware)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  normalize  ", color: "amber" },
+      { text: "SNV, min-max, area, L2 vector", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  derivative ", color: "amber" },
+      { text: "Savitzky-Golay, Norris-Williams gap-segment", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  scatter    ", color: "amber" },
+      { text: "MSC, Extended MSC with Legendre basis", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  transform  ", color: "amber" },
+      { text: "Kubelka-Munk, ATR, absorbance ↔ transmittance", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  peaks      ", color: "amber" },
+      { text: "detection, integration, shoulder resolution", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  similarity ", color: "amber" },
+      { text: "cosine, Pearson, spectral angle, Euclidean", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  despike    ", color: "amber" },
+      { text: "Whitaker-Hayes, rolling modified Z-score", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  quality    ", color: "amber" },
+      { text: "roughness (RMS), signal-to-noise ratio", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  ops        ", color: "amber" },
+      { text: "subtract, average, interpolate, correlate, align", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  io         ", color: "amber" },
+      { text: "JCAMP-DX, SPC, CSV, HDF5, Bruker OPUS", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  pipeline   ", color: "amber" },
+      { text: "composable chains, sklearn SpectralTransformer", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "DEPS: ", color: "muted" },
+      { text: "numpy, scipy", color: "green" },
+      { text: " (core)  ", color: "muted" },
+      { text: "matplotlib, h5py, sklearn", color: "muted" },
+      { text: " (optional)", color: "muted" },
+    ] },
+  ]}
+/>
+
+Every baseline correction method returns <span class="highlight">convergence diagnostics</span> — not just the corrected spectrum, but also the number of iterations and the final residual. You don't have to trust that ALS converged. You can check.
+
+## The Dependency Decision
+
+SpectraKit has <span class="highlight-teal">two core dependencies</span>: numpy and scipy. That's it. Everything else — matplotlib for plotting, h5py for HDF5 I/O, scikit-learn for pipeline integration — is optional. You install what you need.
+
+This was a deliberate constraint. Spectroscopy code runs in environments ranging from Jupyter notebooks to embedded systems to production pipelines. A library that drags in tensorflow or torch as a dependency is unusable in half these contexts. NumPy and SciPy are the common denominator.
+
+<TerminalBlock
+  client:visible
+  title="dependency_tree.sh"
+  lines={[
+    { spans: [{ text: "$ pipdeptree -p pyspectrakit", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "pyspectrakit", color: "white" },
+      { text: "==1.8.0", color: "green" },
+    ] },
+    { spans: [
+      { text: "├── ", color: "muted" },
+      { text: "numpy", color: "teal" },
+      { text: " [required: >=1.22, installed: 2.2.3]", color: "muted" },
+    ] },
+    { spans: [
+      { text: "└── ", color: "muted" },
+      { text: "scipy", color: "teal" },
+      { text: " [required: >=1.9, installed: 1.15.2]", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "2 dependencies", color: "green" },
+      { text: " — installs in ", color: "muted" },
+      { text: "< 4 seconds", color: "amber" },
+    ] },
+  ]}
+/>
+
+## The I/O Problem
+
+Spectral file formats are a mess. JCAMP-DX has six variants. SPC files encode data differently depending on whether the vendor is Thermo, PerkinElmer, or Shimadzu. Bruker OPUS is a binary format with no official spec — you need to reverse-engineer the byte layout.
+
+SpectraKit's I/O module handles all of these with a <span class="highlight">single consistent interface</span>. `read_jcamp`, `read_spc`, `read_opus` — each returns a named tuple with `wavenumbers`, `intensities`, and `metadata`. The format detection is automatic: pass a file path and the library figures out the rest.
+
+<TerminalBlock
+  client:visible
+  title="io_demo.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.io ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "read_jcamp, read_spc, read_opus", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# All return the same structure", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "a ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "read_jcamp", color: "amber" },
+      { text: "(\"sample.dx\")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "b ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "read_spc", color: "amber" },
+      { text: "(\"sample.spc\")", color: "white" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "c ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "read_opus", color: "amber" },
+      { text: "(\"sample.0\")", color: "white" },
+    ] },
+    { spans: [{ text: "" }] },
+    { prompt: ">>> ", spans: [
+      { text: "a.wavenumbers.shape", color: "white" },
+    ] },
+    { spans: [{ text: "(1868,)", color: "green" }] },
+    { prompt: ">>> ", spans: [
+      { text: "a.intensities.shape", color: "white" },
+    ] },
+    { spans: [{ text: "(1868,)", color: "green" }] },
+  ]}
+/>
+
+The Bruker OPUS parser deserves special mention. Most Python libraries that claim OPUS support wrap the Bruker SDK or shell out to a command-line converter. SpectraKit <span class="highlight-teal">reads the binary format directly</span> — no external dependencies, no SDK license, no subprocess calls. It handles single-channel, interferogram, and ratioed spectra from any Bruker instrument manufactured after 2000.
+
+## Pipelines and sklearn
+
+Functional composition is natural — you chain function calls. But for production use, you often want a reusable pipeline object that can be serialized, logged, and dropped into a sklearn workflow.
+
+SpectraKit's `Pipeline` class wraps the functional API into a declarative chain:
+
+<TerminalBlock
+  client:visible
+  title="pipeline_demo.py"
+  lines={[
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.pipeline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "Pipeline", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "spectrakit.sklearn ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "SpectralTransformer", color: "teal" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Declarative pipeline", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "pipe ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "Pipeline", color: "amber" },
+      { text: "([", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     (\"baseline\", baseline_als, {\"lam\": 1e6}),", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     (\"smooth\", smooth_savgol, {\"window\": 11}),", color: "white" },
+    ] },
+    { spans: [
+      { text: "...     (\"normalize\", normalize_snv, {}),", color: "white" },
+    ] },
+    { spans: [
+      { text: "... ])", color: "white" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "# Drop into sklearn", color: "muted" }] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "sklearn.pipeline ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "make_pipeline", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "from ", color: "purple" },
+      { text: "sklearn.cross_decomposition ", color: "white" },
+      { text: "import ", color: "purple" },
+      { text: "PLSRegression", color: "teal" },
+    ] },
+    { prompt: ">>> ", spans: [
+      { text: "model ", color: "white" },
+      { text: "= ", color: "red" },
+      { text: "make_pipeline", color: "amber" },
+      { text: "(SpectralTransformer(pipe), PLSRegression(n_components=5))", color: "white" },
+    ] },
+  ]}
+/>
+
+<span class="highlight">SpectralTransformer</span> wraps any SpectraKit pipeline into a sklearn-compatible transformer. It implements `fit`, `transform`, and `fit_transform`. This means you can use SpectraKit preprocessing inside `GridSearchCV`, `cross_val_score`, or any sklearn meta-estimator without writing adapter code.
+
+## Testing
+
+<span class="highlight-teal">699 tests</span>. Zero mypy strict-mode errors. Zero ruff violations. Every public function has tests for:
+
+- **Correctness** — Output matches reference implementations (SciPy, MATLAB, published papers)
+- **Shape preservation** — 1D input produces 1D output, 2D batch input produces 2D output
+- **Edge cases** — Empty arrays, single-point spectra, constant signals, NaN handling
+- **Numerical stability** — Large dynamic ranges, near-zero denominators, ill-conditioned matrices
+
+<TerminalBlock
+  client:visible
+  title="test_results.sh"
+  lines={[
+    { spans: [{ text: "$ pytest tests/ -v --tb=short 2>&1 | tail -15", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "tests/test_baseline.py ", color: "white" },
+      { text: "41 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_smooth.py ", color: "white" },
+      { text: "26 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_normalize.py ", color: "white" },
+      { text: "25 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_derivative.py ", color: "white" },
+      { text: "20 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_scatter.py ", color: "white" },
+      { text: "20 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_transform.py ", color: "white" },
+      { text: "39 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_peaks.py ", color: "white" },
+      { text: "21 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_similarity.py ", color: "white" },
+      { text: "54 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_despike.py ", color: "white" },
+      { text: "33 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_quality.py ", color: "white" },
+      { text: "28 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_ops.py ", color: "white" },
+      { text: "64 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "tests/test_io.py ", color: "white" },
+      { text: "94 passed", color: "green" },
+    ] },
+    { spans: [
+      { text: "... and 16 more test files", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "═══ ", color: "muted" },
+      { text: "699 passed", color: "green" },
+      { text: " in 9.14s ", color: "muted" },
+      { text: "═══", color: "muted" },
+    ] },
+  ]}
+/>
+
+<div class="callout callout-result">
+  <div class="callout-label">Testing Philosophy</div>
+
+The baseline tests are the most important. ALS and ArPLS are iterative algorithms — they can silently fail to converge, producing baselines that look reasonable but introduce systematic error downstream. Every baseline function in SpectraKit returns convergence metadata (iterations, residual norm), and the tests verify convergence on real-world spectral shapes, not just synthetic Gaussians.
+
+</div>
+
+## What's Next
+
+SpectraKit is stable, tested, and published. The next step is using it as the preprocessing foundation for [Spektron](/projects/spektron) — the spectral foundation model. Every spectrum that enters the Spektron training pipeline goes through SpectraKit preprocessing first. The functional API makes this trivial: the data loader calls `baseline_als`, `normalize_snv`, and resampling in sequence, each operating on raw NumPy arrays that PyTorch can consume directly.
+
+## Related
+
+- **Project page:** [SpectraKit](/projects/spectrakit) — overview, features, and installation
+- **Foundation model:** [Spektron](/projects/spektron) — uses SpectraKit as its preprocessing backbone
+- **Research:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the paper behind the Spektron training pipeline
+- **ML challenges:** [Why Spectra Are Harder Than Images](/blog/why-spectra-are-harder-than-images) — why spectral ML needs domain-specific tools like SpectraKit
+
+<TerminalBlock
+  client:visible
+  title="spectrakit — summary"
+  lines={[
+    { spans: [{ text: "$ spectrakit info", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "  version:  ", color: "muted" },
+      { text: "1.8.0", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  install:  ", color: "muted" },
+      { text: "pip install pyspectrakit", color: "green" },
+    ] },
+    { spans: [
+      { text: "  tests:    ", color: "muted" },
+      { text: "699 passed", color: "green" },
+      { text: ", 0 failed", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  mypy:     ", color: "muted" },
+      { text: "0 errors", color: "green" },
+      { text: " (strict mode)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  ruff:     ", color: "muted" },
+      { text: "0 violations", color: "green" },
+    ] },
+    { spans: [
+      { text: "  python:   ", color: "muted" },
+      { text: "3.10 – 3.13", color: "white" },
+    ] },
+    { spans: [
+      { text: "  license:  ", color: "muted" },
+      { text: "MIT", color: "white" },
+    ] },
+    { spans: [
+      { text: "  deps:     ", color: "muted" },
+      { text: "numpy + scipy", color: "teal" },
+      { text: " (that's it)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "github.com/ktubhyam/spectrakit", color: "amber" },
+    ] },
+  ]}
+/>
