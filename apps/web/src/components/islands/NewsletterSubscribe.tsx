@@ -1,21 +1,21 @@
 /**
  * NewsletterSubscribe — Terminal-styled subscribe form for Buttondown.
- * Matches the TerminalBlock / BlogTerminal aesthetic with traffic lights,
- * line numbers, scanlines, and a blinking cursor on the email input.
+ * Terminal chrome renders instantly. Types a command, then reveals the
+ * email input. No Framer Motion dependency — uses IntersectionObserver
+ * and CSS transitions.
  *
  * Uses standard form submission (not fetch) because Buttondown's
  * embed endpoint requires a Cloudflare Turnstile challenge.
  */
 import { useState, useRef, useEffect } from "react";
-import { motion, useInView } from "motion/react";
 
 const BUTTONDOWN_USERNAME = "latentchemistry";
 
 export default function NewsletterSubscribe({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [started, setStarted] = useState(false);
   const [typed, setTyped] = useState("");
   const [cmdDone, setCmdDone] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -23,9 +23,21 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
 
   const command = "subscribe --newsletter latent-chemistry";
 
+  // Start animation when element enters viewport
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); obs.disconnect(); } },
+      { rootMargin: "-40px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   // Type the command when in view
   useEffect(() => {
-    if (!isInView) return;
+    if (!started) return;
     let i = 0;
     const id = setInterval(() => {
       i++;
@@ -36,14 +48,11 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
       }
     }, 35);
     return () => clearInterval(id);
-  }, [isInView]);
+  }, [started]);
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 16 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={`rounded-xl border border-border overflow-hidden bg-bg-secondary relative ${className}`}
     >
       {/* Title bar */}
@@ -76,88 +85,77 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
             <span className="text-[#555]">$ </span>
             <span className="text-[#34D399]">{typed.slice(0, 9)}</span>
             <span className="text-[#e0e0e0]">{typed.slice(9)}</span>
-            {!cmdDone && (
+            {!cmdDone && started && (
               <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-px translate-y-[1px]" />
             )}
           </span>
         </div>
 
-        {/* Lines 2-4: output after command finishes */}
-        {cmdDone && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+        {/* Lines 2-4: output after command finishes — always rendered, opacity controlled */}
+        <div style={{ opacity: cmdDone ? 1 : 0, transition: "opacity 0.3s ease-out" }}>
+          {/* Line 2: blank */}
+          <div className="flex">
+            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+          </div>
+
+          {/* Line 3: description */}
+          <div className="flex">
+            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+            <span className="text-[#555]">
+              Deep learning for spectroscopy — delivered to your inbox.
+            </span>
+          </div>
+
+          {/* Line 4: blank */}
+          <div className="flex">
+            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+          </div>
+        </div>
+
+        {/* Line 5: email input prompt — always rendered, opacity controlled */}
+        <div style={{ opacity: cmdDone ? 1 : 0, transition: "opacity 0.3s ease-out 0.15s" }}>
+          <form
+            action={`https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`}
+            method="post"
+            className="flex items-baseline"
           >
-            {/* Line 2: blank */}
-            <div className="flex">
-              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
-            </div>
-
-            {/* Line 3: description */}
-            <div className="flex">
-              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
-              <span className="text-[#555]">
-                Deep learning for spectroscopy — delivered to your inbox.
-              </span>
-            </div>
-
-            {/* Line 4: blank */}
-            <div className="flex">
-              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Line 5: email input prompt */}
-        {cmdDone && (
-          <motion.div
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-          >
-            <form
-              action={`https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`}
-              method="post"
-              className="flex items-baseline"
+            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+            <span className="text-[#C9A04A] mr-1 select-none">email:</span>
+            <div
+              className="flex-1 flex items-baseline relative cursor-text"
+              onClick={() => inputRef.current?.focus()}
             >
-              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
-              <span className="text-[#C9A04A] mr-1 select-none">email:</span>
-              <div
-                className="flex-1 flex items-baseline relative cursor-text"
-                onClick={() => inputRef.current?.focus()}
-              >
-                <input
-                  ref={inputRef}
-                  type="email"
-                  name="email"
-                  required
-                  autoComplete="email"
-                  onFocus={() => setFocused(true)}
-                  onBlur={() => setFocused(false)}
-                  onChange={(e) => setEmailLen(e.target.value.length)}
-                  className="w-full bg-transparent text-[#e0e0e0] outline-none caret-transparent font-mono text-xs md:text-sm peer"
-                  style={{ caretColor: "transparent" }}
+              <input
+                ref={inputRef}
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                aria-label="Email address"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                onChange={(e) => setEmailLen(e.target.value.length)}
+                className="w-full bg-transparent text-[#e0e0e0] outline-none caret-transparent font-mono text-xs md:text-sm peer"
+                style={{ caretColor: "transparent" }}
+              />
+              {/* Custom blinking cursor — uses ch units for accurate monospace positioning */}
+              {focused && (
+                <span
+                  className="absolute top-0 inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink translate-y-[1px] pointer-events-none"
+                  style={{ left: `${emailLen}ch` }}
                 />
-                {/* Custom blinking cursor — uses ch units for accurate monospace positioning */}
-                {focused && (
-                  <span
-                    className="absolute top-0 inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink translate-y-[1px] pointer-events-none"
-                    style={{ left: `${emailLen}ch` }}
-                  />
-                )}
-              </div>
-              <button
-                type="submit"
-                className="ml-2 text-[#333] hover:text-[#34D399] transition-colors select-none flex-shrink-0 group"
-                title="Press Enter or click to subscribe"
-              >
-                <span className="group-hover:hidden">⏎</span>
-                <span className="hidden group-hover:inline text-[#34D399]">⏎</span>
-              </button>
-            </form>
-          </motion.div>
-        )}
+              )}
+            </div>
+            <button
+              type="submit"
+              className="ml-2 text-[#333] hover:text-[#34D399] transition-colors select-none flex-shrink-0 group"
+              title="Press Enter or click to subscribe"
+            >
+              <span className="group-hover:hidden">⏎</span>
+              <span className="hidden group-hover:inline text-[#34D399]">⏎</span>
+            </button>
+          </form>
+        </div>
 
         {/* Scanline overlay */}
         <div
@@ -169,6 +167,6 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
           }}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }

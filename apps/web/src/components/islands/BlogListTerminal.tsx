@@ -1,10 +1,9 @@
 /**
  * BlogListTerminal — Full terminal-styled blog listing for the /blog page.
- * Types a command, then reveals posts one by one with staggered animation.
- * Each post cycles through the site's accent color palette.
+ * Terminal chrome renders instantly. Types a command, then reveals posts
+ * one by one with opacity animation (no layout shift).
  */
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "motion/react";
 
 interface BlogPost {
   id: string;
@@ -33,7 +32,7 @@ function LineNum({ n }: { n: number }) {
 
 export default function BlogListTerminal({ posts, className = "" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
+  const [started, setStarted] = useState(false);
 
   const [typedCmd, setTypedCmd] = useState("");
   const [cmdDone, setCmdDone] = useState(false);
@@ -44,8 +43,20 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
 
   const command = "find ./posts -type f --sort=newest";
 
+  // Start animation when element enters viewport
   useEffect(() => {
-    if (!isInView) return;
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); obs.disconnect(); } },
+      { rootMargin: "-40px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
 
     let i = 0;
     const typeId = setInterval(() => {
@@ -63,7 +74,6 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
               clearInterval(revealId);
               setTimeout(() => {
                 setShowFooter(true);
-                // Hide footer cursor after 3s so it doesn't compete with newsletter input
                 setTimeout(() => setCursorVisible(false), 3000);
               }, 300);
             }
@@ -73,20 +83,17 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
     }, 35);
 
     return () => clearInterval(typeId);
-  }, [isInView, posts.length]);
+  }, [started, posts.length]);
 
   const postLine = (i: number) => 3 + i * LINES_PER_POST;
   const footerLine = 3 + posts.length * LINES_PER_POST;
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={`rounded-xl border border-border overflow-hidden bg-bg-secondary relative ${className}`}
     >
-      {/* Title bar */}
+      {/* Title bar — renders instantly */}
       <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
@@ -116,32 +123,28 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
             <span className="text-[#555]">$ </span>
             <span className="text-[#34D399]">{typedCmd.slice(0, 4)}</span>
             <span className="text-[#e0e0e0]">{typedCmd.slice(4)}</span>
-            {!cmdDone && (
+            {!cmdDone && started && (
               <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-px translate-y-[1px]" />
             )}
           </span>
         </div>
 
-        {/* Blank line */}
-        {cmdDone && (
-          <div className="flex">
-            <LineNum n={2} />
-          </div>
-        )}
+        {/* Blank line — always rendered for stable layout */}
+        <div className="flex" style={{ opacity: cmdDone ? 1 : 0 }}>
+          <LineNum n={2} />
+        </div>
 
-        {/* Post entries */}
-        {posts.slice(0, revealCount).map((post, i) => {
+        {/* Post entries — ALL always rendered, opacity-only reveal (no CLS) */}
+        {posts.map((post, i) => {
           const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
           const isHovered = hoveredIdx === i;
+          const isRevealed = i < revealCount;
           const ln = postLine(i);
 
           return (
-            <motion.a
+            <a
               key={post.id}
               href={`/blog/${post.id}`}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="block -mx-4 rounded transition-all duration-200"
               style={{
                 borderLeft: `2px solid ${isHovered ? color : "transparent"}`,
@@ -151,6 +154,8 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
                 paddingTop: "6px",
                 paddingBottom: "6px",
                 marginTop: i === 0 ? "0px" : "2px",
+                opacity: isRevealed ? 1 : 0,
+                transition: "opacity 0.35s ease-out, border-left-color 0.2s, background-color 0.2s",
               }}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
@@ -222,29 +227,25 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
                   ))}
                 </span>
               </div>
-            </motion.a>
+            </a>
           );
         })}
 
         {/* Footer */}
-        {showFooter && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="flex mt-3"
-          >
-            <LineNum n={footerLine} />
-            <span>
-              <span className="text-[#555]">$ </span>
-              <span className="text-[#34D399]">{posts.length}</span>
-              <span className="text-[#555]"> posts found</span>
-              {cursorVisible && (
-                <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-1 translate-y-[1px]" />
-              )}
-            </span>
-          </motion.div>
-        )}
+        <div
+          className="flex mt-3"
+          style={{ opacity: showFooter ? 1 : 0, transition: "opacity 0.4s ease-out" }}
+        >
+          <LineNum n={footerLine} />
+          <span>
+            <span className="text-[#555]">$ </span>
+            <span className="text-[#34D399]">{posts.length}</span>
+            <span className="text-[#555]"> posts found</span>
+            {cursorVisible && showFooter && (
+              <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-1 translate-y-[1px]" />
+            )}
+          </span>
+        </div>
 
         {/* Scanline overlay */}
         <div
@@ -256,6 +257,6 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
           }}
         />
       </div>
-    </motion.div>
+    </div>
   );
 }
