@@ -1,0 +1,341 @@
+---
+title: "Variational Information Bottleneck for Spectral Disentanglement"
+date: 2026-03-05
+description: "How the VIB splits spectral representations into chemistry and instrument — separating what a molecule is from how it was measured. Gradient reversal, beta annealing, and the bug that made everything look like it worked."
+tags: ["deep-learning", "spectroscopy", "information-theory", "research"]
+draft: false
+---
+
+import TerminalBlock from '@components/islands/TerminalBlock';
+import CodeComparison from '@components/islands/CodeComparison';
+
+A spectrum encodes two things: <span class="highlight">what the molecule is</span> and <span class="highlight-violet">which instrument measured it</span>. A carbonyl C=O stretch always appears near 1720 cm⁻¹, but its exact position, width, and baseline shift depend on the spectrometer — detector response, optical path length, lamp aging, even room temperature. Train a model on one instrument and it fails on another.
+
+This is the <span class="highlight">calibration transfer problem</span>, and it has been the central practical barrier to deploying spectroscopic ML in production. Traditional solutions (PDS, SBC) require 25+ paired samples measured on both instruments. The goal: get that number below 10.
+
+## The Information Bottleneck
+
+The Variational Information Bottleneck (Alemi et al. 2017) provides the mathematical framework. Given an input $X$ (a spectrum) and a target $Y$ (the molecule), find a compressed representation $Z$ that maximizes:
+
+$$\mathcal{L}_{\text{IB}} = I(Z;\, Y) - \beta \cdot I(Z;\, X)$$
+
+The first term says: $Z$ should be <span class="highlight-teal">maximally informative about the molecule</span>. The second term says: $Z$ should compress away everything else — noise, instrument artifacts, irrelevant variation. The parameter $\beta$ controls the trade-off.
+
+In practice, we can't compute mutual information directly. The variational approximation replaces it with a tractable bound:
+
+$$\mathcal{L}_{\text{VIB}} = \mathbb{E}_{q(z|x)}\!\left[-\log p(y|z)\right] + \beta \, D_{\text{KL}}\!\left(q(z|x) \| p(z)\right)$$
+
+The first term is reconstruction loss. The second is a KL divergence that regularizes the latent space toward a standard Gaussian prior. This is the same objective as a VAE, but with a different motivation: we're not trying to generate spectra, we're trying to <span class="highlight">forget instrument-specific information</span>.
+
+## Splitting the Latent Space
+
+The key architectural choice in Spektron is splitting $Z$ into two subspaces:
+
+- <span class="highlight-teal">**z_chem**</span> (128 dimensions) — chemistry: molecular identity, functional groups, bond strengths
+- <span class="highlight-violet">**z_inst**</span> (64 dimensions) — instrument: detector artifacts, baseline shape, resolution effects
+
+<TerminalBlock
+  client:visible
+  title="vib_architecture.py"
+  lines={[
+    { spans: [{ text: "$ python -c \"from spektron import VIBHead; print(VIBHead())\"", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "VIBHead(", color: "white" }] },
+    { spans: [
+      { text: "  input:    ", color: "muted" },
+      { text: "256-dim", color: "white" },
+      { text: "  (pooled backbone output)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  z_chem:   ", color: "muted" },
+      { text: "μ(128) + σ(128)", color: "teal" },
+      { text: "  → sample → 128-dim", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  z_inst:   ", color: "muted" },
+      { text: "μ(64)  + σ(64)", color: "purple" },
+      { text: "   → sample → 64-dim", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  reparameterize: ", color: "muted" },
+      { text: "z = μ + σ·ε", color: "amber" },
+      { text: "  (ε ~ N(0,1))", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  transfer:       ", color: "muted" },
+      { text: "discard z_inst", color: "green" },
+      { text: ", keep z_chem only", color: "muted" },
+    ] },
+    { spans: [{ text: ")", color: "white" }] },
+  ]}
+/>
+
+At training time, both subspaces are active. The reconstruction head uses the full $[z_{\text{chem}};\, z_{\text{inst}}]$ concatenation to reconstruct masked spectral patches. At transfer time, $z_{\text{inst}}$ is discarded — only the chemistry survives.
+
+But splitting the latent space alone doesn't guarantee disentanglement. Without an explicit signal, the model can encode instrument information in $z_{\text{chem}}$ (it's a bigger subspace, so why not?). We need an <span class="highlight">adversarial constraint</span>.
+
+## Gradient Reversal: The Right Way
+
+The idea: train a small classifier that takes $z_{\text{chem}}$ and tries to predict which instrument recorded the spectrum. Then <span class="highlight-teal">reverse the gradient</span> — instead of helping $z_{\text{chem}}$ encode instrument information, the reversed gradient forces $z_{\text{chem}}$ to become instrument-invariant.
+
+<CodeComparison
+  client:visible
+  title="gradient reversal"
+  beforeTitle="wrong: KL-to-uniform"
+  afterTitle="correct: gradient reversal"
+  before={[
+    { text: "# Train classifier to output uniform dist", type: "comment" },
+    { text: "logits = domain_classifier(z_chem)", type: "removed" },
+    { text: "uniform = torch.ones_like(logits) / n_domains", type: "removed" },
+    { text: "loss = kl_div(log_softmax(logits), uniform)", type: "removed" },
+    { text: "# Problem: classifier learns uniform,", type: "comment" },
+    { text: "# but z_chem is unchanged!", type: "comment" },
+  ]}
+  after={[
+    { text: "# Reverse gradient through z_chem", type: "comment" },
+    { text: "z_rev = gradient_reversal(z_chem)", type: "added" },
+    { text: "logits = domain_classifier(z_rev)", type: "added" },
+    { text: "loss = cross_entropy(logits, domain_id)", type: "added" },
+    { text: "# Classifier learns to predict domain,", type: "comment" },
+    { text: "# z_chem learns to fool it", type: "comment" },
+  ]}
+/>
+
+The `GradientReversal` layer is deceptively simple: forward pass is identity, backward pass negates the gradient. During the forward pass, the domain classifier sees $z_{\text{chem}}$ unchanged and learns to predict the instrument. During backpropagation, the negated gradient flows into the encoder, teaching it to produce $z_{\text{chem}}$ representations that <span class="highlight-violet">actively confuse</span> the classifier.
+
+<div class="callout callout-result">
+  <div class="callout-label">The Bug That Looked Like Success</div>
+
+The initial implementation used KL divergence to a uniform distribution on the classifier output. This made the classifier output uniform — but it didn't touch $z_{\text{chem}}$ at all. The gradient only flowed into the classifier weights, not back through the input. The loss went down, the classifier output looked uniform, and everything appeared to work. Except $z_{\text{chem}}$ still encoded instrument information.
+
+The fix: cross-entropy loss with gradient reversal. The classifier is trained normally (cross-entropy against true domain labels), but the gradient reversal layer ensures the encoder gets the opposite signal. Now both parts of the system are adversarially coupled.
+
+</div>
+
+The implementation in PyTorch:
+
+<TerminalBlock
+  client:visible
+  title="gradient_reversal.py"
+  lines={[
+    { spans: [{ text: "class GradientReversal(torch.autograd.Function):", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "    @staticmethod", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    def forward(ctx, x, alpha):", color: "white" },
+    ] },
+    { spans: [
+      { text: "        ctx.alpha = alpha", color: "white" },
+    ] },
+    { spans: [
+      { text: "        return ", color: "white" },
+      { text: "x.clone()", color: "green" },
+      { text: "  # identity forward", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "    @staticmethod", color: "muted" },
+    ] },
+    { spans: [
+      { text: "    def backward(ctx, grad):", color: "white" },
+    ] },
+    { spans: [
+      { text: "        return ", color: "white" },
+      { text: "-ctx.alpha * grad", color: "red" },
+      { text: ", None  # negate!", color: "muted" },
+    ] },
+  ]}
+/>
+
+Note the `x.clone()` — not `x.view_as(x)`. The original implementation used `view_as`, which creates a view sharing the same storage. Under `DataParallel` with multiple GPUs, this caused silent gradient corruption because both GPUs wrote to the same tensor. The clone creates an independent copy, making it safe for multi-GPU training.
+
+## Beta Annealing
+
+The $\beta$ parameter in the VIB loss controls how much information the bottleneck discards. Too high and the model forgets everything (including chemistry). Too low and it keeps everything (including instrument noise).
+
+The optimal strategy is <span class="highlight">beta annealing</span>: start with a relatively high $\beta$ to encourage diverse, well-spread representations in the latent space, then gradually decrease it to tighten the bottleneck:
+
+$$\beta(t) = \beta_{\text{end}} + \frac{1}{2}(\beta_{\text{start}} - \beta_{\text{end}})\left(1 + \cos\left(\frac{\pi \cdot t}{T_{\text{anneal}}}\right)\right)$$
+
+<TerminalBlock
+  client:visible
+  title="beta_schedule.py"
+  lines={[
+    { spans: [{ text: "$ python beta_schedule.py --visualize", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "VIB beta annealing schedule:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  β_start:     ", color: "muted" },
+      { text: "0.100", color: "amber" },
+      { text: "  (high → diverse z)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  β_end:       ", color: "muted" },
+      { text: "0.001", color: "green" },
+      { text: "  (low → tight bottleneck)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  anneal over: ", color: "muted" },
+      { text: "60%", color: "white" },
+      { text: " of training (30K / 50K steps)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  Step     0: β = ", color: "muted" },
+      { text: "0.100", color: "amber" },
+      { text: "  ████████████████████", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  Step 10000: β = ", color: "muted" },
+      { text: "0.050", color: "amber" },
+      { text: "  ██████████▌", color: "amber" },
+    ] },
+    { spans: [
+      { text: "  Step 20000: β = ", color: "muted" },
+      { text: "0.013", color: "green" },
+      { text: "  ██▌", color: "green" },
+    ] },
+    { spans: [
+      { text: "  Step 30000: β = ", color: "muted" },
+      { text: "0.001", color: "green" },
+      { text: "  ▌", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "Cosine decay: diverse early, compressed late", color: "green" },
+    ] },
+  ]}
+/>
+
+The intuition: in early training, a high $\beta$ prevents the model from collapsing $z_{\text{chem}}$ into a narrow region of the latent space. The KL penalty keeps the posterior spread out, forcing the encoder to use the full capacity of the 128-dimensional space. As training progresses and the encoder has learned meaningful structure, decreasing $\beta$ allows the model to form tighter, more discriminative clusters — each molecule gets its own region of latent space.
+
+## Why Not Just Use Domain Adaptation?
+
+Standard domain adaptation (MMD, CORAL, DANN) aligns the <span class="highlight-violet">entire</span> representation across domains. This is problematic for spectra because some domain-specific information is useful during training. The instrument response function affects peak shapes, and the model needs to understand these shapes to reconstruct masked patches correctly.
+
+The VIB split preserves this: $z_{\text{inst}}$ keeps instrument information available for reconstruction, while $z_{\text{chem}}$ is cleaned of it. At transfer time, you discard $z_{\text{inst}}$ and keep the clean chemistry.
+
+<div class="callout callout-theorem">
+  <div class="callout-label">Why 128 + 64?</div>
+
+The asymmetric split (128 chemistry, 64 instrument) reflects an information-theoretic prior: molecular structure has more degrees of freedom than instrument response. A molecule with $N$ atoms has $3N-6$ internal coordinates, each contributing multiple spectral features. An instrument has roughly a dozen parameters (resolution, detector linearity, wavelength calibration, baseline polynomial). The 2:1 capacity ratio matches this asymmetry.
+
+</div>
+
+## The Transfer Pipeline
+
+At deployment, calibration transfer works in three steps:
+
+<TerminalBlock
+  client:visible
+  title="transfer.py"
+  lines={[
+    { spans: [{ text: "$ python transfer.py --source lab_a --target lab_b --n_samples 8", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [{ text: "Step 1: Encode target spectra", color: "teal" }] },
+    { spans: [
+      { text: "  Input:  ", color: "muted" },
+      { text: "8 spectra from instrument B", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Output: ", color: "muted" },
+      { text: "z_chem (128-d)", color: "teal" },
+      { text: " + ", color: "muted" },
+      { text: "z_inst (64-d, discarded)", color: "red" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "Step 2: Test-time training (3 gradient steps)", color: "teal" }] },
+    { spans: [
+      { text: "  Objective: ", color: "muted" },
+      { text: "self-supervised masked reconstruction", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Adapts:    ", color: "muted" },
+      { text: "encoder + VIB head only", color: "amber" },
+      { text: " (backbone frozen)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }] },
+    { spans: [{ text: "Step 3: Predict via retrieval", color: "teal" }] },
+    { spans: [
+      { text: "  Query:   ", color: "muted" },
+      { text: "z_chem from target", color: "teal" },
+    ] },
+    { spans: [
+      { text: "  Library:  ", color: "muted" },
+      { text: "z_chem from source (precomputed)", color: "white" },
+    ] },
+    { spans: [
+      { text: "  Match:   ", color: "muted" },
+      { text: "k=32 nearest neighbors + conformal set", color: "green" },
+    ] },
+    { spans: [{ text: "" }], delay: 150 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "R² target: > 0.952 with ≤10 samples", color: "green" },
+    ] },
+  ]}
+/>
+
+The test-time training step is critical. Even with a well-disentangled $z_{\text{chem}}$, there's residual instrument leakage. Running a few self-supervised gradient steps on the new instrument's spectra — using the model's own masked reconstruction objective — fine-tunes the encoder to the new instrument without any labels. Three steps is typically sufficient.
+
+## What the Latent Space Looks Like
+
+When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of which instrument recorded the spectrum. When it fails, you see instrument-specific sub-clusters — the same molecule occupies different regions of latent space depending on the source instrument.
+
+<TerminalBlock
+  client:visible
+  title="latent_analysis.py"
+  lines={[
+    { spans: [{ text: "$ python latent_analysis.py --checkpoint step_50000", color: "muted" }] },
+    { spans: [{ text: "" }], delay: 300 },
+    { spans: [{ text: "Disentanglement metrics:", color: "teal" }] },
+    { spans: [{ text: "" }] },
+    { spans: [
+      { text: "  z_chem domain accuracy: ", color: "muted" },
+      { text: "52.1%", color: "green" },
+      { text: "  (chance = 50%, good!)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  z_inst domain accuracy: ", color: "muted" },
+      { text: "94.7%", color: "amber" },
+      { text: "  (instrument recoverable)", color: "muted" },
+    ] },
+    { spans: [
+      { text: "  z_chem molecule acc:    ", color: "muted" },
+      { text: "87.3%", color: "green" },
+      { text: "  (chemistry preserved)", color: "muted" },
+    ] },
+    { spans: [{ text: "" }], delay: 200 },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "z_chem: chemistry ✓, instrument ✗ (desired)", color: "green" },
+    ] },
+    { spans: [
+      { text: "→ ", color: "muted" },
+      { text: "z_inst: instrument ✓ (correct separation)", color: "green" },
+    ] },
+  ]}
+/>
+
+The key metric: <span class="highlight-teal">domain classification accuracy on $z_{\text{chem}}$ should be at chance level</span> (50% for two instruments). If a classifier can predict the instrument from $z_{\text{chem}}$, disentanglement has failed. On $z_{\text{inst}}$, high domain accuracy is expected — that subspace is supposed to capture instrument variation.
+
+## Current Status
+
+The VIB head is pretraining as part of Spektron v3 on QM9S (222K training spectra, 2 instruments simulated via augmentation). The beta annealing, gradient reversal, and MoE gating are all live. Evaluation on the corn moisture benchmark (3 real NIR instruments) is next — that's where the R² > 0.952 target will be tested.
+
+The theoretical framework connecting VIB to the [spectral identifiability theory](/blog/spectral-identifiability-theory) is direct: the Information Completeness Ratio $R(G, N)$ tells you how much chemistry is recoverable from spectra. The VIB's job is to extract exactly that recoverable chemistry while discarding everything else. When $R = 1$, all chemistry is in the spectrum — the VIB just needs to separate it from instrument noise.
+
+## Related
+
+- **Theory:** [Spectral Identifiability Theory](/blog/spectral-identifiability-theory) — the information-theoretic limits that VIB is designed to approach
+- **Architecture:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — from group theory to the full Spektron architecture
+- **Backbone:** [State Space Models for Spectroscopy](/blog/state-space-models-for-spectroscopy) — the D-LinOSS layers that produce the representations VIB disentangles
+- **Pretraining:** [Masked Pretraining for Scientific Spectra](/blog/masked-pretraining-scientific-spectra) — the self-supervised objective that trains the encoder
+- **Transfer loss:** [Optimal Transport for Spectral Matching](/blog/optimal-transport-spectral-matching) — Sinkhorn-based alignment of z_chem across instruments
+- **Project:** [Spektron](/projects/spektron) — the full foundation model
