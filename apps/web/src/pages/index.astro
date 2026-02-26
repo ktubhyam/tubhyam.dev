@@ -105,14 +105,16 @@ const blogPosts = posts.map((post) => ({
        ══════════════════════════════════════════════ -->
   <section aria-label="Hero" class="relative min-h-screen flex flex-col items-center justify-center px-6">
     <div class="max-w-4xl w-full">
-      <GradientText
-        client:idle
-        colors={["#4ECDC4", "#fafafa", "#C9A04A", "#fafafa", "#A78BFA", "#fafafa"]}
-        animationSpeed={6}
-        className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
-      >
-        Tubhyam Karthikeyan
-      </GradientText>
+      <h1>
+        <GradientText
+          client:idle
+          colors={["#4ECDC4", "#fafafa", "#C9A04A", "#fafafa", "#A78BFA", "#fafafa"]}
+          animationSpeed={6}
+          className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
+        >
+          Tubhyam Karthikeyan
+        </GradientText>
+      </h1>
 
       <div class="mt-8 max-w-lg h-12 overflow-hidden">
         <RotatingText
