@@ -60,10 +60,10 @@ Real-time 3D molecular vibration visualization. Select a molecule, pick a vibrat
 ## Getting Started
 
 ```bash
-git clone https://github.com/ktubhyam/vibescope.git
-cd vibescope
-npm install
-npm run dev
+git clone https://github.com/ktubhyam/tubhyam.dev.git
+cd tubhyam.dev
+pnpm install
+pnpm turbo dev --filter=@tubhyam/vibescope
 ```
 
 Open [http://localhost:3000](http://localhost:3000).

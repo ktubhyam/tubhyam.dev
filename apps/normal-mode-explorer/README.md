@@ -70,10 +70,10 @@ Visualize and decompose molecular vibrations into individual normal modes. Anima
 ## Getting Started
 
 ```bash
-git clone https://github.com/ktubhyam/normal-mode-explorer.git
-cd normal-mode-explorer
-npm install
-npm run dev
+git clone https://github.com/ktubhyam/tubhyam.dev.git
+cd tubhyam.dev
+pnpm install
+pnpm turbo dev --filter=@tubhyam/normal-mode-explorer
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
