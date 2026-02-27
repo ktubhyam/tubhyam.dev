@@ -57,7 +57,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<PageLayout title={`${PUBLICATION.name} — Blog`} description={PUBLICATION.description}>
+<PageLayout title={PUBLICATION.name} description={PUBLICATION.description}>
   <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
