@@ -1,18 +1,18 @@
 ---
-title: "Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy"
+title: "Oscillatory State Space Models for Vibrational Spectroscopy: Benchmarking, Cross-Spectral Prediction, and Interpretability"
 date: 2026-01-15
 authors: ["Tubhyam Karthikeyan"]
-venue: "In preparation"
+venue: "Digital Discovery (RSC)"
 status: "in-progress"
-abstract: "We introduce Spektron, a hybrid state-space and attention architecture for multi-task vibrational spectroscopy. The model combines raw spectral embeddings with damped linear oscillatory state-space models (D-LinOSS), Mixture of Experts routing, and a Variational Information Bottleneck for disentangling chemical and instrumental information. Pretrained on 222K IR and Raman spectra from QM9S, Spektron achieves competitive calibration transfer on the corn and tablet benchmark datasets with as few as 10 labeled transfer samples."
-tags: ["deep-learning", "spectroscopy", "state-space-models", "transformer"]
+abstract: "We present the first evaluation of state-space models for vibrational spectroscopy. We benchmark five architectures — D-LinOSS, Mamba, Transformer, 1D CNN, and S4D — on masked spectral reconstruction using 130K DFT-computed IR and Raman spectra from QM9S. We introduce cross-spectral prediction (IR to Raman and vice versa) as a novel task with no prior work, and demonstrate that D-LinOSS transfer function analysis provides unique interpretability through learned spectral filter banks."
+tags: ["deep-learning", "spectroscopy", "state-space-models", "benchmark"]
 ---
 
 ## Motivation
 
-Foundation models have transformed NLP and computer vision, but scientific spectroscopy remains dominated by task-specific classical methods. The core challenge is **instrument variance**: a model trained on spectra from one spectrometer fails on another due to systematic differences in resolution, wavelength calibration, detector response, and optical path. Classical calibration transfer methods (Direct Standardization, Piecewise Direct Standardization) require paired measurements on both instruments — expensive and impractical when instruments are in different facilities or different decades.
+State-space models (SSMs) have driven breakthroughs in NLP and genomics, but scientific spectroscopy remains untouched. We argue that vibrational spectroscopy is a uniquely natural domain for SSMs: spectra are 1D signals arising from molecular vibrations (damped harmonic oscillators), and D-LinOSS — a 2nd-order oscillatory SSM — models exactly these dynamics. This is a **function-space argument**: D-LinOSS's basis functions (damped sinusoids) are a natural basis for vibrational spectra.
 
-This paper introduces Spektron, a self-supervised foundation model that learns instrument-invariant spectral representations. The key architectural choices are motivated by [information-theoretic analysis](/research/spectral-identifiability) of what vibrational spectra can and cannot reveal about molecular structure.
+We present an honest empirical study evaluating whether this physics alignment translates to practical advantages. We benchmark D-LinOSS against four other architectures, introduce cross-spectral prediction as a genuinely novel task, and demonstrate that SSM transfer functions provide interpretability inaccessible to other architectures.
 
 ## Architecture
 
@@ -100,43 +100,35 @@ Several subtle issues required careful engineering:
 
 - **Physics loss target:** Physics-informed losses (smoothness, non-negativity) must be applied to the model's reconstruction output, not the ground truth target — otherwise the gradient is zero and the loss has no training effect.
 
-## Evaluation
+## Experiments
 
-### Calibration Transfer Benchmarks
+### E1: Architecture Benchmark
 
-**Corn dataset:** 80 samples measured on 3 NIR instruments (M5, MP5, MP6). Task: predict moisture, oil, protein, starch content when training on one instrument and testing on another.
+All five architectures are param-matched at ~2M backbone parameters and evaluated on masked spectral reconstruction (QM9S, 130K molecules, 2048 points). 3 seeds per architecture, reporting mean $\pm$ std for validation loss, training time, and peak GPU memory.
 
-**Tablet dataset:** 655 samples on 2 instruments. Task: predict active pharmaceutical ingredient concentration.
+| Architecture | Backbone Params | Key Properties |
+|-------------|:-:|---|
+| D-LinOSS | 2.1M | 2nd-order oscillatory, O(n), bidirectional |
+| Mamba | 1.8M | 1st-order selective SSM, O(n) |
+| Transformer | 2.1M | Self-attention, O(n²) |
+| 1D CNN | 2.1M | Local convolutions, FIR filters |
+| S4D (ablation) | 1.1M | Diagonal SSM, no oscillatory structure |
 
-### Baselines
+### E2: Cross-Spectral Prediction
 
-| Method | Corn Moisture R² | Transfer Samples |
-|--------|-----------------|------------------|
-| Direct Standardization | 0.69 | 30 (paired) |
-| PDS (k=5) | 0.82 | 30 (paired) |
-| LoRA-CT (prior SOTA) | 0.952 | 50 |
-| **Spektron (target)** | **>0.95** | **≤10** |
+The novel contribution. Given an IR spectrum, predict the corresponding Raman spectrum (and vice versa). 99.93% of QM9 molecules are non-centrosymmetric, so mutual exclusion barely applies and both spectra are largely redundant but not identical. Metrics: spectral MSE, cosine similarity, peak-position recall, peak intensity correlation, and spectral information divergence (SID). Includes identity-copy baseline.
 
-### Downstream Protocol
+### E3: Transfer Function Analysis
 
-1. Freeze pretrained encoder
-2. Train lightweight regression head on source instrument
-3. Apply Test-Time Training (TTT): $K$ gradient steps on unlabeled target spectra using MSRP loss, updating only layer norms or LoRA parameters
-4. Evaluate on target instrument test set
+Unique to SSMs: each D-LinOSS oscillator implements a 2nd-order IIR bandpass filter with transfer function:
 
-TTT provides zero-shot transfer capability — no labeled target samples required for adaptation.
+$$H_p(z) = \frac{\Delta t^2 \cdot b_p \cdot z}{(1 + \Delta t \cdot g_p) z^2 - (2 + \Delta t \cdot g_p - \Delta t^2 \cdot a_p) z + 1}$$
 
-## Ablation Studies (Planned)
+We compute $|H(e^{j\omega})|$ for all oscillators across all layers, generating filter bank heatmaps, pole-zero plots, and per-layer frequency coverage. Statistical comparison between trained and random (untrained) models reveals whether training produces systematic spectral specialization.
 
-| Ablation | Expected Effect |
-|----------|----------------|
-| Remove VIB (no disentanglement) | Transfer R² drops, same-instrument R² unchanged |
-| Remove gradient reversal | $z_\text{chem}$ encodes instrument, partial transfer |
-| Mamba backbone (vs. D-LinOSS) | Comparable accuracy, slower convergence on spectral tasks |
-| Wavelet embedding (vs. raw) | Information loss from patching, faster training |
-| IR-only pretraining | Lower accuracy on Raman downstream, per identifiability theory |
-| No physics losses | Unphysical reconstructions, no accuracy change on easy tasks |
-| Reduce $z_\text{chem}$ to 32-dim | Information bottleneck too tight for large molecules |
+### E4: Calibration Transfer
+
+Fine-tune pretrained architectures on Corn (80 $\times$ 3 instruments $\times$ 700 NIR channels) with varying transfer sample budgets (5, 10, 20, 30, 50). Compare against PDS, SBC, DS, CCA, di-PLS classical baselines. Honest about the DFT mid-IR $\rightarrow$ experimental NIR domain gap — a negative result here is fine if framed properly.
 
 ## Related
 

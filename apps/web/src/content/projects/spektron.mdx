@@ -1,20 +1,20 @@
 ---
 title: "Spektron"
 date: 2026-01-20
-description: "Self-supervised foundation model for vibrational spectroscopy. D-LinOSS backbone, VIB disentanglement, MoE routing, pretrained on 222K QM9S spectra."
-tags: ["pytorch", "deep-learning", "spectroscopy", "foundation-model"]
+description: "Benchmarking oscillatory SSMs for vibrational spectroscopy. D-LinOSS backbone, 5-architecture comparison, cross-spectral IR/Raman prediction, transfer function interpretability."
+tags: ["pytorch", "deep-learning", "spectroscopy", "state-space-models"]
 status: "active"
 github: "https://github.com/ktubhyam/Spektron"
 featured: true
 ---
 
-Spektron is a self-supervised foundation model for vibrational spectroscopy that achieves few-shot calibration transfer across instruments and modalities. Built on a physics-aligned backbone that mirrors the dynamics of molecular vibrations, it disentangles transferable chemical information from discardable instrument signatures.
+Spektron is an empirical study evaluating whether oscillatory state-space models bring unique advantages to vibrational spectroscopy. It benchmarks five architectures (D-LinOSS, Mamba, Transformer, 1D CNN, S4D) on masked spectral reconstruction and cross-spectral prediction (IR to Raman), with transfer function analysis providing SSM-unique interpretability. Targeting publication at Digital Discovery (RSC).
 
 ## The Problem
 
-Vibrational spectroscopy (IR, Raman, NIR) is one of the most deployed analytical techniques in chemistry — but every spectrometer introduces its own instrumental fingerprint. A model trained on one instrument performs poorly on another. Classical calibration transfer methods like Direct Standardization require paired measurements on both instruments, which is expensive and impractical at scale.
+State-space models have driven breakthroughs in NLP and genomics, but vibrational spectroscopy has zero prior SSM evaluations. This is surprising because spectral signals arise from molecular vibrations — damped harmonic oscillators — and D-LinOSS models exactly these dynamics. We ask: does this physics alignment translate to practical advantages?
 
-Spektron addresses this by learning a latent representation where chemical information is invariant to the instrument that produced the measurement.
+Additionally, no prior work exists for cross-spectral prediction (predicting Raman from IR or vice versa), despite paired DFT datasets being readily available. Spektron introduces both the benchmark and the task.
 
 ## Architecture
 
@@ -102,16 +102,18 @@ A learnable `mask_token` parameter replaces masked positions in embedding space 
 
 5. **Sinkhorn regularization at 1.0:** For 128-dimensional embeddings, the standard regularization (0.05) causes the transport kernel $\exp(-C/\epsilon)$ to underflow in float16. A regularization of 1.0 keeps the computation numerically stable.
 
-## Downstream Tasks
+## Four Experiments
 
-- **Calibration transfer:** Predict corn moisture/oil/protein/starch across 3 instruments with ≤10 labeled transfer samples (target: R² > 0.95)
-- **Compound identification:** Few-shot classification from learned $z_\text{chem}$ embeddings
-- **Property prediction:** Regression from CLS token to molecular properties
-- **Test-Time Training (TTT):** K gradient steps on unlabeled target spectra using MSRP loss, adapting layer norms or LoRA parameters for zero-shot instrument adaptation
+| Experiment | Description |
+|-----------|-------------|
+| **E1: Architecture Benchmark** | D-LinOSS vs Mamba vs Transformer vs CNN vs S4D, all param-matched at ~2M backbone params. Masked spectral reconstruction on QM9S (130K molecules). 3 seeds, mean $\pm$ std. |
+| **E2: Cross-Spectral Prediction** | Predict Raman from IR (and vice versa). The novel contribution — zero prior work. 5 metrics + identity-copy baseline. |
+| **E3: Transfer Function Analysis** | H(z) filter bank visualization for trained D-LinOSS. Pole-zero plots, per-layer frequency coverage, trained vs random comparison. SSM-unique interpretability. |
+| **E4: Calibration Transfer** | Fine-tune on Corn (80 $\times$ 3 NIR instruments) with 5-50 transfer samples. Compare against PDS, SBC, DS, CCA, di-PLS. |
 
 ## Related
 
-- **Paper:** [Hybrid SSA Spectroscopy](/research/hybrid-ssa-spectroscopy) — the research paper describing Spektron's architecture and evaluation
+- **Paper:** [Oscillatory SSMs for Spectroscopy](/research/hybrid-ssa-spectroscopy) — the research paper with benchmarks, cross-spectral prediction, and interpretability
 - **Theory:** [Spectral Identifiability](/research/spectral-identifiability) — information-theoretic framework motivating the VIB design
 - **Preprocessing:** [SpectraKit](/projects/spectrakit) — the spectral preprocessing library powering Spektron's data pipeline
 - **Blog:** [The Spectral Inverse Problem](/blog/spectral-inverse-problem) — accessible overview of the theory behind spectral inversion
