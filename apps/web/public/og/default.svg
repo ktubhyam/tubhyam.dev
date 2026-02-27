@@ -36,9 +36,8 @@
     <circle cx="0" cy="0" r="4" fill="#C9A04A" opacity="0.4"/>
   </g>
 
-  <!-- TK monogram -->
-  <text x="120" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="120" font-weight="700" fill="#C9A04A" letter-spacing="-0.04em">TK</text>
-  <circle cx="310" cy="290" r="8" fill="#C9A04A"/>
+  <!-- TK monogram (TK-1: gold T, white K) -->
+  <text x="120" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="120" font-weight="800" letter-spacing="-0.06em"><tspan fill="#C9A04A">T</tspan><tspan fill="#e0e0e0">K</tspan></text>
 
   <!-- Separator -->
   <line x1="120" y1="330" x2="360" y2="330" stroke="#333" stroke-width="1"/>
