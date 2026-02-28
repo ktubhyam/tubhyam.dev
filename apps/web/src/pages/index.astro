@@ -141,7 +141,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
         <div class="hero-content">
           <!-- Name: TextScramble decode on mount -->
           <h1
-            class="text-[clamp(2.8rem,7vw,5rem)] font-extrabold tracking-[-0.04em] leading-[0.9] text-text-primary"
+            class="text-[clamp(3.25rem,9vw,6.75rem)] font-extrabold tracking-[-0.05em] leading-[0.88] text-text-primary"
             style="opacity: 0; animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;"
           >
             <TextScramble client:load text="Tubhyam Karthikeyan" speed={25} mono={false} className="font-heading font-extrabold" />
@@ -245,10 +245,17 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
       </div>
 
       <!-- Scroll chevron -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-chevron" aria-hidden="true">
+      <div class="absolute bottom-[52px] left-1/2 -translate-x-1/2 scroll-chevron" aria-hidden="true">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-text-muted">
           <path d="M6 9l6 6 6-6" />
         </svg>
+      </div>
+      <!-- Stats marquee pinned to bottom of hero -->
+      <div class="absolute bottom-0 left-0 right-0 overflow-hidden border-t border-white/[0.04]" style="height:32px;" aria-hidden="true">
+        <div class="marquee-track">
+          <span class="marquee-content">130K molecules &nbsp;·&nbsp; 699 tests &nbsp;·&nbsp; 97% coverage &nbsp;·&nbsp; v1.8.0 &nbsp;·&nbsp; Neural ODEs &nbsp;·&nbsp; B3LYP/def2-TZVP &nbsp;·&nbsp; Target R² 0.95 &nbsp;·&nbsp; QM9S dataset &nbsp;·&nbsp;</span>
+          <span class="marquee-content" aria-hidden="true">130K molecules &nbsp;·&nbsp; 699 tests &nbsp;·&nbsp; 97% coverage &nbsp;·&nbsp; v1.8.0 &nbsp;·&nbsp; Neural ODEs &nbsp;·&nbsp; B3LYP/def2-TZVP &nbsp;·&nbsp; Target R² 0.95 &nbsp;·&nbsp; QM9S dataset &nbsp;·&nbsp;</span>
+        </div>
       </div>
     </section>
 
@@ -304,7 +311,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
               </div>
               <div class="w-px h-7 bg-border"></div>
               <div>
-                <p class="text-xl font-heading font-bold text-text-primary">0.95</p>
+                <p class="text-xl font-heading font-bold text-accent-2">0.95</p>
                 <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">target R²</p>
               </div>
             </div>
@@ -364,6 +371,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
             <a href="/projects/spectrakit" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="flex items-start justify-between mb-3">
                 <div>
+                  <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">001</p>
                   <p class="text-xs font-mono text-accent mb-1">v1.8.0</p>
                   <h3 class="text-base font-heading font-semibold text-text-primary">SpectraKit</h3>
                 </div>
@@ -384,6 +392,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
           <SpotlightCard client:idle className="group">
             <a href="/projects/spektron" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="mb-2">
+                <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">002</p>
                 <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
                 <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
               </div>
@@ -399,6 +408,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
           <SpotlightCard client:idle className="group">
             <a href="/projects/reactortwin" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="mb-2">
+                <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">003</p>
                 <p class="text-xs font-mono text-text-muted mb-1">v1.0.0</p>
                 <h3 class="text-sm font-heading font-semibold text-text-primary">ReactorTwin</h3>
               </div>
@@ -415,6 +425,7 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
             <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="flex items-start justify-between mb-2">
                 <div>
+                  <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">004</p>
                   <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
                   <h3 class="text-sm font-heading font-semibold text-text-primary">SpectraView</h3>
                 </div>
@@ -740,8 +751,9 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
   }
 
   .nav-top-link {
-    font-size: 13px;
-    color: #888;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #666;
     text-decoration: none;
     transition: color 0.2s ease;
     display: flex;
@@ -756,8 +768,9 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
   .aurora-bg {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,160,74,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,160,74,0.04) 0%, transparent 50%);
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,160,74,0.09) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,160,74,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 40% at 10% 60%, rgba(78,205,196,0.05) 0%, transparent 55%);
     pointer-events: none;
     z-index: 0;
   }
@@ -839,6 +852,8 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
   .featured-post-card:hover {
     border-color: rgba(201,160,74,0.3);
     background: rgba(201,160,74,0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201,160,74,0.09);
   }
 
   .post-card {
@@ -854,6 +869,8 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
   .post-card:hover {
     border-color: var(--color-border-hover);
     background: var(--color-surface-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(201,160,74,0.06);
   }
 
   /* ── Contact form inputs ── */
@@ -884,6 +901,30 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* ── Stats marquee ── */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+    align-items: center;
+    animation: marquee-scroll 50s linear infinite;
+  }
+
+  .marquee-content {
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding-right: 0;
+    color: var(--color-text-muted);
+    opacity: 0.45;
+  }
+
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .scroll-chevron,
     .aurora-bg,
@@ -891,6 +932,9 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
+    }
+    .marquee-track {
+      animation: none;
     }
   }
 </style>
@@ -907,4 +951,10 @@ import NavTerminalPath from "@components/islands/NavTerminalPath";
 
   trigger?.addEventListener("click", toggleMenu);
   backdrop?.addEventListener("click", toggleMenu);
+
+  // Tab title state
+  const defaultTitle = document.title;
+  document.addEventListener("visibilitychange", () => {
+    document.title = document.hidden ? "come back?" : defaultTitle;
+  });
 </script>

@@ -53,6 +53,11 @@
   --color-teal-soft: rgba(78, 205, 196, 0.15);
   --color-teal-glow: rgba(78, 205, 196, 0.25);
 
+  /* Second accent — teal alias (semantic name for use in components) */
+  --color-accent-2:      #4ECDC4;
+  --color-accent-2-soft: rgba(78, 205, 196, 0.12);
+  --color-accent-2-glow: rgba(78, 205, 196, 0.20);
+
   --color-violet: #A78BFA;
   --color-violet-soft: rgba(167, 139, 250, 0.15);
   --color-violet-glow: rgba(167, 139, 250, 0.25);
@@ -189,6 +194,14 @@
 
   .glow-violet {
     box-shadow: 0 0 20px var(--color-violet-glow), 0 0 60px rgba(167, 139, 250, 0.08);
+  }
+
+  .text-accent-2 {
+    color: var(--color-accent-2);
+  }
+
+  .glow-accent-2 {
+    box-shadow: 0 0 20px var(--color-accent-2-glow), 0 0 60px rgba(78, 205, 196, 0.08);
   }
 }
 
