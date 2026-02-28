@@ -1,14 +1,14 @@
 ---
 title: "ReactorTwin"
-date: 2026-02-10
-description: "Surrogate digital twin for industrial chemical reactors using neural ODEs and physics-informed neural networks."
-tags: ["pytorch", "neural-odes", "pinns", "chemical-engineering", "digital-twin"]
+date: 2026-02-28
+description: "Physics-constrained neural ODE surrogate for chemical reactor digital twins. v1.0.0, production stable — 1500x faster than first-principles simulation."
+tags: ["pytorch", "neural-odes", "chemical-engineering", "digital-twin"]
 status: "active"
 github: "https://github.com/ktubhyam/reactor-twin"
 featured: true
 ---
 
-ReactorTwin creates fast, accurate surrogate models of chemical reactors that run 1500x faster than traditional CFD simulations while preserving physical constraints. It bridges the gap between first-principles reactor modeling and data-driven machine learning.
+ReactorTwin creates fast, accurate surrogate models of chemical reactors that run 1500x faster than traditional first-principles simulation while preserving physical constraints. v1.0.0 is production-stable: deployable via Docker, Kubernetes, or CLI with a full digital twin stack (EKF state estimation, fault detection, MPC control, online adaptation, meta-learning).
 
 ## The Problem
 
@@ -103,7 +103,7 @@ The thermodynamic loss $\mathcal{L}_\text{thermo}$ penalizes predictions that ex
 
 ## Monitoring Dashboard
 
-A real-time web dashboard built with Next.js and D3.js provides:
+A real-time dashboard built with Streamlit provides:
 
 - **Live reactor state:** Current temperature, pressure, concentrations updated every 5 seconds
 - **Prediction overlay:** Neural ODE predictions vs. actual sensor readings with confidence bands
@@ -113,11 +113,11 @@ A real-time web dashboard built with Next.js and D3.js provides:
 
 ## Tech Stack
 
-- **Core:** PyTorch + torchdiffeq for neural ODE integration
-- **Thermodynamics:** Cantera for equilibrium calculations, species properties, and reaction mechanisms
-- **Dashboard:** Next.js + D3.js + WebSocket for real-time visualization
-- **Serving:** FastAPI + Docker for model inference endpoints
-- **Data ingestion:** Apache Arrow / Parquet for time-series storage, OPC-UA client for DCS connectivity
+- **Core:** PyTorch + torchdiffeq — Neural ODE integration with continuous adjoint backprop
+- **Dashboard:** Streamlit — 10-page interactive dashboard (phase portraits, bifurcation, RTD, sensitivity, fault monitoring, latent space explorer)
+- **Serving:** FastAPI + Docker — REST API v1/v2 with JWT auth, rate limiting, WebSocket streaming
+- **Deploy:** Kubernetes Helm chart with HPA + GPU Dockerfile; CLI (`reactor-twin train | serve | export | dashboard`)
+- **Export:** ONNX Runtime — NeuralODE/Latent/Augmented → ONNX for edge inference
 
 ## Performance
 
