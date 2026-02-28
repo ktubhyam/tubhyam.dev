@@ -48,7 +48,7 @@ function getR2Color(r2: number): string {
 }
 
 export default function LogStream({
-  title = "training — spectral_fm.py",
+  title = "training — spektron_train.py",
   className = "",
   speed = 400,
 }: Props) {
@@ -112,7 +112,7 @@ export default function LogStream({
         {/* Header */}
         {visibleLines > 0 && (
           <div className="text-text-muted/70 mb-1">
-            <span className="text-[#C9A04A]">Spektron</span> v0.3.1 — 4x RTX 5090 — mixed precision
+            <span className="text-[#C9A04A]">Spektron</span> v0.1.0 — 4x RTX 5090 — mixed precision
           </div>
         )}
 

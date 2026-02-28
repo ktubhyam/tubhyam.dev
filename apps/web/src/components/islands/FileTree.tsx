@@ -40,7 +40,7 @@ function getFileColor(name: string): string {
 
 const DEFAULT_TREE: TreeNode[] = [
   {
-    name: "spectral-fm/", type: "folder", children: [
+    name: "spektron/", type: "folder", children: [
       {
         name: "src/", type: "folder", children: [
           {

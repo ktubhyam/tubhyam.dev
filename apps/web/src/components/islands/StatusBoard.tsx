@@ -22,7 +22,7 @@ interface Props {
 
 const DEFAULT_ROWS: StatusRow[] = [
   { name: "spectrakit", status: "passing", version: "v1.8.0", coverage: 97, tests: 699 },
-  { name: "spectral-fm", status: "building", version: "v0.1.0-alpha", coverage: 28, tests: 12 },
+  { name: "spektron", status: "building", version: "v0.1.0", coverage: 28, tests: 12 },
   { name: "vibescope", status: "building", version: "v0.0.1-dev" },
   { name: "tubhyam.dev", status: "passing", version: "v1.0.0", coverage: 0, tests: 0 },
   { name: "qm9s-loader", status: "building", version: "v0.0.1-dev" },

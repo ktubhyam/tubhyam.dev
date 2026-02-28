@@ -29,7 +29,7 @@ const DEFAULT_STAGES: Stage[] = [
 
 export default function PipelineFlow({
   stages = DEFAULT_STAGES,
-  title = "pipeline — spectral_fm",
+  title = "pipeline — spektron",
   className = "",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);

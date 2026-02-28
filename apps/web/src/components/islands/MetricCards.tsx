@@ -31,7 +31,7 @@ const DEFAULT_METRICS: Metric[] = [
   },
   {
     label: "QM9S Dataset",
-    value: 130,
+    value: 222,
     suffix: "K",
     color: "#4ECDC4",
     sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.8, 1.0],
