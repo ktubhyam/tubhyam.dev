@@ -203,9 +203,10 @@ export default function FullPageScroller() {
           return;
         }
 
-        const scale   = 1 - (progress >= 0 ? outProgress : inProgress) * 0.04;
-        const blur    = (progress >= 0 ? outProgress : inProgress) * 5;
-        const opacity = 1 - (progress >= 0 ? outProgress : inProgress) * 0.3;
+        const p       = progress >= 0 ? outProgress : inProgress;
+        const scale   = 1 - p * 0.03;
+        const blur    = p * 3;
+        const opacity = 1 - p * 0.25;
 
         el.style.transform = `scale(${scale})`;
         el.style.filter    = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
