@@ -12,7 +12,7 @@ const posts = (await getCollection("blog"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const featuredPost = posts[0];
-const recentPosts = posts.slice(1, 4);
+const recentPosts = posts.slice(1, 3);
 
 // React island components
 import SideNav from "@components/islands/SideNav";
@@ -22,19 +22,21 @@ import RotatingText from "@components/islands/RotatingText";
 import DecryptedText from "@components/islands/DecryptedText";
 import SpectrumViz from "@components/islands/SpectrumViz";
 import MetricCards from "@components/islands/MetricCards";
-import StatusBoard from "@components/islands/StatusBoard";
-import EquationReveal from "@components/islands/EquationReveal";
-import StaggerReveal from "@components/islands/StaggerReveal";
-import TextRevealHighlight from "@components/islands/TextRevealHighlight";
-import MagneticCard from "@components/islands/MagneticCard";
-import MoleculeCard from "@components/islands/MoleculeCard";
-import OrbitalDiagram from "@components/islands/OrbitalDiagram";
-import ProjectSlider from "@components/islands/ProjectSlider";
+import AvailabilityStatus from "@components/islands/AvailabilityStatus";
+import TextScramble from "@components/islands/TextScramble";
+import GradientText from "@components/islands/GradientText";
+import AtomOrbit3D from "@components/islands/AtomOrbit3D";
 import HeroSpectrum from "@components/islands/HeroSpectrum";
 import InverseProblemFlow from "@components/islands/InverseProblemFlow";
+import PipelineFlow from "@components/islands/PipelineFlow";
+import SpotlightCard from "@components/islands/SpotlightCard";
+import LogStream from "@components/islands/LogStream";
 import MastHeadReveal from "@components/islands/MastHeadReveal";
+import ContributionGrid from "@components/islands/ContributionGrid";
 import VibeScopePreview from "@components/islands/VibeScopePreview";
-import AvailabilityStatus from "@components/islands/AvailabilityStatus";
+import MoleculeCard from "@components/islands/MoleculeCard";
+import OrbitalDiagram from "@components/islands/OrbitalDiagram";
+import NavTerminalPath from "@components/islands/NavTerminalPath";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -72,11 +74,13 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
   <FullPageScroller client:load />
   <SideNav client:idle />
 
-  <!-- GlassNav on this page rendered separately via BaseLayout hideNav — we include a minimal fixed header -->
-  <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between" id="home-nav">
-    <a href="/" class="font-mono text-sm text-text-secondary hover:text-text-primary transition-colors tracking-tight">
-      tubhyam.dev
-    </a>
+  <!-- Fixed header with terminal pill -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-6 flex items-center justify-between" id="home-nav" style="height:48px; background: rgba(0,0,0,0.88); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <!-- Terminal pill -->
+    <div class="terminal-pill-home flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface flex-shrink-0">
+      <NavTerminalPath client:load />
+    </div>
+
     <nav class="hidden md:flex items-center gap-6">
       <a href="/research" class="nav-top-link">Research</a>
       <a href="/projects" class="nav-top-link">Projects</a>
@@ -135,12 +139,12 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <!-- Text column -->
         <div class="hero-content">
-          <!-- Name -->
+          <!-- Name: TextScramble decode on mount -->
           <h1
-            class="text-[clamp(2.8rem,7vw,5rem)] font-heading font-extrabold tracking-[-0.04em] leading-[0.9] text-text-primary"
+            class="text-[clamp(2.8rem,7vw,5rem)] font-extrabold tracking-[-0.04em] leading-[0.9] text-text-primary"
             style="opacity: 0; animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;"
           >
-            Tubhyam<br />Karthikeyan
+            <TextScramble client:load text="Tubhyam Karthikeyan" speed={25} />
           </h1>
 
           <!-- Rotating subtitle -->
@@ -168,12 +172,12 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
             />
           </div>
 
-          <!-- Tagline -->
+          <!-- Tagline: GradientText flowing amber -->
           <p
-            class="mt-5 text-base font-light text-text-secondary max-w-sm leading-relaxed hidden sm:block"
+            class="mt-5 text-base font-light max-w-sm leading-relaxed hidden sm:block"
             style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s forwards;"
           >
-            Building neural networks that understand molecules.
+            <GradientText client:load>Building neural networks that understand molecules.</GradientText>
           </p>
 
           <!-- CTA buttons -->
@@ -221,15 +225,23 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
           </div>
         </div>
 
-        <!-- Right column: HeroSpectrum (desktop only) -->
+        <!-- Right column: AtomOrbit3D (desktop only) -->
         <div
-          class="hidden lg:block"
+          class="hidden lg:flex items-center justify-center overflow-hidden"
           style="opacity: 0; animation: fade-up 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s forwards;"
         >
-          <HeroSpectrum client:load />
-          <p class="mt-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
-            IR spectrum — benzaldehyde · B3LYP/def2-TZVP
-          </p>
+          <AtomOrbit3D
+            client:load
+            centerIcon="M9 3h6m-6 0v6l-4 9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l-4-9V3"
+            nodes={[
+              { label: "Spektron",    icon: "M22 12h-4l-3 9L9 3l-3 9H2",                                                                                      description: "SSM+attention for spectral inverse",    color: "#C9A04A" },
+              { label: "SpectraKit",  icon: "M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z",                                                                 description: "IR/Raman preprocessing toolkit",         color: "#C9A04A" },
+              { label: "QM9S",        icon: "M4 7a8 3 0 0 1 16 0v10a8 3 0 0 1-16 0V7m0 5a8 3 0 0 0 16 0",                                                     description: "130K molecule dataset · B3LYP/def2-TZVP", color: "#888888" },
+              { label: "ReactorTwin", icon: "M12 6V4m0 2a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m-6 8a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4", description: "Neural ODE reactor sim · 1500× faster",    color: "#888888" },
+              { label: "VibScope",    icon: "M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z", description: "3D vibration viewer · WebGL",            color: "#888888" },
+              { label: "Group Theory",icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",                 description: "Molecular symmetry & selection rules",   color: "#888888" },
+            ]}
+          />
         </div>
       </div>
 
@@ -281,7 +293,7 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
             </a>
 
             <!-- Stats row -->
-            <div class="flex items-center gap-5 mb-7">
+            <div class="flex items-center gap-5 mb-6">
               <div>
                 <p class="text-xl font-heading font-bold text-accent">130K</p>
                 <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">molecules</p>
@@ -298,20 +310,28 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
               </div>
             </div>
 
+            <!-- PipelineFlow below stats -->
+            <PipelineFlow client:visible className="mb-5" />
+
             <a href="/research" class="inline-flex items-center gap-2 text-sm font-mono text-accent hover:text-text-primary transition-colors">
               View all research →
             </a>
           </div>
 
-          <!-- Visual column: stacked -->
+          <!-- Visual column: stacked HeroSpectrum + InverseProblemFlow -->
           <div class="flex flex-col gap-3">
-            <EquationReveal client:visible title="spektron — model equations" />
+            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary">
+              <HeroSpectrum client:visible />
+              <p class="pb-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
+                IR spectrum — benzaldehyde · B3LYP/def2-TZVP
+              </p>
+            </div>
             <InverseProblemFlow client:visible />
           </div>
         </div>
 
         <!-- Floating tags -->
-        <div class="mt-6 flex flex-wrap gap-2">
+        <div class="mt-5 flex flex-wrap gap-2">
           {["spectroscopy", "state space models", "graph networks", "neural ODEs", "QM9S", "IR/Raman"].map((tag) => (
             <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-border-hover transition-colors">
               {tag}
@@ -334,72 +354,85 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">02 / Build</p>
-        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-8">
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-6">
           Open-source tools for chemical science
         </h2>
 
-        <!-- Bento grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="bento-grid">
+        <!-- Bento grid — each card wrapped in SpotlightCard -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="bento-grid">
           <!-- SpectraKit — large (spans 2 cols) -->
-          <a href="/projects/spectrakit" class="bento-card col-span-2 row-span-1 p-5 group">
-            <div class="flex items-start justify-between mb-3">
-              <div>
-                <p class="text-xs font-mono text-accent mb-1">v1.8.0</p>
-                <h3 class="text-base font-heading font-semibold text-text-primary">SpectraKit</h3>
+          <SpotlightCard client:idle className="col-span-2 row-span-1 group">
+            <a href="/projects/spectrakit" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="text-xs font-mono text-accent mb-1">v1.8.0</p>
+                  <h3 class="text-base font-heading font-semibold text-text-primary">SpectraKit</h3>
+                </div>
+                <Badge variant="outline">stable</Badge>
               </div>
-              <Badge variant="outline">stable</Badge>
-            </div>
-            <p class="text-xs text-text-muted leading-relaxed mb-4">
-              Python library for vibrational spectroscopy preprocessing and analysis.
-            </p>
-            <div class="flex items-center gap-3 text-[10px] font-mono text-text-muted">
-              <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>699 tests</span>
-              <span>97% coverage</span>
-            </div>
-            <p class="mt-2 text-[10px] font-mono text-text-muted/60">pip install spectrakit</p>
-          </a>
+              <p class="text-xs text-text-muted leading-relaxed mb-4">
+                Python library for vibrational spectroscopy preprocessing and analysis.
+              </p>
+              <div class="flex items-center gap-3 text-[10px] font-mono text-text-muted">
+                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>699 tests</span>
+                <span>97% coverage</span>
+              </div>
+              <p class="mt-2 text-[10px] font-mono text-text-muted/60">pip install spectrakit</p>
+            </a>
+          </SpotlightCard>
 
           <!-- Spektron -->
-          <a href="/projects/spektron" class="bento-card p-5 group">
-            <div class="mb-2">
-              <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
-              <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
-            </div>
-            <p class="text-[11px] text-text-muted leading-relaxed mb-3">SSM+attention for IR/Raman prediction</p>
-            <div class="flex items-center gap-1 text-[10px] font-mono">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
-              <span class="text-text-muted">building</span>
-            </div>
-          </a>
+          <SpotlightCard client:idle className="group">
+            <a href="/projects/spektron" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
+              <div class="mb-2">
+                <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
+                <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
+              </div>
+              <p class="text-[11px] text-text-muted leading-relaxed mb-3">SSM+attention for IR/Raman prediction</p>
+              <div class="flex items-center gap-1 text-[10px] font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
+                <span class="text-text-muted">building</span>
+              </div>
+            </a>
+          </SpotlightCard>
 
           <!-- ReactorTwin -->
-          <a href="/projects/reactortwin" class="bento-card p-5 group">
-            <div class="mb-2">
-              <p class="text-xs font-mono text-text-muted mb-1">v1.0.0</p>
-              <h3 class="text-sm font-heading font-semibold text-text-primary">ReactorTwin</h3>
-            </div>
-            <p class="text-[11px] text-text-muted leading-relaxed mb-3">Neural ODE surrogate — 1500× faster</p>
-            <div class="flex items-center gap-1 text-[10px] font-mono">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
-              <span class="text-text-muted">stable</span>
-            </div>
-          </a>
+          <SpotlightCard client:idle className="group">
+            <a href="/projects/reactortwin" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
+              <div class="mb-2">
+                <p class="text-xs font-mono text-text-muted mb-1">v1.0.0</p>
+                <h3 class="text-sm font-heading font-semibold text-text-primary">ReactorTwin</h3>
+              </div>
+              <p class="text-[11px] text-text-muted leading-relaxed mb-3">Neural ODE surrogate — 1500× faster</p>
+              <div class="flex items-center gap-1 text-[10px] font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+                <span class="text-text-muted">stable</span>
+              </div>
+            </a>
+          </SpotlightCard>
 
           <!-- SpectraView — spans 2 cols -->
-          <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="bento-card col-span-2 p-5 group">
-            <div class="flex items-start justify-between mb-2">
-              <div>
-                <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
-                <h3 class="text-sm font-heading font-semibold text-text-primary">SpectraView</h3>
+          <SpotlightCard client:idle className="col-span-2 group">
+            <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
+                  <h3 class="text-sm font-heading font-semibold text-text-primary">SpectraView</h3>
+                </div>
+                <Badge variant="outline">beta</Badge>
               </div>
-              <Badge variant="outline">beta</Badge>
-            </div>
-            <p class="text-[11px] text-text-muted leading-relaxed">TypeScript React library — 15 components, Canvas+SVG renderer for spectra</p>
-          </a>
+              <p class="text-[11px] text-text-muted leading-relaxed">TypeScript React library — 15 components, Canvas+SVG renderer for spectra</p>
+            </a>
+          </SpotlightCard>
         </div>
 
         <!-- MetricCards strip -->
         <MetricCards client:visible />
+
+        <!-- LogStream: training log -->
+        <div class="mt-4">
+          <LogStream client:visible />
+        </div>
       </div>
     </section>
 
@@ -413,61 +446,26 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
     >
       <span class="section-number">03</span>
 
-      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center pt-20">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">03 / Explore</p>
         <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-2">
           Interactive Chemistry Simulations
         </h2>
-        <p class="text-sm text-text-secondary mb-8">Explore molecular physics in your browser.</p>
+        <p class="text-sm text-text-secondary mb-5">Explore molecular physics in your browser.</p>
 
-        <!-- Simulation cards -->
-        <!-- Top row: 3 smaller simulations -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          <a href="/simulations/normal-mode-explorer" class="sim-card group">
-            <MoleculeCard client:visible className="mb-3 border-0 bg-transparent" />
-            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Normal Mode Explorer</h3>
-            <p class="text-[11px] text-text-muted leading-relaxed mb-2">45 molecules · 583 modes. Animate vibrational modes in real time.</p>
-            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
-          </a>
-
-          <a href="https://orbital.tubhyam.dev" target="_blank" rel="noopener noreferrer" class="sim-card group">
-            <OrbitalDiagram client:visible element="Fe" atomicNumber={26} className="mb-3" />
-            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Orbital Architect</h3>
-            <p class="text-[11px] text-text-muted leading-relaxed mb-2">Gamified orbital filling. Aufbau · Pauli · Hund's rules.</p>
-            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
-          </a>
-
-          <a href="/simulations/symmetry-explorer" class="sim-card group">
-            <div class="mb-3 rounded-lg bg-bg-secondary border border-border p-3 flex items-center justify-center" style="min-height:80px">
-              <svg width="52" height="52" viewBox="0 0 64 64" fill="none" class="opacity-50">
-                <circle cx="32" cy="32" r="20" stroke="#888" stroke-width="1" stroke-dasharray="3 3" />
-                <line x1="32" y1="8" x2="32" y2="56" stroke="#666" stroke-width="0.5" opacity="0.6" />
-                <line x1="8" y1="32" x2="56" y2="32" stroke="#666" stroke-width="0.5" opacity="0.6" />
-                <circle cx="32" cy="32" r="3" fill="#888" opacity="0.5" />
-                <circle cx="32" cy="12" r="2" fill="#C9A04A" opacity="0.6" />
-                <circle cx="32" cy="52" r="2" fill="#C9A04A" opacity="0.6" />
-                <circle cx="12" cy="32" r="2" fill="#C9A04A" opacity="0.6" />
-                <circle cx="52" cy="32" r="2" fill="#C9A04A" opacity="0.6" />
-              </svg>
-            </div>
-            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Symmetry Explorer</h3>
-            <p class="text-[11px] text-text-muted leading-relaxed mb-2">15 point groups · character tables · selection rules.</p>
-            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
-          </a>
-        </div>
-
-        <!-- Bottom row: VibScope featured (with molecule selector) + S2S -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <!-- VibScope — featured, spans 2 cols, contains molecule selector preview -->
-          <div class="sim-card sm:col-span-2">
-            <div class="flex items-center gap-2 mb-3">
+        <!-- 2-column layout: VibScope left (60%), 4 compact cards right (40%) -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 flex-1 min-h-0">
+          <!-- Left: VibScope featured -->
+          <div class="lg:col-span-3 sim-card flex flex-col min-h-0">
+            <div class="flex items-center gap-2 mb-3 flex-shrink-0">
               <Badge>Featured</Badge>
               <h3 class="text-sm font-heading font-semibold text-text-primary">VibScope</h3>
               <span class="text-[10px] font-mono text-text-muted ml-auto">17 molecules · 3D · 60fps</span>
             </div>
-            <!-- Props-based molecule selector preview -->
-            <VibeScopePreview client:visible />
-            <div class="mt-3 flex items-center justify-between">
+            <div class="flex-1 min-h-0 overflow-hidden">
+              <VibeScopePreview client:visible />
+            </div>
+            <div class="mt-3 flex items-center justify-between flex-shrink-0">
               <p class="text-[10px] font-mono text-text-muted">Three.js + WebGL · GIF export</p>
               <a href="/simulations/vibescope" class="text-[10px] font-mono text-text-muted hover:text-accent transition-colors">
                 Launch full app →
@@ -475,14 +473,48 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
             </div>
           </div>
 
-          <a href="/simulations/spectrum-to-structure" class="sim-card group flex flex-col">
-            <div class="flex-1">
-              <SpectrumViz client:visible className="mb-3 border-0 bg-transparent" title="Predicted Spectrum" />
-              <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Spectrum-to-Structure</h3>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-2">ML-powered structure prediction from vibrational spectra.</p>
-            </div>
-            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors mt-auto">Launch →</span>
-          </a>
+          <!-- Right: 4 compact simulation cards -->
+          <div class="lg:col-span-2 flex flex-col gap-3">
+            <a href="/simulations/normal-mode-explorer" class="compact-sim-card group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Normal Mode Explorer</h4>
+                  <p class="text-[10px] font-mono text-text-muted">45 molecules · 583 modes</p>
+                </div>
+                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
+              </div>
+            </a>
+
+            <a href="https://orbital.tubhyam.dev" target="_blank" rel="noopener noreferrer" class="compact-sim-card group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Orbital Architect</h4>
+                  <p class="text-[10px] font-mono text-text-muted">Aufbau · Pauli · Hund's rules</p>
+                </div>
+                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
+              </div>
+            </a>
+
+            <a href="/simulations/symmetry-explorer" class="compact-sim-card group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Symmetry Explorer</h4>
+                  <p class="text-[10px] font-mono text-text-muted">15 point groups · character tables</p>
+                </div>
+                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
+              </div>
+            </a>
+
+            <a href="/simulations/spectrum-to-structure" class="compact-sim-card group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Spectrum-to-Structure</h4>
+                  <p class="text-[10px] font-mono text-text-muted">ML-powered structure prediction</p>
+                </div>
+                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -500,58 +532,70 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">04 / Writing</p>
 
-        <!-- Publication name — character-stagger reveal -->
+        <!-- Publication name -->
         <MastHeadReveal
           client:visible
           text="LATENT CHEMISTRY"
           className="text-5xl sm:text-6xl font-heading font-extralight text-text-primary tracking-[-0.02em] mb-2"
         />
-        <p class="text-sm text-text-secondary mb-8">{PUBLICATION.tagline}</p>
+        <p class="text-sm text-text-secondary mb-6">{PUBLICATION.tagline}</p>
 
-        {featuredPost && (
-          <a href={`/blog/${featuredPost.id}`} class="block mb-5 featured-post-card group">
-            <div class="flex items-center gap-3 mb-2">
-              <Badge>Latest</Badge>
-              <span class="text-[10px] font-mono text-text-muted">
-                {formatDate(featuredPost.data.date)} · {readingTime(featuredPost.body ?? "")} min read
-              </span>
-            </div>
-            <h3 class="text-lg sm:text-xl font-heading font-semibold text-text-primary leading-snug group-hover:text-accent transition-colors">
-              {featuredPost.data.title}
-            </h3>
-            <div class="mt-3 flex flex-wrap gap-1.5">
-              {featuredPost.data.tags.slice(0, 3).map((tag: string) => (
-                <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{tag}</span>
-              ))}
-            </div>
-          </a>
-        )}
-
-        {recentPosts.length > 0 && (
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-            {recentPosts.map((post) => (
-              <a href={`/blog/${post.id}`} class="post-card group">
-                <p class="text-[10px] font-mono text-text-muted mb-1">{formatDate(post.data.date)}</p>
-                <h4 class="text-xs font-heading font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug line-clamp-2">
-                  {post.data.title}
-                </h4>
-                <div class="mt-2 flex flex-wrap gap-1">
-                  {post.data.tags.slice(0, 2).map((tag: string) => (
-                    <span class="text-[9px] font-mono text-text-muted/60 bg-surface rounded-full px-1.5 py-0.5">{tag}</span>
+        <!-- 2-column layout: blog posts left | ContributionGrid right -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 min-h-0">
+          <!-- Left: blog post cards -->
+          <div class="flex flex-col">
+            {featuredPost && (
+              <a href={`/blog/${featuredPost.id}`} class="block mb-4 featured-post-card group">
+                <div class="flex items-center gap-3 mb-2">
+                  <Badge>Latest</Badge>
+                  <span class="text-[10px] font-mono text-text-muted">
+                    {formatDate(featuredPost.data.date)} · {readingTime(featuredPost.body ?? "")} min read
+                  </span>
+                </div>
+                <h3 class="text-base sm:text-lg font-heading font-semibold text-text-primary leading-snug group-hover:text-accent transition-colors">
+                  {featuredPost.data.title}
+                </h3>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  {featuredPost.data.tags.slice(0, 3).map((tag: string) => (
+                    <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{tag}</span>
                   ))}
                 </div>
               </a>
-            ))}
-          </div>
-        )}
+            )}
 
-        <div class="flex items-center gap-4">
-          <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
-            Enter the archive →
-          </a>
-          <a href="https://buttondown.com/latentchemistry" target="_blank" rel="noopener noreferrer" class="text-sm font-mono text-text-muted hover:text-text-secondary transition-colors border border-border hover:border-border-hover px-4 py-2 rounded-sm">
-            Subscribe
-          </a>
+            {recentPosts.length > 0 && (
+              <div class="grid grid-cols-2 gap-2 mb-5">
+                {recentPosts.map((post) => (
+                  <a href={`/blog/${post.id}`} class="post-card group">
+                    <p class="text-[10px] font-mono text-text-muted mb-1">{formatDate(post.data.date)}</p>
+                    <h4 class="text-xs font-heading font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug line-clamp-2">
+                      {post.data.title}
+                    </h4>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                      {post.data.tags.slice(0, 2).map((tag: string) => (
+                        <span class="text-[9px] font-mono text-text-muted/60 bg-surface rounded-full px-1.5 py-0.5">{tag}</span>
+                      ))}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            <div class="flex items-center gap-4">
+              <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
+                Enter the archive →
+              </a>
+              <a href="https://buttondown.com/latentchemistry" target="_blank" rel="noopener noreferrer" class="text-sm font-mono text-text-muted hover:text-text-secondary transition-colors border border-border hover:border-border-hover px-4 py-2 rounded-sm">
+                Subscribe
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: ContributionGrid -->
+          <div class="flex flex-col gap-2 justify-start">
+            <ContributionGrid client:visible />
+            <p class="text-[9px] font-mono text-text-muted/40">26 weeks of writing</p>
+          </div>
         </div>
       </div>
     </section>
@@ -693,7 +737,6 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 <style>
   /* ── Home-specific nav ── */
   #home-nav {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
     animation: fade-up 0.5s ease-out 0.1s both;
   }
 
@@ -752,37 +795,20 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
     50% { opacity: 0.7; transform: translateX(-50%) translateY(4px); }
   }
 
-  /* ── Bento cards ── */
-  .bento-card {
+  /* ── Compact sim cards (S3 Explore) ── */
+  .compact-sim-card {
     display: block;
+    text-decoration: none;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
-    text-decoration: none;
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
     transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
   }
 
-  .bento-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(201,160,74,0.06) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 300ms ease;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .bento-card:hover {
+  .compact-sim-card:hover {
     border-color: var(--color-border-hover);
     background: var(--color-surface-hover);
-    transform: translateY(-1px);
-  }
-
-  .bento-card:hover::before {
-    opacity: 1;
   }
 
   /* ── Simulation cards ── */
@@ -882,15 +908,4 @@ import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 
   trigger?.addEventListener("click", toggleMenu);
   backdrop?.addEventListener("click", toggleMenu);
-
-  // Bento card cursor glow
-  document.querySelectorAll<HTMLElement>(".bento-card").forEach((card) => {
-    card.addEventListener("mousemove", (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      card.style.setProperty("--mx", `${x}%`);
-      card.style.setProperty("--my", `${y}%`);
-    });
-  });
 </script>

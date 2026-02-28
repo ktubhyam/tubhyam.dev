@@ -2,7 +2,8 @@ import { useEffect, useRef, useCallback } from "react";
 
 /**
  * FullPageScroller — manages keyboard navigation (↑↓) between
- * .full-page-section elements within .full-page-scroller.
+ * .full-page-section elements within .full-page-scroller,
+ * and applies cinematic scroll-driven scale+blur+opacity transforms.
  * Does NOT render any DOM; purely a side-effect island.
  */
 export default function FullPageScroller() {
@@ -25,8 +26,8 @@ export default function FullPageScroller() {
     currentRef.current = index;
   }, [getSections]);
 
+  // Track current section via IntersectionObserver
   useEffect(() => {
-    // Track current section via IntersectionObserver
     const sections = getSections();
     if (sections.length === 0) return;
 
@@ -48,6 +49,7 @@ export default function FullPageScroller() {
     return () => observer.disconnect();
   }, [getSections]);
 
+  // Keyboard navigation
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -72,6 +74,56 @@ export default function FullPageScroller() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [getSections, scrollToSection]);
+
+  // Cinematic scroll-driven transforms
+  useEffect(() => {
+    const scroller = document.querySelector<HTMLElement>(".full-page-scroller");
+    if (!scroller) return;
+
+    const sections = getSections();
+    if (sections.length === 0) return;
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const onScroll = () => {
+      const vh = window.innerHeight;
+      const scrollTop = scroller.scrollTop;
+
+      sections.forEach((el, i) => {
+        const progress = (scrollTop - i * vh) / vh; // -1 to 1+
+
+        if (progress < -1 || progress > 1) return;
+
+        const outProgress = Math.max(0, progress);   // 0→1 as section exits upward
+        const inProgress  = Math.max(0, -progress);  // 0→1 as section enters from below
+
+        if (prefersReduced) {
+          el.style.opacity = String(1 - outProgress * 0.35);
+          return;
+        }
+
+        const scale   = progress >= 0 ? 1 - outProgress * 0.04 : 1 - inProgress * 0.04;
+        const blur    = progress >= 0 ? outProgress * 6         : inProgress * 6;
+        const opacity = progress >= 0 ? 1 - outProgress * 0.35  : 1 - inProgress * 0.35;
+        const ty      = progress >= 0 ? outProgress * -60        : inProgress * 60;
+
+        el.style.transform = `translateY(${ty}px) scale(${scale})`;
+        el.style.filter    = `blur(${blur}px)`;
+        el.style.opacity   = String(opacity);
+      });
+    };
+
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      scroller.removeEventListener("scroll", onScroll);
+      sections.forEach((el) => {
+        el.style.transform = "";
+        el.style.filter    = "";
+        el.style.opacity   = "";
+      });
+    };
+  }, [getSections]);
 
   return null;
 }
