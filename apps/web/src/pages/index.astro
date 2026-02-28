@@ -1,55 +1,40 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import GlassButton from "@components/ui/GlassButton.astro";
+import StarBorder from "@components/ui/StarBorder.astro";
 import Badge from "@components/ui/Badge.astro";
-import { SITE } from "@lib/constants";
+import { SITE, PUBLICATION } from "@lib/constants";
 import { getCollection } from "astro:content";
-import { formatDate } from "@lib/utils";
+import { formatDate, readingTime } from "@lib/utils";
 
 // Fetch latest blog posts
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-// Custom animated islands
-import TextRevealHighlight from "@components/islands/TextRevealHighlight";
-import AtomOrbit3D from "@components/islands/AtomOrbit3D";
-import StaggerReveal from "@components/islands/StaggerReveal";
-import ParallaxText from "@components/islands/ParallaxText";
-import MagneticCard from "@components/islands/MagneticCard";
+const featuredPost = posts[0];
+const recentPosts = posts.slice(1, 4);
+
+// React island components
 import SideNav from "@components/islands/SideNav";
-import TerminalBlock from "@components/islands/TerminalBlock";
-import SpectrumViz from "@components/islands/SpectrumViz";
-import LogStream from "@components/islands/LogStream";
-import StatusBoard from "@components/islands/StatusBoard";
-import PipelineFlow from "@components/islands/PipelineFlow";
-import ContributionGrid from "@components/islands/ContributionGrid";
-import FileTree from "@components/islands/FileTree";
-import EquationReveal from "@components/islands/EquationReveal";
-import CodeComparison from "@components/islands/CodeComparison";
-import MetricCards from "@components/islands/MetricCards";
-import MoleculeCard from "@components/islands/MoleculeCard";
-import AvailabilityStatus from "@components/islands/AvailabilityStatus";
-import SocialLinks from "@components/islands/SocialLinks";
-
-// React Bits components
+import ScrollProgress from "@components/islands/ScrollProgress";
+import FullPageScroller from "@components/islands/FullPageScroller";
 import RotatingText from "@components/islands/RotatingText";
-
 import DecryptedText from "@components/islands/DecryptedText";
-import GradientText from "@components/islands/GradientText";
-import StarBorder from "@components/ui/StarBorder.astro";
-import ProjectSlider from "@components/islands/ProjectSlider";
-import BlogTerminal from "@components/islands/BlogTerminal";
+import SpectrumViz from "@components/islands/SpectrumViz";
+import MetricCards from "@components/islands/MetricCards";
+import StatusBoard from "@components/islands/StatusBoard";
+import EquationReveal from "@components/islands/EquationReveal";
+import StaggerReveal from "@components/islands/StaggerReveal";
+import TextRevealHighlight from "@components/islands/TextRevealHighlight";
+import MagneticCard from "@components/islands/MagneticCard";
+import MoleculeCard from "@components/islands/MoleculeCard";
 import OrbitalDiagram from "@components/islands/OrbitalDiagram";
-
-// Serialize posts for the BlogTerminal React island
-const blogPosts = posts.map((post) => ({
-  id: post.id,
-  title: post.data.title,
-  date: post.data.date.toISOString().slice(0, 10),
-  description: post.data.description,
-  tags: post.data.tags,
-}));
+import ProjectSlider from "@components/islands/ProjectSlider";
+import HeroSpectrum from "@components/islands/HeroSpectrum";
+import InverseProblemFlow from "@components/islands/InverseProblemFlow";
+import MastHeadReveal from "@components/islands/MastHeadReveal";
+import VibeScopePreview from "@components/islands/VibeScopePreview";
+import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -81,844 +66,831 @@ const blogPosts = posts.map((post) => ({
       ],
     },
   })} />
-  <script type="application/ld+json" set:html={JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": SITE.title,
-    "alternateName": SITE.shortTitle,
-    "url": SITE.url,
-    "description": SITE.description,
-    "author": { "@type": "Person", "name": SITE.author, "url": SITE.url },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": { "@type": "EntryPoint", "urlTemplate": `${SITE.url}/search?q={search_term_string}` },
-      "query-input": "required name=search_term_string",
-    },
-  })} />
-  <script type="application/ld+json" set:html={JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "SiteNavigationElement",
-    "name": ["About", "Projects", "Research", "Blog"],
-    "url": [
-      `${SITE.url}/about`,
-      `${SITE.url}/projects`,
-      `${SITE.url}/research`,
-      `${SITE.url}/blog`,
-    ],
-  })} />
 
-  <!-- Side navigation -->
+  <!-- Scroll infra islands (no DOM output) -->
+  <ScrollProgress client:load />
+  <FullPageScroller client:load />
   <SideNav client:idle />
 
-  <!-- ══════════════════════════════════════════════
-       SCENE 1: HERO — GradientText + RotatingText
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Hero" class="relative min-h-screen flex flex-col items-center justify-center px-6">
-    <div class="max-w-4xl w-full">
-      <h1>
-        <GradientText
-          client:idle
-          colors={["#4ECDC4", "#fafafa", "#C9A04A", "#fafafa", "#A78BFA", "#fafafa"]}
-          animationSpeed={6}
-          className="text-[clamp(3rem,10vw,7.5rem)] font-heading font-bold tracking-[-0.04em] leading-[0.9]"
+  <!-- GlassNav on this page rendered separately via BaseLayout hideNav — we include a minimal fixed header -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between" id="home-nav">
+    <a href="/" class="font-mono text-sm text-text-secondary hover:text-text-primary transition-colors tracking-tight">
+      tubhyam.dev
+    </a>
+    <nav class="hidden md:flex items-center gap-6">
+      <a href="/research" class="nav-top-link">Research</a>
+      <a href="/projects" class="nav-top-link">Projects</a>
+      <a href="/blog" class="nav-top-link">Blog</a>
+      <a href="/simulations" class="nav-top-link">Simulations</a>
+      <a
+        href={SITE.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub"
+        class="nav-top-link"
+      >
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+        </svg>
+      </a>
+    </nav>
+    <!-- Mobile hamburger -->
+    <button class="md:hidden text-text-muted p-1" id="home-mobile-trigger" aria-label="Open menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 12h18M3 6h18M3 18h18" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- Mobile menu overlay -->
+  <div class="md:hidden fixed inset-0 z-40 hidden" id="home-mobile-menu">
+    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" id="home-mobile-backdrop"></div>
+    <div class="absolute top-16 right-4 left-4 bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
+      <a href="/research" class="text-text-secondary hover:text-text-primary font-mono text-sm transition-colors">Research</a>
+      <a href="/projects" class="text-text-secondary hover:text-text-primary font-mono text-sm transition-colors">Projects</a>
+      <a href="/blog" class="text-text-secondary hover:text-text-primary font-mono text-sm transition-colors">Blog</a>
+      <a href="/simulations" class="text-text-secondary hover:text-text-primary font-mono text-sm transition-colors">Simulations</a>
+      <a href="/about" class="text-text-secondary hover:text-text-primary font-mono text-sm transition-colors">About</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       FULL-PAGE SCROLLER CONTAINER
+       ══════════════════════════════════════════════════════ -->
+  <main class="full-page-scroller" id="main-scroller">
+
+    <!-- ══════════════════════════════
+         SECTION 0 — HERO
+         ══════════════════════════════ -->
+    <section
+      aria-label="Hero"
+      data-nav-section="hero"
+      class="full-page-section"
+    >
+      <!-- Aurora-style ambient background -->
+      <div class="aurora-bg" aria-hidden="true"></div>
+
+      <span class="section-number">00</span>
+
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <!-- Text column -->
+        <div class="hero-content">
+          <!-- Name -->
+          <h1
+            class="text-[clamp(2.8rem,7vw,5rem)] font-heading font-extrabold tracking-[-0.04em] leading-[0.9] text-text-primary"
+            style="opacity: 0; animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;"
+          >
+            Tubhyam<br />Karthikeyan
+          </h1>
+
+          <!-- Rotating subtitle -->
+          <div
+            class="mt-6 h-7 overflow-hidden"
+            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;"
+          >
+            <RotatingText
+              client:load
+              texts={[
+                "Computational Chemist",
+                "ML Researcher",
+                "Open Source Builder",
+                "ICT Mumbai '30",
+              ]}
+              rotationInterval={3000}
+              staggerDuration={0.02}
+              staggerFrom="first"
+              mainClassName="text-base font-body font-light text-text-secondary tracking-tight"
+              elementLevelClassName="text-text-secondary"
+              transition={{ type: "spring", damping: 30, stiffness: 200 }}
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "-100%", opacity: 0 }}
+            />
+          </div>
+
+          <!-- Tagline -->
+          <p
+            class="mt-5 text-base font-light text-text-secondary max-w-sm leading-relaxed hidden sm:block"
+            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s forwards;"
+          >
+            Building neural networks that understand molecules.
+          </p>
+
+          <!-- CTA buttons -->
+          <div
+            class="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.7s forwards;"
+          >
+            <StarBorder as="a" href="#research-section" color="#C9A04A" speed="4s">
+              View Research
+            </StarBorder>
+            <a
+              href="#build-section"
+              class="text-sm font-mono text-text-muted hover:text-text-secondary border border-border hover:border-border-hover px-5 py-2.5 rounded-sm transition-colors duration-200"
+            >
+              See Projects →
+            </a>
+          </div>
+
+          <!-- Social icons -->
+          <div
+            class="mt-8 flex items-center gap-3"
+            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s forwards;"
+          >
+            <a href={SITE.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-icon">
+              <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+              </svg>
+            </a>
+            <a href={SITE.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="social-icon">
+              <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-icon">
+              <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+            </a>
+            <a href={`mailto:${SITE.email}`} aria-label="Email" class="social-icon">
+              <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M22 7l-10 7L2 7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right column: HeroSpectrum (desktop only) -->
+        <div
+          class="hidden lg:block"
+          style="opacity: 0; animation: fade-up 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s forwards;"
         >
-          Tubhyam Karthikeyan
-        </GradientText>
-      </h1>
-
-      <div class="mt-8 max-w-lg h-12 overflow-hidden">
-        <RotatingText
-          client:idle
-          texts={[
-            "Computational Chemist",
-            "ML Researcher",
-            "Open Source Builder",
-            "ICT Mumbai '30",
-          ]}
-          rotationInterval={3000}
-          staggerDuration={0.02}
-          staggerFrom="first"
-          mainClassName="text-lg sm:text-xl font-mono text-text-muted tracking-tight"
-          elementLevelClassName="text-text-muted"
-          transition={{ type: "spring", damping: 30, stiffness: 200 }}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: "-100%", opacity: 0 }}
-        />
-      </div>
-
-      <div
-        class="mt-6 flex flex-wrap gap-3 hero-fade"
-        style="opacity: 0; animation: fade-up 0.6s ease-out 1.2s forwards;"
-      >
-        {[
-          { tag: "spectroscopy", hoverColor: "hover:border-teal/30 hover:text-teal/80" },
-          { tag: "deep learning", hoverColor: "hover:border-accent/30 hover:text-accent/80" },
-          { tag: "open source", hoverColor: "hover:border-violet/30 hover:text-violet/80" },
-          { tag: "cheminformatics", hoverColor: "hover:border-teal/30 hover:text-teal/80" },
-        ].map(({ tag, hoverColor }) => (
-          <span class={`text-xs font-mono text-text-muted border border-border rounded-full px-3 py-1 transition-colors duration-200 ${hoverColor}`}>
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      <div
-        class="mt-10 flex flex-wrap items-center gap-4 hero-fade"
-        style="opacity: 0; animation: fade-up 0.5s ease-out 1.5s forwards;"
-      >
-        <StarBorder as="a" href="#build" color="#C9A04A" speed="4s">
-          View Work
-        </StarBorder>
-        <GlassButton href="#contact" variant="secondary">Get in Touch</GlassButton>
-
-        <!-- Social icons -->
-        <div class="flex items-center gap-2 ml-1">
-          <a
-            href="https://github.com/ktubhyam"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-            class="group flex items-center justify-center w-10 h-10 rounded-xl border border-border bg-bg-secondary hover:border-border-hover hover:bg-surface transition-all duration-200"
-          >
-            <svg viewBox="0 0 24 24" class="w-[18px] h-[18px] text-[#888] group-hover:text-[#e0e0e0] transition-colors duration-200" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-            </svg>
-          </a>
-          <a
-            href="https://www.linkedin.com/in/ktubhyam"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-            class="group flex items-center justify-center w-10 h-10 rounded-xl border border-border bg-bg-secondary hover:border-border-hover hover:bg-surface transition-all duration-200"
-          >
-            <svg viewBox="0 0 24 24" class="w-[18px] h-[18px] text-[#888] group-hover:text-[#60A5FA] transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z" />
-            </svg>
-          </a>
+          <HeroSpectrum client:load />
+          <p class="mt-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
+            IR spectrum — benzaldehyde · B3LYP/def2-TZVP
+          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Scroll indicator -->
-    <div
-      class="absolute bottom-8 left-1/2 -translate-x-1/2 hero-fade"
-      style="opacity: 0; animation: fade-up 0.5s ease-out 2s forwards;"
-    >
-      <div class="animate-bounce text-text-muted">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 5v14M5 12l7 7 7-7" />
+      <!-- Scroll chevron -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-chevron" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-text-muted">
+          <path d="M6 9l6 6 6-6" />
         </svg>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ══════════════════════════════════════════════
-       SCENE 3: RESEARCH — Orbit + Featured Papers
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Research" data-nav-section="research" class="mx-auto max-w-5xl px-6 py-16 section-fade">
-    <div class="flex items-center gap-3 mb-6 justify-center">
-      <span class="text-shimmer text-sm md:text-base font-mono uppercase tracking-[0.2em]">What I Research</span>
-    </div>
+    <!-- ══════════════════════════════
+         SECTION 1 — RESEARCH
+         ══════════════════════════════ -->
+    <section
+      id="research-section"
+      aria-label="Research"
+      data-nav-section="research"
+      class="full-page-section"
+    >
+      <span class="section-number">01</span>
 
-    <AtomOrbit3D
-      client:visible
-      nodes={[
-        { label: "Vibrational Spectroscopy", icon: "M2 12h3l2-6 4 12 4-12 2 6h3", color: "#C9A04A", description: "Predicting and interpreting *IR, Raman, and UV-Vis* spectra with deep learning" },
-        { label: "Molecular Rep. Learning", icon: "M5 5h4v4H5zM15 5h4v4h-4zM5 15h4v4H5zM15 15h4v4h-4zM9 7h6M9 17h6M7 9v6M17 9v6", color: "#4ECDC4", description: "Learning *transferable molecular embeddings* from spectral and graph data" },
-        { label: "Reaction Engineering", icon: "M10 2v8l-6 12h16l-6-12V2M8 2h8", color: "#FF6B6B", description: "Surrogate modeling of *reactor dynamics* using neural ODEs and PINNs" },
-        { label: "Information-Theoretic Chemistry", icon: "M1 12s4-8 11-8c7 0 11 8 11 8s-4 8-11 8c-7 0-11-8-11-8z", color: "#A78BFA", description: "Bounding what spectra *can and cannot reveal* about molecular structure" },
-        { label: "Physics-Informed ML", icon: "M12 12m-2 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1", color: "#34D399", description: "Encoding *conservation laws and symmetries* as inductive biases in neural networks" },
-        { label: "ML Infrastructure", icon: "M2 17l10 5 10-5M2 12l10 5 10-5M12 2l10 5-10 5L2 7z", color: "#F59E0B", description: "Multi-GPU *training pipelines*, benchmarking tools, and reproducible workflows" },
-      ]}
-    />
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <!-- Text column -->
+          <div>
+            <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4">01 / Research</p>
+            <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-4">
+              Solving the Spectral<br />Inverse Problem
+            </h2>
+            <p class="text-sm text-text-secondary leading-relaxed mb-5">
+              I'm building <span class="text-text-primary font-medium">Spektron</span> — an SSM+attention hybrid architecture — to recover molecular structure directly from vibrational spectra. Training on QM9S (130K molecules), targeting R²&nbsp;=&nbsp;0.95 across IR and Raman.
+            </p>
 
-    <!-- Featured Papers — 2×2 grid -->
-    <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5 match-cut-group">
-      <div class="match-cut-left">
-      <MagneticCard client:visible href="/research/spectral-identifiability">
-        <div class="flex items-center gap-2 mb-3">
-          <Badge variant="outline">In Progress</Badge>
-          <span class="text-[10px] font-mono text-text-muted">2026</span>
+            <!-- Spektron callout -->
+            <a
+              href="/projects/spektron"
+              class="flex items-center gap-3 p-3 rounded-lg border border-accent/20 bg-accent/5 mb-6 hover:border-accent/40 hover:bg-accent/8 transition-all group"
+            >
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-[10px] font-mono text-accent font-semibold">Spektron</span>
+                  <span class="text-[9px] font-mono text-accent/50">v0.1.0</span>
+                  <span class="text-[9px] font-mono text-text-muted ml-auto">SSM + attention</span>
+                </div>
+                <p class="text-[11px] font-mono text-text-muted truncate">~1M parameters · 5 architectures · QM9S training</p>
+              </div>
+              <span class="text-accent/60 group-hover:text-accent text-sm transition-colors flex-shrink-0">→</span>
+            </a>
+
+            <!-- Stats row -->
+            <div class="flex items-center gap-5 mb-7">
+              <div>
+                <p class="text-xl font-heading font-bold text-accent">130K</p>
+                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">molecules</p>
+              </div>
+              <div class="w-px h-7 bg-border"></div>
+              <div>
+                <p class="text-xl font-heading font-bold text-text-primary">2</p>
+                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">papers WIP</p>
+              </div>
+              <div class="w-px h-7 bg-border"></div>
+              <div>
+                <p class="text-xl font-heading font-bold text-text-primary">0.95</p>
+                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">target R²</p>
+              </div>
+            </div>
+
+            <a href="/research" class="inline-flex items-center gap-2 text-sm font-mono text-accent hover:text-text-primary transition-colors">
+              View all research →
+            </a>
+          </div>
+
+          <!-- Visual column: stacked -->
+          <div class="flex flex-col gap-3">
+            <EquationReveal client:visible title="spektron — model equations" />
+            <InverseProblemFlow client:visible />
+          </div>
         </div>
-        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
-          Information-Theoretic Limits of Spectroscopic Molecular Identification
-        </h4>
-        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
-          A group-theoretic and information-theoretic framework for bounding what vibrational spectra can reveal about molecular structure. Establishes fundamental limits on spectroscopic identifiability using representation theory and rate-distortion theory.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {["information theory", "group theory", "identifiability"].map((t) => (
-            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{t}</span>
+
+        <!-- Floating tags -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          {["spectroscopy", "state space models", "graph networks", "neural ODEs", "QM9S", "IR/Raman"].map((tag) => (
+            <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-border-hover transition-colors">
+              {tag}
+            </span>
           ))}
         </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
-          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
-        </div>
-      </MagneticCard>
       </div>
+    </section>
 
-      <div class="match-cut-right">
-      <MagneticCard client:visible href="/research/hybrid-ssa-spectroscopy">
-        <div class="flex items-center gap-2 mb-3">
-          <Badge variant="outline">In Progress</Badge>
-          <span class="text-[10px] font-mono text-text-muted">2026</span>
+    <!-- ══════════════════════════════
+         SECTION 2 — BUILD
+         ══════════════════════════════ -->
+    <section
+      id="build-section"
+      aria-label="Projects"
+      data-nav-section="build"
+      class="full-page-section"
+    >
+      <span class="section-number">02</span>
+
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+        <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">02 / Build</p>
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-8">
+          Open-source tools for chemical science
+        </h2>
+
+        <!-- Bento grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="bento-grid">
+          <!-- SpectraKit — large (spans 2 cols) -->
+          <a href="/projects/spectrakit" class="bento-card col-span-2 row-span-1 p-5 group">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="text-xs font-mono text-accent mb-1">v1.8.0</p>
+                <h3 class="text-base font-heading font-semibold text-text-primary">SpectraKit</h3>
+              </div>
+              <Badge variant="outline">stable</Badge>
+            </div>
+            <p class="text-xs text-text-muted leading-relaxed mb-4">
+              Python library for vibrational spectroscopy preprocessing and analysis.
+            </p>
+            <div class="flex items-center gap-3 text-[10px] font-mono text-text-muted">
+              <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>699 tests</span>
+              <span>97% coverage</span>
+            </div>
+            <p class="mt-2 text-[10px] font-mono text-text-muted/60">pip install spectrakit</p>
+          </a>
+
+          <!-- Spektron -->
+          <a href="/projects/spektron" class="bento-card p-5 group">
+            <div class="mb-2">
+              <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
+              <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
+            </div>
+            <p class="text-[11px] text-text-muted leading-relaxed mb-3">SSM+attention for IR/Raman prediction</p>
+            <div class="flex items-center gap-1 text-[10px] font-mono">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
+              <span class="text-text-muted">building</span>
+            </div>
+          </a>
+
+          <!-- ReactorTwin -->
+          <a href="/projects/reactortwin" class="bento-card p-5 group">
+            <div class="mb-2">
+              <p class="text-xs font-mono text-text-muted mb-1">v1.0.0</p>
+              <h3 class="text-sm font-heading font-semibold text-text-primary">ReactorTwin</h3>
+            </div>
+            <p class="text-[11px] text-text-muted leading-relaxed mb-3">Neural ODE surrogate — 1500× faster</p>
+            <div class="flex items-center gap-1 text-[10px] font-mono">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+              <span class="text-text-muted">stable</span>
+            </div>
+          </a>
+
+          <!-- SpectraView — spans 2 cols -->
+          <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="bento-card col-span-2 p-5 group">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
+                <h3 class="text-sm font-heading font-semibold text-text-primary">SpectraView</h3>
+              </div>
+              <Badge variant="outline">beta</Badge>
+            </div>
+            <p class="text-[11px] text-text-muted leading-relaxed">TypeScript React library — 15 components, Canvas+SVG renderer for spectra</p>
+          </a>
         </div>
-        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
-          Hybrid State-Space Attention for Multi-Task Vibrational Spectroscopy
-        </h4>
-        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
-          Hybrid state-space and attention architecture combining wavelet-domain embeddings, selective state-space sequence modeling, Mixture of Experts routing, and Variational Information Bottleneck for multi-task prediction across IR, Raman, and mass spectrometry.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {["state space models", "spectroscopy", "mixture of experts"].map((t) => (
-            <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">{t}</span>
-          ))}
-        </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
-          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
-        </div>
-      </MagneticCard>
+
+        <!-- MetricCards strip -->
+        <MetricCards client:visible />
       </div>
+    </section>
 
-      <div class="match-cut-left">
-      <MagneticCard client:visible href="/research">
-        <div class="flex items-center gap-2 mb-3">
-          <Badge variant="outline">Planned</Badge>
-          <span class="text-[10px] font-mono text-text-muted">2026</span>
+    <!-- ══════════════════════════════
+         SECTION 3 — EXPLORE
+         ══════════════════════════════ -->
+    <section
+      aria-label="Simulations"
+      data-nav-section="explore"
+      class="full-page-section"
+    >
+      <span class="section-number">03</span>
+
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+        <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">03 / Explore</p>
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-2">
+          Interactive Chemistry Simulations
+        </h2>
+        <p class="text-sm text-text-secondary mb-8">Explore molecular physics in your browser.</p>
+
+        <!-- Simulation cards -->
+        <!-- Top row: 3 smaller simulations -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <a href="/simulations/normal-mode-explorer" class="sim-card group">
+            <MoleculeCard client:visible className="mb-3 border-0 bg-transparent" />
+            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Normal Mode Explorer</h3>
+            <p class="text-[11px] text-text-muted leading-relaxed mb-2">45 molecules · 583 modes. Animate vibrational modes in real time.</p>
+            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
+          </a>
+
+          <a href="https://orbital.tubhyam.dev" target="_blank" rel="noopener noreferrer" class="sim-card group">
+            <OrbitalDiagram client:visible element="Fe" atomicNumber={26} className="mb-3" />
+            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Orbital Architect</h3>
+            <p class="text-[11px] text-text-muted leading-relaxed mb-2">Gamified orbital filling. Aufbau · Pauli · Hund's rules.</p>
+            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
+          </a>
+
+          <a href="/simulations/symmetry-explorer" class="sim-card group">
+            <div class="mb-3 rounded-lg bg-bg-secondary border border-border p-3 flex items-center justify-center" style="min-height:80px">
+              <svg width="52" height="52" viewBox="0 0 64 64" fill="none" class="opacity-50">
+                <circle cx="32" cy="32" r="20" stroke="#888" stroke-width="1" stroke-dasharray="3 3" />
+                <line x1="32" y1="8" x2="32" y2="56" stroke="#666" stroke-width="0.5" opacity="0.6" />
+                <line x1="8" y1="32" x2="56" y2="32" stroke="#666" stroke-width="0.5" opacity="0.6" />
+                <circle cx="32" cy="32" r="3" fill="#888" opacity="0.5" />
+                <circle cx="32" cy="12" r="2" fill="#C9A04A" opacity="0.6" />
+                <circle cx="32" cy="52" r="2" fill="#C9A04A" opacity="0.6" />
+                <circle cx="12" cy="32" r="2" fill="#C9A04A" opacity="0.6" />
+                <circle cx="52" cy="32" r="2" fill="#C9A04A" opacity="0.6" />
+              </svg>
+            </div>
+            <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Symmetry Explorer</h3>
+            <p class="text-[11px] text-text-muted leading-relaxed mb-2">15 point groups · character tables · selection rules.</p>
+            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">Launch →</span>
+          </a>
         </div>
-        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
-          Beyond Ground State: Benchmarking Equivariant GNNs for Excited-State Property Prediction
-        </h4>
-        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
-          Systematic evaluation of eight equivariant graph neural network architectures on excited-state molecular properties including singlet/triplet energies, oscillator strengths, and fluorescence wavelengths, with transfer learning and scaling analysis.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {["graph neural networks", "excited states", "benchmarking"].map((t) => (
-            <span class="text-[10px] font-mono text-teal/60 bg-teal/5 rounded-full px-2 py-0.5">{t}</span>
-          ))}
+
+        <!-- Bottom row: VibScope featured (with molecule selector) + S2S -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- VibScope — featured, spans 2 cols, contains molecule selector preview -->
+          <div class="sim-card sm:col-span-2">
+            <div class="flex items-center gap-2 mb-3">
+              <Badge>Featured</Badge>
+              <h3 class="text-sm font-heading font-semibold text-text-primary">VibScope</h3>
+              <span class="text-[10px] font-mono text-text-muted ml-auto">17 molecules · 3D · 60fps</span>
+            </div>
+            <!-- Props-based molecule selector preview -->
+            <VibeScopePreview client:visible />
+            <div class="mt-3 flex items-center justify-between">
+              <p class="text-[10px] font-mono text-text-muted">Three.js + WebGL · GIF export</p>
+              <a href="/simulations/vibescope" class="text-[10px] font-mono text-text-muted hover:text-accent transition-colors">
+                Launch full app →
+              </a>
+            </div>
+          </div>
+
+          <a href="/simulations/spectrum-to-structure" class="sim-card group flex flex-col">
+            <div class="flex-1">
+              <SpectrumViz client:visible className="mb-3 border-0 bg-transparent" title="Predicted Spectrum" />
+              <h3 class="text-sm font-heading font-semibold text-text-primary mb-1">Spectrum-to-Structure</h3>
+              <p class="text-[11px] text-text-muted leading-relaxed mb-2">ML-powered structure prediction from vibrational spectra.</p>
+            </div>
+            <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors mt-auto">Launch →</span>
+          </a>
         </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-teal/50 group-hover:text-teal transition-colors">
-          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
-        </div>
-      </MagneticCard>
       </div>
+    </section>
 
-      <div class="match-cut-right">
-      <MagneticCard client:visible href="/research">
-        <div class="flex items-center gap-2 mb-3">
-          <Badge variant="outline">Planned</Badge>
-          <span class="text-[10px] font-mono text-text-muted">2026</span>
+    <!-- ══════════════════════════════
+         SECTION 4 — WRITING
+         ══════════════════════════════ -->
+    <section
+      aria-label="Writing"
+      data-nav-section="writing"
+      class="full-page-section"
+    >
+      <span class="section-number">04</span>
+
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+        <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3">04 / Writing</p>
+
+        <!-- Publication name — character-stagger reveal -->
+        <MastHeadReveal
+          client:visible
+          text="LATENT CHEMISTRY"
+          className="text-5xl sm:text-6xl font-heading font-extralight text-text-primary tracking-[-0.02em] mb-2"
+        />
+        <p class="text-sm text-text-secondary mb-8">{PUBLICATION.tagline}</p>
+
+        {featuredPost && (
+          <a href={`/blog/${featuredPost.id}`} class="block mb-5 featured-post-card group">
+            <div class="flex items-center gap-3 mb-2">
+              <Badge>Latest</Badge>
+              <span class="text-[10px] font-mono text-text-muted">
+                {formatDate(featuredPost.data.date)} · {readingTime(featuredPost.body ?? "")} min read
+              </span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-heading font-semibold text-text-primary leading-snug group-hover:text-accent transition-colors">
+              {featuredPost.data.title}
+            </h3>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              {featuredPost.data.tags.slice(0, 3).map((tag: string) => (
+                <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{tag}</span>
+              ))}
+            </div>
+          </a>
+        )}
+
+        {recentPosts.length > 0 && (
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            {recentPosts.map((post) => (
+              <a href={`/blog/${post.id}`} class="post-card group">
+                <p class="text-[10px] font-mono text-text-muted mb-1">{formatDate(post.data.date)}</p>
+                <h4 class="text-xs font-heading font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug line-clamp-2">
+                  {post.data.title}
+                </h4>
+                <div class="mt-2 flex flex-wrap gap-1">
+                  {post.data.tags.slice(0, 2).map((tag: string) => (
+                    <span class="text-[9px] font-mono text-text-muted/60 bg-surface rounded-full px-1.5 py-0.5">{tag}</span>
+                  ))}
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        <div class="flex items-center gap-4">
+          <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
+            Enter the archive →
+          </a>
+          <a href="https://buttondown.com/latentchemistry" target="_blank" rel="noopener noreferrer" class="text-sm font-mono text-text-muted hover:text-text-secondary transition-colors border border-border hover:border-border-hover px-4 py-2 rounded-sm">
+            Subscribe
+          </a>
         </div>
-        <h4 class="text-base font-heading font-semibold text-text-primary leading-snug">
-          InvyrA: Conditional Molecular Graph Generation from Vibrational Signatures
-        </h4>
-        <p class="mt-2 text-xs text-text-muted leading-relaxed line-clamp-2">
-          A conditional generative framework that inverts the spectroscopy problem — given an input IR or Raman spectrum, generates candidate molecular graphs using Spektron latent embeddings and an equivariant graph diffusion decoder, with calibrated uncertainty over the combinatorial solution space.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-1.5">
-          {["inverse problems", "molecular generation", "diffusion models"].map((t) => (
-            <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">{t}</span>
-          ))}
-        </div>
-        <div class="mt-4 flex items-center gap-1 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
-          Read more <span class="transition-transform group-hover:translate-x-1">&rarr;</span>
-        </div>
-      </MagneticCard>
       </div>
-    </div>
+    </section>
 
-    <!-- Research visuals: Spectrum + Equation + Terminal -->
-    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
-      <SpectrumViz client:visible title="IR Spectrum — Benzaldehyde" />
-      <TerminalBlock
-        client:visible
-        title="research — preprocessing.py"
-        typingSpeed={25}
-        lines={[
-          { prompt: ">>> ", spans: [
-            { text: "from ", color: "purple" },
-            { text: "spectrakit ", color: "white" },
-            { text: "import ", color: "purple" },
-            { text: "load, Pipeline", color: "teal" },
-          ]},
-          { prompt: ">>> ", spans: [
-            { text: "from ", color: "purple" },
-            { text: "spectrakit.preprocessing ", color: "white" },
-            { text: "import ", color: "purple" },
-            { text: "AsLS, SNV", color: "teal" },
-          ]},
-          { prompt: ">>> ", spans: [
-            { text: "spec ", color: "white" },
-            { text: "= ", color: "red" },
-            { text: "load", color: "amber" },
-            { text: "(", color: "white" },
-            { text: "\"benzaldehyde.jdx\"", color: "green" },
-            { text: ")", color: "white" },
-          ]},
-          { prompt: ">>> ", spans: [
-            { text: "pipe ", color: "white" },
-            { text: "= ", color: "red" },
-            { text: "Pipeline", color: "amber" },
-            { text: "([", color: "white" },
-            { text: "AsLS", color: "teal" },
-            { text: "(), ", color: "white" },
-            { text: "SNV", color: "teal" },
-            { text: "()])", color: "white" },
-          ]},
-          { prompt: ">>> ", spans: [
-            { text: "clean ", color: "white" },
-            { text: "= ", color: "red" },
-            { text: "pipe", color: "white" },
-            { text: ".transform", color: "amber" },
-            { text: "(spec)", color: "white" },
-          ]},
-        ]}
-      />
-    </div>
+    <!-- ══════════════════════════════
+         SECTION 5 — CONNECT
+         ══════════════════════════════ -->
+    <section
+      aria-label="Contact"
+      id="contact"
+      data-nav-section="connect"
+      class="full-page-section"
+    >
+      <span class="section-number">05</span>
 
-    <!-- Equation reveal -->
-    <div class="mt-6 max-w-2xl mx-auto">
-      <EquationReveal client:visible />
-    </div>
-  </section>
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
+        <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4">05 / Connect</p>
 
-  <!-- ══════════════════════════════════════════════
-       SCENE 4: TEXT REVEAL — "I build open-source tools..."
-       ══════════════════════════════════════════════ -->
-  <section aria-label="What I build" class="mx-auto max-w-4xl px-6 py-24 section-fade">
-    <TextRevealHighlight
-      client:visible
-      parts={[
-        { text: "I build" },
-        { text: "open-source tools", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
-        { text: "for computational chemistry — from" },
-        { text: "spectral analysis libraries", highlight: true, highlightColor: "rgba(201, 160, 74, 0.2)" },
-        { text: "to" },
-        { text: "neural network architectures", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
-        { text: "to" },
-        { text: "interactive simulations.", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
-      ]}
-    />
-  </section>
-
-  <!-- ══════════════════════════════════════════════
-       SCENE 5: PROJECTS — Interactive slider + blog
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Projects" id="build" data-nav-section="build" class="mx-auto max-w-5xl px-6 py-16 section-fade">
-    <div class="flex items-center gap-3 mb-8 justify-center">
-      <span class="text-shimmer text-sm md:text-base font-mono uppercase tracking-[0.2em]">What I Build</span>
-    </div>
-
-    <!-- Project slider -->
-    <ProjectSlider client:visible />
-
-    <!-- Blog — animated terminal style -->
-    <BlogTerminal client:visible posts={blogPosts} className="mt-8" />
-
-    <!-- Build visuals: File Tree + Training Log + Code Diff -->
-    <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
-      <FileTree client:visible />
-      <LogStream client:visible speed={350} />
-      <CodeComparison client:visible />
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════
-       SCENE 6: TEXT REVEAL — "Explore interactive simulations..."
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Simulations intro" class="mx-auto max-w-4xl px-6 py-24 section-fade">
-    <TextRevealHighlight
-      client:visible
-      parts={[
-        { text: "Explore" },
-        { text: "interactive simulations", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
-        { text: "that bring" },
-        { text: "molecular physics", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
-        { text: "to life in your browser." },
-      ]}
-    />
-  </section>
-
-  <!-- ══════════════════════════════════════════════
-       SCENE 7: SIMULATIONS — VibeScope + previews
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Simulations" data-nav-section="simulate" class="mx-auto max-w-5xl px-6 py-16 section-fade">
-    <!-- VibeScope feature -->
-    <StaggerReveal client:visible className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" stagger={0.1}>
-      <div>
-        <Badge>Interactive Simulation</Badge>
-        <h3 class="mt-4 text-2xl md:text-3xl font-heading font-bold text-text-primary tracking-tight">
-          VibeScope
-        </h3>
-        <div class="mt-4">
-          <TextRevealHighlight
+        <div class="mb-8">
+          <DecryptedText
             client:visible
-            parts={[
-              { text: "Real-time" },
-              { text: "3D visualization", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
-              { text: "of how" },
-              { text: "atoms move", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
-              { text: "— explore molecular vibrations interactively." },
-            ]}
-            className="[&_span]:text-base [&_span]:md:text-lg"
+            text="Let's build something useful for science."
+            speed={30}
+            sequential={true}
+            revealDirection="start"
+            className="text-3xl sm:text-4xl font-heading font-bold text-text-primary leading-tight"
+            encryptedClassName="text-accent/30"
+            animateOn="view"
           />
         </div>
-        <p class="mt-4 text-sm text-text-muted leading-relaxed">
-          Select a molecule, pick a vibrational mode, and watch atoms oscillate in real time.
-          Built with Three.js and WebGL for real-time rendering.
-        </p>
-        <div class="mt-8">
-          <StarBorder as="a" href="/simulations" color="#A78BFA" speed="4s">
-            Launch VibeScope
-          </StarBorder>
-        </div>
-      </div>
 
-      <div>
-        <TerminalBlock
-          client:visible
-          title="vibescope — simulation.ts"
-          typingSpeed={28}
-          lines={[
-            { prompt: "  ", spans: [
-              { text: "const ", color: "purple" },
-              { text: "sim ", color: "white" },
-              { text: "= ", color: "red" },
-              { text: "new ", color: "purple" },
-              { text: "VibeScope", color: "amber" },
-              { text: "({", color: "white" },
-            ]},
-            { prompt: "    ", spans: [
-              { text: "molecule: ", color: "white" },
-              { text: "\"benzene\"", color: "green" },
-              { text: ",", color: "white" },
-            ]},
-            { prompt: "    ", spans: [
-              { text: "mode: ", color: "white" },
-              { text: "7", color: "teal" },
-              { text: ",", color: "white" },
-            ]},
-            { prompt: "    ", spans: [
-              { text: "renderer: ", color: "white" },
-              { text: "\"webgl\"", color: "green" },
-              { text: ",", color: "white" },
-            ]},
-            { prompt: "    ", spans: [
-              { text: "fps: ", color: "white" },
-              { text: "60", color: "teal" },
-            ]},
-            { prompt: "  ", spans: [
-              { text: "});", color: "white" },
-            ]},
-            { prompt: "  ", spans: [
-              { text: "sim", color: "white" },
-              { text: ".animate", color: "amber" },
-              { text: "();", color: "white" },
-              { text: " // ", color: "muted" },
-              { text: "atoms start moving", color: "muted" },
-            ]},
-          ]}
-        />
-        <div class="mt-4 flex items-center gap-3 text-xs text-text-muted font-mono">
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
-            WebGL
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-teal"></span>
-            Three.js
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
-            Real-Time
-          </span>
-        </div>
-      </div>
-    </StaggerReveal>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+          <!-- Contact form -->
+          <div class="flex flex-col gap-4">
+            <form class="flex flex-col gap-3" action="https://formsubmit.co/tubhyamkt@gmail.com" method="POST">
+              <input type="hidden" name="_subject" value="New contact from tubhyam.dev" />
+              <input type="hidden" name="_captcha" value="true" />
+              <input type="hidden" name="_next" value="https://tubhyam.dev/#connect" />
+              <div>
+                <label for="contact-name" class="sr-only">Your name</label>
+                <input
+                  id="contact-name"
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  required
+                  class="contact-input"
+                />
+              </div>
+              <div>
+                <label for="contact-email" class="sr-only">Your email</label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                  class="contact-input"
+                />
+              </div>
+              <div>
+                <label for="contact-message" class="sr-only">Your message</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  placeholder="Tell me more..."
+                  rows={4}
+                  required
+                  class="contact-input resize-none"
+                ></textarea>
+              </div>
+              <StarBorder as="button" color="#C9A04A" speed="4s">
+                Send Message →
+              </StarBorder>
+            </form>
+          </div>
 
-    <!-- All 5 simulations grid -->
-    <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 match-cut-group">
-      <!-- 1. Normal Mode Explorer -->
-      <div class="match-cut-left">
-      <MagneticCard client:visible href="/simulations/normal-mode-explorer">
-        <MoleculeCard client:visible className="mb-3 border-0 bg-transparent" />
-        <div class="flex items-center gap-2 mb-2">
-          <h4 class="text-sm font-heading font-semibold text-text-primary">Normal Mode Explorer</h4>
-          <span class="text-[10px] font-mono text-teal/60 bg-teal/5 rounded-full px-2 py-0.5">Beginner</span>
-        </div>
-        <p class="text-xs text-text-muted leading-relaxed">
-          Decompose molecular vibrations into individual normal modes. Animate each mode in real time.
-        </p>
-        <div class="mt-3 text-xs font-mono text-teal/50 group-hover:text-teal transition-colors">
-          Try it &rarr;
-        </div>
-      </MagneticCard>
-      </div>
+          <!-- Info column -->
+          <div class="flex flex-col gap-5">
+            <!-- Availability status terminal -->
+            <AvailabilityStatus client:visible />
 
-      <!-- 2. Spectrum-to-Structure -->
-      <div class="match-cut-center">
-      <MagneticCard client:visible href="/simulations/spectrum-to-structure">
-        <SpectrumViz client:visible className="mb-3 border-0 bg-transparent" title="Predicted Spectrum" />
-        <div class="flex items-center gap-2 mb-2">
-          <h4 class="text-sm font-heading font-semibold text-text-primary">Spectrum-to-Structure</h4>
-          <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">Advanced</span>
-        </div>
-        <p class="text-xs text-text-muted leading-relaxed">
-          Input a vibrational spectrum and watch as an ML model predicts the molecular structure in 3D.
-        </p>
-        <div class="mt-3 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
-          Try it &rarr;
-        </div>
-      </MagneticCard>
-      </div>
-
-      <!-- 3. Orbital Architect -->
-      <div class="match-cut-right">
-      <MagneticCard client:visible href="https://orbital.tubhyam.dev">
-        <OrbitalDiagram client:visible element="Fe" atomicNumber={26} className="mb-3" />
-        <div class="flex items-center gap-2 mb-2">
-          <h4 class="text-sm font-heading font-semibold text-text-primary">Orbital Architect</h4>
-          <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">Game</span>
-        </div>
-        <p class="text-xs text-text-muted leading-relaxed">
-          Build atoms by filling orbitals. Aufbau, Pauli, and Hund's rule are the game mechanics.
-        </p>
-        <div class="mt-3 text-xs font-mono text-accent/50 group-hover:text-accent transition-colors">
-          Play now &rarr;
-        </div>
-      </MagneticCard>
-      </div>
-
-      <!-- 4. Symmetry Explorer -->
-      <div class="match-cut-left">
-      <MagneticCard client:visible href="/simulations/symmetry-explorer">
-        <div class="mb-3 rounded-lg bg-bg-secondary/50 border border-border p-3 flex items-center justify-center">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" class="opacity-60">
-            <circle cx="32" cy="32" r="20" stroke="#A78BFA" stroke-width="1" stroke-dasharray="3 3" />
-            <line x1="32" y1="8" x2="32" y2="56" stroke="#A78BFA" stroke-width="0.5" opacity="0.5" />
-            <line x1="8" y1="32" x2="56" y2="32" stroke="#4ECDC4" stroke-width="0.5" opacity="0.5" />
-            <line x1="14" y1="14" x2="50" y2="50" stroke="#C9A04A" stroke-width="0.5" opacity="0.5" />
-            <circle cx="32" cy="32" r="3" fill="#A78BFA" opacity="0.6" />
-            <circle cx="32" cy="12" r="2" fill="#4ECDC4" opacity="0.8" />
-            <circle cx="32" cy="52" r="2" fill="#4ECDC4" opacity="0.8" />
-            <circle cx="12" cy="32" r="2" fill="#C9A04A" opacity="0.8" />
-            <circle cx="52" cy="32" r="2" fill="#C9A04A" opacity="0.8" />
-          </svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h4 class="text-sm font-heading font-semibold text-text-primary">Symmetry Explorer</h4>
-          <span class="text-[10px] font-mono text-violet/60 bg-violet/5 rounded-full px-2 py-0.5">Educational</span>
-        </div>
-        <p class="text-xs text-text-muted leading-relaxed">
-          Visualize point groups, symmetry operations, and character tables. See how symmetry determines selection rules.
-        </p>
-        <div class="mt-3 text-xs font-mono text-violet/50 group-hover:text-violet transition-colors">
-          Try it &rarr;
-        </div>
-      </MagneticCard>
-      </div>
-
-      <!-- 5. VibeScope (featured, spans 2 cols) -->
-      <div class="sm:col-span-2 match-cut-right">
-      <MagneticCard client:visible href="/simulations/vibescope">
-        <div class="flex items-center gap-2 mb-3">
-          <Badge>Featured</Badge>
-          <span class="text-[10px] font-mono text-teal/60">Three.js + WebGL</span>
-        </div>
-        <h4 class="text-base font-heading font-semibold text-text-primary">VibeScope — Full 3D Molecular Dynamics</h4>
-        <p class="mt-2 text-xs text-text-muted leading-relaxed">
-          The flagship simulation. Select any molecule, pick a vibrational mode, and watch atoms oscillate in real time. IR/Raman spectrum overlay, adjustable amplitude, and GIF export.
-        </p>
-        <div class="mt-3 flex items-center gap-3 text-xs text-text-muted font-mono">
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
-            WebGL
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-teal"></span>
-            Three.js
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
-            60fps
-          </span>
-        </div>
-        <div class="mt-3 text-xs font-mono text-teal/50 group-hover:text-teal transition-colors">
-          Launch VibeScope &rarr;
-        </div>
-      </MagneticCard>
-      </div>
-    </div>
-
-    <!-- Pipeline flow -->
-    <div class="mt-10">
-      <PipelineFlow client:visible />
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════
-       SCENE 8: TECH STACK — Orbit + Stats
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Tech stack" data-nav-section="stack" class="mx-auto max-w-5xl px-6 py-16 section-fade">
-    <div class="flex items-center gap-3 mb-4 justify-center">
-      <span class="text-shimmer text-[10px] font-mono uppercase tracking-[0.2em]">Tools & Languages</span>
-    </div>
-
-    <AtomOrbit3D
-      client:visible
-      nodes={[
-        { label: "Python", icon: "M16 18l6-6-6-6M8 6l-6 6 6 6", color: "#4ECDC4", description: "*Scientific computing* and ML pipeline development" },
-        { label: "PyTorch", icon: "M12 2c-5 6 1 9 2 11a5 5 0 1 1-4-4c-1-3 0-5 2-7", color: "#FF6B6B", description: "Building *deep learning* models for spectral analysis" },
-        { label: "CUDA", icon: "M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m14 0h2M3 15h2m14 0h2M7 7h10v10H7z", color: "#34D399", description: "GPU-accelerated *parallel computing* for large-scale training" },
-        { label: "RDKit", icon: "M12 2l8 5v10l-8 5-8-5V7z", color: "#A78BFA", description: "*Cheminformatics* toolkit for molecular descriptors and fingerprints" },
-        { label: "Docker", icon: "M2 17l10 5 10-5M2 12l10 5 10-5M12 2l10 5-10 5L2 7z", color: "#60A5FA", description: "Containerized *reproducible* research environments" },
-        { label: "AWS / GCP", icon: "M3 15a4 4 0 0 1 4-4 6 6 0 0 1 11.3-.7A4 4 0 0 1 21 15z", color: "#F59E0B", description: "*Cloud infrastructure* for distributed training and deployment" },
-        { label: "Mamba / SSMs", icon: "M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0", color: "#C9A04A", description: "Efficient *state space models* for long sequence processing" },
-        { label: "Graph Neural Nets", icon: "M12 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM5 10a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM19 10a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 17a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 7v10M6.5 11.5l5-5M17.5 11.5l-5-5M6.5 11.5l5 7M17.5 11.5l-5 7", color: "#FB7185", description: "*Message-passing* architectures for molecular graph learning" },
-      ]}
-    />
-
-    <!-- Metric cards with sparklines -->
-    <div class="mt-12">
-      <MetricCards client:visible />
-    </div>
-
-    <!-- Status board + Contribution grid -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5">
-      <StatusBoard client:visible />
-      <ContributionGrid client:visible />
-    </div>
-  </section>
-
-  <!-- ─── Parallax marquee ─── -->
-  <div class="py-8 opacity-[0.15]">
-    <ParallaxText
-      client:visible
-      text="SPECTROSCOPY  &bull;  DEEP LEARNING  &bull;  OPEN SOURCE  &bull;  CHEMINFORMATICS  &bull;  GROUP THEORY"
-      baseVelocity={1.5}
-      className="[&_span]:text-[clamp(2rem,5vw,4rem)] [&_span]:font-heading [&_span]:font-medium [&_span]:tracking-tight [&_span]:text-white/80"
-    />
-  </div>
-
-  <!-- ─── Separator ─── -->
-  <div class="mx-auto max-w-5xl px-6">
-    <div class="separator"></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════
-       SCENE 9: CTA — Contact form + socials + availability
-       ══════════════════════════════════════════════ -->
-  <section aria-label="Contact" id="contact" data-nav-section="contact" class="mx-auto max-w-5xl px-6 py-32">
-    <!-- Section header -->
-    <div class="text-center mb-16 section-fade">
-      <TextRevealHighlight
-        client:visible
-        parts={[
-          { text: "Let's" },
-          { text: "build", highlight: true, highlightColor: "rgba(167, 139, 250, 0.2)" },
-          { text: "something" },
-          { text: "together.", highlight: true, highlightColor: "rgba(78, 205, 196, 0.2)" },
-        ]}
-        className="text-3xl sm:text-4xl md:text-5xl [&_span]:text-3xl [&_span]:sm:text-4xl [&_span]:md:text-5xl"
-      />
-      <div class="mt-6 max-w-md mx-auto">
-        <DecryptedText
-          client:visible
-          text="Open to research collaborations, open-source projects, and interesting conversations about computational chemistry."
-          speed={40}
-          sequential={true}
-          revealDirection="center"
-          className="text-text-muted text-sm"
-          encryptedClassName="text-accent/30"
-          animateOn="view"
-        />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Left: Contact form -->
-      <StaggerReveal client:visible className="flex flex-col gap-6" stagger={0.04} direction="up">
-        <div class="card p-8">
-          <h4 class="text-sm font-mono text-[#888] uppercase tracking-wider mb-5">Send a message</h4>
-          <form class="flex flex-col gap-4" action="https://formsubmit.co/tubhyamkt@gmail.com" method="POST">
-            <input type="hidden" name="_subject" value="New contact from tubhyam.dev" />
-            <input type="hidden" name="_captcha" value="true" />
-            <input type="hidden" name="_next" value="https://tubhyam.dev/#contact" />
             <div>
-              <label for="contact-name" class="sr-only">Your name</label>
-              <input
-                id="contact-name"
-                type="text"
-                name="name"
-                placeholder="Name"
-                required
-                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
-              />
+              <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-2">Email</p>
+              <a href={`mailto:${SITE.email}`} class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
+                {SITE.email}
+              </a>
             </div>
-            <div>
-              <label for="contact-email" class="sr-only">Your email</label>
-              <input
-                id="contact-email"
-                type="email"
-                name="email"
-                placeholder="Email"
-                required
-                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors"
-              />
-            </div>
-            <div>
-              <label for="contact-reason" class="sr-only">Reason for contact</label>
-              <select
-                id="contact-reason"
-                name="reason"
-                required
-                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-secondary focus:border-accent/40 focus:outline-none transition-colors appearance-none"
-              >
-                <option value="" disabled selected>What's this about?</option>
-                <option value="collaboration">Research Collaboration</option>
-                <option value="open-source">Open Source Project</option>
-                <option value="internship">Internship</option>
-                <option value="fellowship">Fellowship</option>
-                <option value="hello">Just Saying Hi</option>
-              </select>
-            </div>
-            <div>
-              <label for="contact-message" class="sr-only">Your message</label>
-              <textarea
-                id="contact-message"
-                name="message"
-                placeholder="Tell me more..."
-                rows={4}
-                required
-                class="w-full bg-bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:outline-none transition-colors resize-none"
-              ></textarea>
-            </div>
-            <StarBorder as="button" color="#4ECDC4" speed="4s">
-              Send Message
-            </StarBorder>
-          </form>
-        </div>
-      </StaggerReveal>
 
-      <!-- Right: Availability + Socials -->
-      <div class="flex flex-col gap-6">
-        <AvailabilityStatus client:visible />
-        <SocialLinks client:visible />
-        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
-          <GlassButton href="/projects" variant="secondary">All Projects</GlassButton>
-          <GlassButton href="/blog" variant="secondary">Read the Blog</GlassButton>
+            <div>
+              <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider mb-1.5">Building</p>
+              <div class="flex flex-wrap gap-1.5">
+                {["SpectraKit", "Spektron", "ReactorTwin", "VibScope"].map((name) => (
+                  <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-2 py-0.5">
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <!-- Social links -->
+            <div class="flex items-center gap-2">
+              <a href={SITE.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-icon">
+                <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+                </svg>
+              </a>
+              <a href={SITE.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="social-icon">
+                <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-icon">
+                <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+            </div>
+          </div>
         </div>
+
+        <!-- Embedded footer -->
+        <footer class="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+          <nav class="flex items-center gap-4 text-xs text-text-muted flex-wrap">
+            <a href="/projects" class="hover:text-text-secondary transition-colors">Projects</a>
+            <a href="/research" class="hover:text-text-secondary transition-colors">Research</a>
+            <a href="/blog" class="hover:text-text-secondary transition-colors">Blog</a>
+            <a href="/simulations" class="hover:text-text-secondary transition-colors">Simulations</a>
+            <a href="/about" class="hover:text-text-secondary transition-colors">About</a>
+          </nav>
+          <p class="text-xs text-text-muted font-mono">&copy; 2026 Tubhyam Karthikeyan</p>
+        </footer>
       </div>
-    </div>
-  </section>
+    </section>
+
+  </main><!-- end .full-page-scroller -->
 </BaseLayout>
 
 <style>
-  /* ─── Match-cut rapid transitions ─── */
-  .match-cut-left,
-  .match-cut-right,
-  .match-cut-center {
+  /* ── Home-specific nav ── */
+  #home-nav {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+    animation: fade-up 0.5s ease-out 0.1s both;
+  }
+
+  .nav-top-link {
+    font-size: 13px;
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-top-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  /* ── Aurora background ── */
+  .aurora-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,160,74,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,160,74,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Social icons ── */
+  .social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .social-icon:hover {
+    border-color: var(--color-border-hover);
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+  }
+
+  /* ── Scroll chevron pulse ── */
+  .scroll-chevron {
     opacity: 0;
-    will-change: transform, opacity;
+    animation: fade-up 0.5s ease-out 1.4s forwards, chevron-pulse 2s ease-in-out 1.4s infinite;
   }
 
-  .match-cut-left {
-    transform: translateX(-30px) scale(0.96);
+  @keyframes chevron-pulse {
+    0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 0.7; transform: translateX(-50%) translateY(4px); }
   }
 
-  .match-cut-right {
-    transform: translateX(30px) scale(0.96);
+  /* ── Bento cards ── */
+  .bento-card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
   }
 
-  .match-cut-center {
-    transform: translateY(20px) scale(0.96);
-  }
-
-  .match-cut-left.revealed {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-                opacity 0.25s ease-out;
-  }
-
-  .match-cut-center.revealed {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s,
-                opacity 0.25s ease-out 0.06s;
-  }
-
-  .match-cut-right.revealed {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s,
-                opacity 0.25s ease-out 0.12s;
-  }
-
-  /* ─── Section scroll fade-in ─── */
-  .section-fade {
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(201,160,74,0.06) 0%, transparent 60%);
     opacity: 0;
-    transform: translateY(24px);
-    will-change: transform, opacity;
-    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 300ms ease;
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .section-fade.visible {
+  .bento-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+    transform: translateY(-1px);
+  }
+
+  .bento-card:hover::before {
     opacity: 1;
-    transform: translateY(0);
+  }
+
+  /* ── Simulation cards ── */
+  .sim-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sim-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+  }
+
+  /* ── Blog post cards ── */
+  .featured-post-card {
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: all 250ms ease;
+  }
+
+  .featured-post-card:hover {
+    border-color: rgba(201,160,74,0.3);
+    background: rgba(201,160,74,0.03);
+  }
+
+  .post-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1rem;
+    transition: all 250ms ease;
+  }
+
+  .post-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+  }
+
+  /* ── Contact form inputs ── */
+  .contact-input {
+    width: 100%;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    transition: border-color 0.2s ease;
+    outline: none;
+  }
+
+  .contact-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .contact-input:focus {
+    border-color: rgba(201,160,74,0.4);
+    box-shadow: 0 0 0 3px rgba(201,160,74,0.06);
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-fade,
-    .match-cut-left,
-    .match-cut-right,
-    .match-cut-center,
-    .section-fade {
+    .scroll-chevron,
+    .aurora-bg,
+    [style*="animation"] {
+      animation: none !important;
       opacity: 1 !important;
       transform: none !important;
-      animation: none !important;
-      transition: none !important;
     }
   }
 </style>
 
 <script>
-  // ─── Match-cut intersection observer ───
-  const matchGroups = document.querySelectorAll('.match-cut-group');
-  if (matchGroups.length > 0) {
-    const cutObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.querySelectorAll('.match-cut-left, .match-cut-right, .match-cut-center').forEach((el) => {
-              el.classList.add('revealed');
-            });
-            cutObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-    matchGroups.forEach((group) => cutObserver.observe(group));
+  // Mobile menu toggle
+  const trigger = document.getElementById("home-mobile-trigger");
+  const menu = document.getElementById("home-mobile-menu");
+  const backdrop = document.getElementById("home-mobile-backdrop");
+
+  function toggleMenu() {
+    menu?.classList.toggle("hidden");
   }
 
-  // Section fade-in observer
-  const sectionFades = document.querySelectorAll('.section-fade');
-  if (sectionFades.length > 0) {
-    const fadeObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            fadeObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.08, rootMargin: '-20px' }
-    );
-    sectionFades.forEach((el) => fadeObserver.observe(el));
-  }
+  trigger?.addEventListener("click", toggleMenu);
+  backdrop?.addEventListener("click", toggleMenu);
 
+  // Bento card cursor glow
+  document.querySelectorAll<HTMLElement>(".bento-card").forEach((card) => {
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty("--mx", `${x}%`);
+      card.style.setProperty("--my", `${y}%`);
+    });
+  });
 </script>

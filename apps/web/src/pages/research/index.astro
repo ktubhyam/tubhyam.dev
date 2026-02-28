@@ -1,7 +1,5 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
-import TerminalWindow from "@components/ui/TerminalWindow.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "@lib/constants";
 
@@ -9,8 +7,6 @@ import BlurReveal from "@components/islands/BlurReveal";
 
 const papers = (await getCollection("research"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
 
 const statusColors: Record<string, string> = {
   published: "#34D399",
@@ -51,68 +47,68 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
-    <TerminalBreadcrumb segments={[{ label: "research" }]} />
+    <a href="/" class="inline-flex items-center gap-1 text-[11px] font-mono text-text-muted hover:text-text-secondary transition-colors mb-8">
+      ← tubhyam.dev
+    </a>
+
     <BlurReveal
       client:idle
       text="Research"
-      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      className="text-4xl font-heading font-bold text-text-primary mb-2 tracking-tight"
       as="h1"
     />
-    <p
-      class="text-text-muted mb-2"
-      style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
-    >
+    <p class="text-text-muted mb-10" style="opacity: 0; animation: fade-up 0.5s ease-out 0.3s forwards;">
       Papers and publications in computational chemistry, spectroscopy, and ML.
     </p>
-    <p class="text-[11px] font-mono text-[#333] mb-10"
-       style="opacity: 0; animation: fade-up 0.5s ease-out 0.5s forwards;">
-      {papers.length} publications
-    </p>
 
-    <TerminalWindow title="~/research" status={`${papers.length} papers`} statusColor="#A78BFA">
-      <div class="mb-4 text-[#555]">
-        <span class="text-[#34D399]">$</span> grep -r "published" ~/research/
-      </div>
+    {papers.length === 0 && (
+      <p class="text-text-muted text-sm">No publications yet.</p>
+    )}
 
-      {papers.length === 0 && (
-        <div class="text-[#555]">No publications found.</div>
-      )}
-
+    <div class="flex flex-col gap-5">
       {papers.map((paper, i) => {
-        const accent = accentColors[i % accentColors.length];
         const sColor = statusColors[paper.data.status] || "#555";
-        const lineBase = i * 4 + 1;
-        const truncatedAbstract = paper.data.abstract.length > 100
-          ? paper.data.abstract.slice(0, 100) + "..."
+        const truncatedAbstract = paper.data.abstract.length > 200
+          ? paper.data.abstract.slice(0, 200) + "..."
           : paper.data.abstract;
         return (
           <a
             href={`/research/${paper.id}`}
-            class="block -mx-5 px-5 py-2 no-underline transition-colors duration-150"
-            style="border-left: 2px solid transparent;"
-            data-accent={accent}
+            class="paper-card group"
+            style={`opacity: 0; animation: fade-up 0.5s ease-out ${0.1 + i * 0.08}s forwards;`}
           >
-            <div class="flex items-center">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase}</span>
-              <span style={`color: ${sColor}`} class="text-xs font-mono mr-3">[{paper.data.status}]</span>
-              <span class="text-[#555] text-xs font-mono">{paper.data.venue}</span>
+            <div class="flex items-center gap-3 mb-3">
+              <span
+                class="text-[10px] font-mono px-2 py-0.5 rounded-full border flex-shrink-0"
+                style={`color: ${sColor}; border-color: ${sColor}33; background: ${sColor}0a;`}
+              >
+                {paper.data.status}
+              </span>
+              {paper.data.venue && (
+                <span class="text-[10px] font-mono text-text-muted">{paper.data.venue}</span>
+              )}
+              <span class="text-[10px] font-mono text-text-muted ml-auto">{paper.data.date.getFullYear()}</span>
             </div>
-            <div class="flex items-center mt-0.5">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 1}</span>
-              <span style={`color: ${accent}`} class="font-medium">{paper.data.title}</span>
-            </div>
-            <div class="flex items-center mt-0.5">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 2}</span>
-              <span class="text-[#555]">{paper.data.authors.join(", ")}</span>
-            </div>
-            <div class="flex items-center mt-0.5">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 3}</span>
-              <span class="text-[#444]">{truncatedAbstract}</span>
+
+            <h3 class="text-base font-heading font-semibold text-text-primary leading-snug mb-2 group-hover:text-accent transition-colors">
+              {paper.data.title}
+            </h3>
+
+            <p class="text-xs text-text-muted mb-3">{paper.data.authors.join(", ")}</p>
+
+            <p class="text-xs text-text-muted leading-relaxed mb-4">{truncatedAbstract}</p>
+
+            <div class="flex flex-wrap gap-1.5">
+              {paper.data.tags?.slice(0, 4).map((tag: string) => (
+                <span class="text-[10px] font-mono text-text-muted bg-bg-secondary border border-border rounded-full px-2 py-0.5">
+                  {tag}
+                </span>
+              ))}
             </div>
           </a>
         );
       })}
-    </TerminalWindow>
+    </div>
   </section>
 </PageLayout>
 
@@ -121,18 +117,19 @@ const breadcrumbSchema = {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
-</style>
 
-<script>
-  document.querySelectorAll<HTMLAnchorElement>('a[data-accent]').forEach((el) => {
-    const accent = el.dataset.accent || '#A78BFA';
-    el.addEventListener('mouseenter', () => {
-      el.style.borderLeftColor = accent;
-      el.style.backgroundColor = accent + '08';
-    });
-    el.addEventListener('mouseleave', () => {
-      el.style.borderLeftColor = 'transparent';
-      el.style.backgroundColor = 'transparent';
-    });
-  });
-</script>
+  .paper-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .paper-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+  }
+</style>

@@ -1,27 +1,15 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
-import TerminalSectionLabel from "@components/ui/TerminalSectionLabel.astro";
 import { getCollection } from "astro:content";
 import { readingTime } from "@lib/utils";
 import { SITE, PUBLICATION } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
-import BlogListTerminal from "@components/islands/BlogListTerminal";
 import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-const postsData = posts.map((post) => ({
-  id: post.id,
-  title: post.data.title,
-  date: post.data.date.toISOString().split("T")[0],
-  description: post.data.description,
-  tags: post.data.tags,
-  readingTime: readingTime(post.body ?? ""),
-}));
 
 const collectionSchema = {
   "@context": "https://schema.org",
@@ -55,6 +43,10 @@ const breadcrumbSchema = {
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": `${SITE.url}/blog` },
   ],
 };
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
 ---
 
 <PageLayout title={PUBLICATION.name} description={PUBLICATION.description}>
@@ -62,23 +54,106 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
-    <TerminalBreadcrumb segments={[{ label: "blog" }]} />
-    <TerminalSectionLabel text={PUBLICATION.name} class="mb-3" />
-    <BlurReveal
-      client:idle
-      text={PUBLICATION.tagline}
-      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight capitalize"
-      as="h1"
-    />
-    <p
-      class="text-text-muted mb-8"
-      style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
-    >
-      {PUBLICATION.description}
+    <a href="/" class="inline-flex items-center gap-1 text-[11px] font-mono text-text-muted hover:text-text-secondary transition-colors mb-8">
+      ← tubhyam.dev
+    </a>
+
+    <!-- Masthead -->
+    <h1 class="text-5xl sm:text-6xl font-heading font-extralight text-text-primary tracking-[-0.02em] mb-2">
+      LATENT CHEMISTRY
+    </h1>
+    <p class="text-text-muted mb-10" style="opacity: 0; animation: fade-up 0.5s ease-out 0.3s forwards;">
+      {PUBLICATION.tagline}
     </p>
 
-    <BlogListTerminal client:visible posts={postsData} />
+    {posts.length === 0 && (
+      <p class="text-text-muted text-sm">No posts yet.</p>
+    )}
 
-    <NewsletterSubscribe client:idle className="mt-6" />
+    <!-- Featured post -->
+    {posts[0] && (
+      <a href={`/blog/${posts[0].id}`} class="featured-post group block mb-6" style="opacity: 0; animation: fade-up 0.5s ease-out 0.2s forwards;">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-[10px] font-mono text-accent bg-accent/5 border border-accent/20 rounded-full px-2 py-0.5">Latest</span>
+          <span class="text-[10px] font-mono text-text-muted">
+            {formatDate(posts[0].data.date)} · {readingTime(posts[0].body ?? "")} min read
+          </span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-heading font-semibold text-text-primary leading-snug group-hover:text-accent transition-colors mb-3">
+          {posts[0].data.title}
+        </h2>
+        {posts[0].data.description && (
+          <p class="text-sm text-text-muted leading-relaxed mb-4">{posts[0].data.description}</p>
+        )}
+        <div class="flex flex-wrap gap-1.5">
+          {posts[0].data.tags.slice(0, 3).map((tag: string) => (
+            <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{tag}</span>
+          ))}
+        </div>
+      </a>
+    )}
+
+    <!-- Post grid -->
+    {posts.length > 1 && (
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+        {posts.slice(1).map((post, i) => (
+          <a
+            href={`/blog/${post.id}`}
+            class="post-card group"
+            style={`opacity: 0; animation: fade-up 0.5s ease-out ${0.1 + (i + 1) * 0.06}s forwards;`}
+          >
+            <p class="text-[10px] font-mono text-text-muted mb-2">
+              {formatDate(post.data.date)} · {readingTime(post.body ?? "")} min read
+            </p>
+            <h3 class="text-sm font-heading font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug mb-3 line-clamp-2">
+              {post.data.title}
+            </h3>
+            <div class="flex flex-wrap gap-1">
+              {post.data.tags.slice(0, 2).map((tag: string) => (
+                <span class="text-[9px] font-mono text-text-muted bg-surface border border-border rounded-full px-2 py-0.5">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+
+    <NewsletterSubscribe client:idle className="mt-2" />
   </section>
 </PageLayout>
+
+<style>
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .featured-post {
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    transition: all 250ms ease;
+  }
+
+  .featured-post:hover {
+    border-color: rgba(201, 160, 74, 0.3);
+    background: rgba(201, 160, 74, 0.03);
+  }
+
+  .post-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    transition: all 250ms ease;
+  }
+
+  .post-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+  }
+</style>

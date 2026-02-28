@@ -1,21 +1,27 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
-import TerminalWindow from "@components/ui/TerminalWindow.astro";
+import Badge from "@components/ui/Badge.astro";
 import { getCollection } from "astro:content";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
 
 const projects = (await getCollection("projects"))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-const accentColors = ["#A78BFA", "#C9A04A", "#4ECDC4", "#34D399", "#60A5FA", "#FF6B6B"];
+  .sort((a, b) => {
+    const order = { active: 0, completed: 1, archived: 2 };
+    return (order[a.data.status as keyof typeof order] ?? 3) - (order[b.data.status as keyof typeof order] ?? 3);
+  });
 
 const statusColors: Record<string, string> = {
   active: "#34D399",
   completed: "#4ECDC4",
-  archived: "#F59E0B",
+  archived: "#555555",
+};
+
+const statusLabel: Record<string, string> = {
+  active: "active",
+  completed: "completed",
+  archived: "archived",
 };
 
 const collectionSchema = {
@@ -51,65 +57,66 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class="py-12">
-    <TerminalBreadcrumb segments={[{ label: "projects" }]} />
+    <!-- Back link -->
+    <a href="/" class="inline-flex items-center gap-1 text-[11px] font-mono text-text-muted hover:text-text-secondary transition-colors mb-8">
+      ← tubhyam.dev
+    </a>
+
     <BlurReveal
       client:idle
       text="Projects"
-      className="text-3xl font-heading font-medium text-text-primary mb-2 tracking-tight"
+      className="text-4xl font-heading font-bold text-text-primary mb-2 tracking-tight"
       as="h1"
     />
-    <p
-      class="text-text-muted mb-2"
-      style="opacity: 0; animation: fade-up 0.5s ease-out 0.4s forwards;"
-    >
+    <p class="text-text-muted mb-10" style="opacity: 0; animation: fade-up 0.5s ease-out 0.3s forwards;">
       Open-source libraries, tools, and experiments in computational science.
     </p>
-    <p class="text-[11px] font-mono text-[#333] mb-10"
-       style="opacity: 0; animation: fade-up 0.5s ease-out 0.5s forwards;">
-      {projects.length} projects
-    </p>
 
-    <TerminalWindow title="~/projects" status={`${projects.length} projects`} statusColor="#4ECDC4">
-      <div class="mb-4 text-[#555]">
-        <span class="text-[#34D399]">$</span> ls -la ~/projects/
-      </div>
+    {projects.length === 0 && (
+      <p class="text-text-muted text-sm">No projects found.</p>
+    )}
 
-      {projects.length === 0 && (
-        <div class="text-[#555]">No projects found.</div>
-      )}
-
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       {projects.map((project, i) => {
-        const accent = accentColors[i % accentColors.length];
         const sColor = statusColors[project.data.status] || "#555";
-        const lineBase = i * 3 + 1;
+        const sLabel = statusLabel[project.data.status] || project.data.status;
         return (
           <a
             href={`/projects/${project.id}`}
-            class="block -mx-5 px-5 py-2 no-underline transition-colors duration-150"
-            style={`border-left: 2px solid transparent;`}
-            data-accent={accent}
+            class="project-card group"
+            style={`opacity: 0; animation: fade-up 0.5s ease-out ${0.1 + i * 0.05}s forwards;`}
           >
-            <div class="flex items-center">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase}</span>
-              <span style={`color: ${sColor}`} class="text-xs font-mono mr-3">[{project.data.status}]</span>
-              <span style={`color: ${accent}`} class="font-medium">{project.data.title}</span>
-            </div>
-            <div class="flex items-center mt-0.5">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 1}</span>
-              <span class="text-[#555]">{project.data.description}</span>
-            </div>
-            <div class="flex items-center mt-0.5">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{lineBase + 2}</span>
-              <span class="text-[#444]">
-                {project.data.tags.map((tag) => (
-                  <span class="mr-2">{tag}</span>
-                ))}
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="text-base font-heading font-semibold text-text-primary group-hover:text-accent transition-colors">
+                  {project.data.title}
+                </h3>
+              </div>
+              <span
+                class="text-[10px] font-mono px-2 py-0.5 rounded-full border flex-shrink-0 ml-3"
+                style={`color: ${sColor}; border-color: ${sColor}33; background: ${sColor}0a;`}
+              >
+                {sLabel}
               </span>
+            </div>
+
+            <p class="text-xs text-text-muted leading-relaxed mb-4">{project.data.description}</p>
+
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              {project.data.tags.slice(0, 4).map((tag: string) => (
+                <span class="text-[10px] font-mono text-text-muted bg-bg-secondary border border-border rounded-full px-2 py-0.5">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <div class="flex items-center gap-2 text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors">
+              <span>View project →</span>
             </div>
           </a>
         );
       })}
-    </TerminalWindow>
+    </div>
   </section>
 </PageLayout>
 
@@ -119,22 +126,19 @@ const breadcrumbSchema = {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  a[data-accent]:hover {
-    border-left-color: attr(data-accent type(<color>), #4ECDC4) !important;
-    background-color: color-mix(in srgb, var(--hover-accent, #4ECDC4) 3%, transparent) !important;
+  .project-card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .project-card:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+    transform: translateY(-1px);
   }
 </style>
-
-<script>
-  document.querySelectorAll<HTMLAnchorElement>('a[data-accent]').forEach((el) => {
-    const accent = el.dataset.accent || '#4ECDC4';
-    el.addEventListener('mouseenter', () => {
-      el.style.borderLeftColor = accent;
-      el.style.backgroundColor = accent + '08';
-    });
-    el.addEventListener('mouseleave', () => {
-      el.style.borderLeftColor = 'transparent';
-      el.style.backgroundColor = 'transparent';
-    });
-  });
-</script>

@@ -1,188 +1,140 @@
 ---
 import PageLayout from "@layouts/PageLayout.astro";
-import TerminalWindow from "@components/ui/TerminalWindow.astro";
-import TerminalBreadcrumb from "@components/ui/TerminalBreadcrumb.astro";
 import { SITE } from "@lib/constants";
 
 import BlurReveal from "@components/islands/BlurReveal";
-import TextScramble from "@components/islands/TextScramble";
 ---
 
 <PageLayout title="About" description="Computational chemist, ML researcher, and open-source builder at ICT Mumbai. Spectroscopy, deep learning, and scientific computing.">
   <section class="py-12 max-w-3xl">
-    <TerminalBreadcrumb segments={[{ label: "about" }]} />
+    <a href="/" class="inline-flex items-center gap-1 text-[11px] font-mono text-text-muted hover:text-text-secondary transition-colors mb-8">
+      ← tubhyam.dev
+    </a>
+
     <BlurReveal
       client:idle
       text="About"
-      className="text-3xl font-heading font-medium text-text-primary mb-8 tracking-tight"
+      className="text-4xl font-heading font-bold text-text-primary mb-8 tracking-tight"
       as="h1"
     />
 
     <!-- Bio -->
-    <TerminalWindow title="about" status="~/.bio" class="mb-8">
-      <div class="space-y-1.5">
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
-          <span class="text-[#34D399]">$</span>
-          <span class="ml-2 text-text-secondary">cat about.md</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
-          <span class="text-text-secondary">&nbsp;</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
-          <span class="text-text-secondary">
-            I'm <span class="text-text-primary font-medium">Tubhyam Karthikeyan</span>, a computational chemist and machine learning
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
-          <span class="text-text-secondary">
-            researcher at <span class="text-text-primary font-medium">ICT Mumbai</span>. I work at the intersection of chemistry,
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
-          <span class="text-text-secondary">
-            mathematics, and AI — building tools that help scientists understand
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
-          <span class="text-text-secondary">molecular behavior.</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">7</span>
-          <span class="text-text-secondary">&nbsp;</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">8</span>
-          <span class="text-text-secondary">
-            My current research focuses on the <span class="italic text-[#C9A04A]">spectral inverse problem</span>: can you
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">9</span>
-          <span class="text-text-secondary">
-            determine a molecule's structure from its vibrational spectrum? I'm
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">10</span>
-          <span class="text-text-secondary">
-            developing the <a href="/research/spectral-identifiability" class="text-[#A78BFA] hover:underline">theoretical framework</a> (group-theoretic identifiability)
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">11</span>
-          <span class="text-text-secondary">
-            and the ML models (<a href="/projects/spektron" class="text-[#4ECDC4] hover:underline">Spektron</a>, a hybrid SSM-attention architecture)
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">12</span>
-          <span class="text-text-secondary">to answer this question.</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">13</span>
-          <span class="text-text-secondary">&nbsp;</span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">14</span>
-          <span class="text-text-secondary">
-            When I'm not doing research, I build open-source Python libraries like
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">15</span>
-          <span class="text-text-secondary">
-            <a href="/projects/spectrakit" class="text-[#34D399] hover:underline">SpectraKit</a> for spectroscopy,
-            create <a href="/simulations" class="text-[#60A5FA] hover:underline">interactive browser-based simulations</a>,
-          </span>
-        </div>
-        <div class="flex">
-          <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">16</span>
-          <span class="text-text-secondary">
-            and <a href="/blog" class="text-[#FF6B6B] hover:underline">write about what I learn</a>.
-          </span>
-        </div>
-      </div>
-    </TerminalWindow>
+    <div class="about-section mb-10">
+      <p class="text-text-secondary leading-relaxed mb-4">
+        I'm <span class="text-text-primary font-medium">Tubhyam Karthikeyan</span>, a computational chemist and machine learning
+        researcher at <span class="text-text-primary font-medium">ICT Mumbai</span>. I work at the intersection of chemistry,
+        mathematics, and AI — building tools that help scientists understand molecular behavior.
+      </p>
+      <p class="text-text-secondary leading-relaxed mb-4">
+        My current research focuses on the <em class="text-accent not-italic">spectral inverse problem</em>: can you
+        determine a molecule's structure from its vibrational spectrum? I'm
+        developing the <a href="/research/spectral-identifiability" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">theoretical framework</a> (group-theoretic identifiability)
+        and the ML models (<a href="/projects/spektron" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">Spektron</a>, a hybrid SSM-attention architecture)
+        to answer this question.
+      </p>
+      <p class="text-text-secondary leading-relaxed">
+        When I'm not doing research, I build open-source Python libraries like
+        <a href="/projects/spectrakit" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">SpectraKit</a> for spectroscopy,
+        create <a href="/simulations" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">interactive browser-based simulations</a>,
+        and <a href="/blog" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">write about what I learn</a>.
+      </p>
+    </div>
 
     <!-- Skills -->
-    <div class="mt-10">
-      <div class="flex items-center gap-2 mb-6">
-        <span class="text-accent font-mono text-xs">&gt;</span>
-        <TextScramble
-          client:visible
-          text="Skills"
-          className="text-xs font-mono text-text-muted uppercase tracking-widest"
-          as="h2"
-          speed={30}
-        />
-      </div>
+    <div>
+      <p class="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-6">Skills & Stack</p>
 
-      <TerminalWindow title="skills" status="loaded">
-        <div class="space-y-4">
-          <!-- Languages & Frameworks -->
-          <div>
-            <div class="flex">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
-              <span class="text-[#A78BFA]">$</span>
-              <span class="ml-2 text-text-secondary">cat skills/languages-and-frameworks</span>
-            </div>
-            <div class="flex mt-1.5 flex-wrap">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
-              <div class="flex flex-wrap gap-1.5">
-                {["Python", "PyTorch", "TypeScript", "React", "Astro"].map((skill) => (
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/20">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <!-- Science & Research -->
-          <div>
-            <div class="flex">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
-              <span class="text-[#C9A04A]">$</span>
-              <span class="ml-2 text-text-secondary">cat skills/science-and-research</span>
-            </div>
-            <div class="flex mt-1.5 flex-wrap">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
-              <div class="flex flex-wrap gap-1.5">
-                {["Computational Chemistry", "Machine Learning", "Group Theory", "Spectroscopy"].map((skill) => (
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#C9A04A]/10 text-[#C9A04A] border border-[#C9A04A]/20">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <!-- Tools & Practices -->
-          <div>
-            <div class="flex">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
-              <span class="text-[#4ECDC4]">$</span>
-              <span class="ml-2 text-text-secondary">cat skills/tools-and-practices</span>
-            </div>
-            <div class="flex mt-1.5 flex-wrap">
-              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">6</span>
-              <div class="flex flex-wrap gap-1.5">
-                {["Scientific Computing", "Data Visualization", "Open Source"].map((skill) => (
-                  <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-[#4ECDC4]/10 text-[#4ECDC4] border border-[#4ECDC4]/20">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- ML & Scientific Python -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">ML / Scientific Python</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["Python", "PyTorch", "JAX", "CUDA", "scikit-learn", "RDKit", "NumPy", "SciPy"].map((skill) => (
+              <span class="skill-tag skill-amber">{skill}</span>
+            ))}
           </div>
         </div>
-      </TerminalWindow>
+
+        <!-- Domain -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Chemistry & Research</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["Spectroscopy", "Computational Chemistry", "Group Theory", "Information Theory", "Molecular Modeling"].map((skill) => (
+              <span class="skill-tag skill-neutral">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Web -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Web</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["TypeScript", "React", "Astro", "Tailwind CSS"].map((skill) => (
+              <span class="skill-tag skill-neutral">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Infra -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Infrastructure</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["Docker", "Linux", "Vast.ai", "Vercel", "GitHub Actions"].map((skill) => (
+              <span class="skill-tag skill-neutral">{skill}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="mt-12 pt-8 border-t border-border">
+      <p class="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-4">Contact</p>
+      <p class="text-text-secondary text-sm mb-3">
+        I'm open to research collaborations, interesting conversations about computational chemistry, and fellowship/internship opportunities.
+      </p>
+      <a href={`mailto:${SITE.email}`} class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
+        {SITE.email} →
+      </a>
     </div>
   </section>
 </PageLayout>
+
+<style>
+  .about-section {
+    line-height: 1.8;
+  }
+
+  .skill-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    border: 1px solid;
+    transition: all 0.2s ease;
+  }
+
+  .skill-amber {
+    color: var(--color-accent);
+    border-color: rgba(201, 160, 74, 0.25);
+    background: rgba(201, 160, 74, 0.06);
+  }
+
+  .skill-neutral {
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .skill-amber:hover {
+    border-color: rgba(201, 160, 74, 0.5);
+    background: rgba(201, 160, 74, 0.1);
+  }
+
+  .skill-neutral:hover {
+    border-color: var(--color-border-hover);
+    background: var(--color-surface-hover);
+  }
+</style>
