@@ -59,7 +59,7 @@ function project(p: Vec3, fov: number, cx: number, cy: number) {
 function fibonacciSphere(count: number, radius: number): Vec3[] {
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   return Array.from({ length: count }, (_, i) => {
-    const y = 1 - (i / (count - 1)) * 2;
+    const y = 1 - ((i + 0.5) / count) * 2;
     const radiusAtY = Math.sqrt(1 - y * y);
     const theta = goldenAngle * i;
     return {
@@ -310,7 +310,7 @@ export default function AtomOrbit3D({
     const goldenAngle = Math.PI * (3 - Math.sqrt(5));
     const positions: Vec3[] = [];
     for (let i = 0; i < count; i++) {
-      const y = 1 - (i / (count - 1)) * 2;
+      const y = 1 - ((i + 0.5) / count) * 2;
       const radiusAtY = Math.sqrt(1 - y * y);
       const theta = goldenAngle * i;
       positions.push({ x: radiusAtY * Math.cos(theta), y: y * 0.7, z: radiusAtY * Math.sin(theta) });
@@ -421,7 +421,7 @@ export default function AtomOrbit3D({
             <div className="overflow-hidden" style={{ maxWidth: isHovered ? 240 : 160, transition: "max-width 200ms ease" }}>
               {isHovered && node.description ? (
                 <p
-                  className="text-[11px] md:text-xs leading-snug whitespace-normal font-mono"
+                  className="text-[11px] md:text-xs leading-snug whitespace-normal font-body"
                   style={{ animation: "descFadeIn 250ms ease-out both" }}
                 >
                   {node.description.split(/(\*[^*]+\*)/).map((part, pi) =>
@@ -436,7 +436,7 @@ export default function AtomOrbit3D({
                 </p>
               ) : (
                 <span
-                  className="text-[10px] md:text-xs font-mono whitespace-nowrap transition-colors duration-200"
+                  className="text-[10px] md:text-xs font-body whitespace-nowrap transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.45)" }}
                 >
                   {node.label}

@@ -13,9 +13,10 @@ interface Props {
   className?: string;
   speed?: number;
   as?: "span" | "p" | "h1" | "h2" | "h3";
+  mono?: boolean;
 }
 
-export default function TextScramble({ text, className = "", speed = 30, as: Tag = "span" }: Props) {
+export default function TextScramble({ text, className = "", speed = 30, as: Tag = "span", mono = true }: Props) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref as React.RefObject<Element>, { once: true, margin: "-50px" });
   const prefersReducedMotion = useReducedMotion();
@@ -59,7 +60,7 @@ export default function TextScramble({ text, className = "", speed = 30, as: Tag
   }, [isInView, text, speed, prefersReducedMotion]);
 
   return (
-    <Tag ref={ref as React.RefObject<HTMLSpanElement>} className={`font-mono ${className}`}>
+    <Tag ref={ref as React.RefObject<HTMLSpanElement>} className={`${mono ? "font-mono " : ""}${className}`}>
       {displayed}
     </Tag>
   );
