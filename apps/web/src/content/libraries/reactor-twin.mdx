@@ -1,0 +1,80 @@
+---
+title: "ReactorTwin"
+date: 2026-02-27
+description: "Physics-constrained neural ODE surrogate for chemical reactor digital twins. Runs 1500x faster than CFD while preserving mass balance, energy conservation, and thermodynamic consistency."
+language: "python"
+github: "https://github.com/ktubhyam/reactor-twin"
+docs: "https://ktubhyam.github.io/reactor-twin/"
+status: "beta"
+tags: ["python", "pytorch", "neural-odes", "chemical-engineering", "digital-twin"]
+---
+
+ReactorTwin builds fast surrogate models of chemical reactors using neural ODEs — 1500x faster than traditional CFD while enforcing physical conservation laws by design, not as a soft penalty.
+
+## Install
+
+```bash
+pip install reactor-twin
+```
+
+## Core Capabilities
+
+- **Neural ODE dynamics** — Learned reactor dynamics via `torchdiffeq` with adaptive dopri5 / implicit Adams solvers for stiff kinetics
+- **Physics-constrained architecture** — Mass balance, energy balance, and thermodynamic consistency encoded directly into the network structure
+- **Four reactor types** — CSTR, PFR, Batch, Semi-batch, each with a specialized ODE template
+- **Six kinetics models** — Power-law, Langmuir-Hinshelwood, Michaelis-Menten, and more
+- **Anomaly detection** — Mahalanobis distance in latent space flags out-of-distribution operating conditions
+- **Real-time dashboard** — Next.js + D3.js interface with live predictions, what-if sliders, and historical replay
+
+## Quick Start
+
+```python
+from reactor_twin import ReactorTwin, ReactorConfig
+
+config = ReactorConfig(
+    reactor_type="CSTR",
+    species=["A", "B", "C"],
+    kinetics="power_law",
+)
+
+model = ReactorTwin(config)
+model.fit(train_data)  # time-series of (T, P, C_i, F)
+
+# Query at any time point — not just observed timestamps
+trajectory = model.predict(operating_conditions, t_span=(0, 3600))
+```
+
+## Physics Constraints
+
+The ODE right-hand side is parameterized so that stoichiometry governs concentration changes rather than predicting each $dC_i/dt$ independently. Thermodynamic upper bounds on conversion come from Cantera equilibrium calculations.
+
+```python
+# Thermodynamic consistency enforced automatically
+# Model cannot predict conversion exceeding equilibrium
+pred = model.predict(conditions, t_span=(0, 7200))
+print(pred.conversion)   # bounded by ΔG from Cantera
+print(pred.temperature)  # constrained by enthalpy balance
+```
+
+## Performance
+
+| Task | CFD | ReactorTwin |
+|------|-----|-------------|
+| CSTR steady-state | 45s | 0.03s |
+| PFR concentration profile | 120s | 0.08s |
+| Parameter sweep (100 conditions) | 4.5 hr | 3s |
+
+Accuracy on held-out conditions: RMSE < 2% for concentration, < 1K for temperature.
+
+## Tech Stack
+
+- **PyTorch + torchdiffeq** — Neural ODE integration with continuous adjoint backprop
+- **Cantera** — Equilibrium calculations, species thermodynamics, reaction mechanisms
+- **FastAPI** — Model serving endpoints
+- **Apache Arrow / Parquet** — Time-series data ingestion; OPC-UA client for DCS connectivity
+
+## Related
+
+- **Project:** [ReactorTwin](/projects/reactor-twin) — full architecture and training pipeline
+- **Blog:** [Neural ODEs for Reactor Modeling](/blog/neural-odes-for-reactor-modeling) — detailed walkthrough
+- **Related:** [Spektron](/libraries/spektron) — physics-informed deep learning for spectral data
