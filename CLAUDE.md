@@ -35,7 +35,7 @@ Personal research site for Tubhyam Karthikeyan. Astro 5 monorepo.
 | QM9S dataset | **130K molecules** (129,817 rounded; 222K = total spectra, never use for molecule count) |
 | SpectraKit | v1.8.0, 699 tests, 97% coverage |
 | Spektron | v0.1.0, 12 tests, 28% coverage |
-| ReactorTwin | stable, v1.0.0, **1500x faster** than simulation, 1477 tests, 90%+ coverage |
+| ReactorTwin | stable, v1.1.1, **1500x faster** than simulation, 1509 tests, 90%+ coverage |
 | VibScope | v0.0.1-dev |
 | qm9s-loader | v0.0.1-dev |
 | Papers WIP | 2 |

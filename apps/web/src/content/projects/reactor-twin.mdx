@@ -1,14 +1,14 @@
 ---
 title: "ReactorTwin"
 date: 2026-02-28
-description: "Physics-constrained neural ODE surrogate for chemical reactor digital twins. v1.0.0, production stable — 1500x faster than first-principles simulation."
+description: "Physics-constrained neural ODE surrogate for chemical reactor digital twins. v1.1.1, production stable — 1500x faster than first-principles simulation."
 tags: ["pytorch", "neural-odes", "chemical-engineering", "digital-twin"]
 status: "active"
 github: "https://github.com/ktubhyam/reactor-twin"
 featured: true
 ---
 
-ReactorTwin creates fast, accurate surrogate models of chemical reactors that run 1500x faster than traditional first-principles simulation while preserving physical constraints. v1.0.0 is production-stable: deployable via Docker, Kubernetes, or CLI with a full digital twin stack (EKF state estimation, fault detection, MPC control, online adaptation, meta-learning).
+ReactorTwin creates fast, accurate surrogate models of chemical reactors that run 1500x faster than traditional first-principles simulation while preserving physical constraints. v1.1.1 is production-stable: deployable via Docker, Kubernetes, or CLI with a full digital twin stack (EKF state estimation, fault detection, MPC control, online adaptation, meta-learning).
 
 ## The Problem
 
@@ -129,6 +129,10 @@ A real-time dashboard built with Streamlit provides:
 | Parameter sweep (100 conditions) | 4.5 hours | 3s |
 
 Accuracy on held-out test conditions (within training distribution): RMSE < 2% of steady-state values for concentration, < 1K for temperature.
+
+## Research
+
+ReactorTwin is the codebase for **"Choosing Physics Constraints for Neural ODE Reactor Surrogates"** (ML4PS @ NeurIPS 2026). Key findings: hard post-solve enforcement achieves 0.00% violations everywhere and 99% NMSE reduction on exothermic CSTR; soft ℓ₂ penalties produce seed-dependent, λ-insensitive violations (0–41%) within tested budgets. The right inductive bias depends on state structure.
 
 ## Related
 
