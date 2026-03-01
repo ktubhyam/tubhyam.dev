@@ -19,7 +19,7 @@ const SAT_TRAIL   = 200;
 const PTRAIL_LEN  = 40;
 const SEG         = 4;
 const N_PARTICLES = 140;
-const SAT_ESCAPE  = 2.2;
+const SAT_ESCAPE  = 1.45;
 const PROX_THRESH = 0.55; // sim-units — draw arc below this distance
 
 // Figure-8 choreography (Chenciner & Montgomery 2000)
@@ -29,10 +29,10 @@ const FIG8_IC = [
   { x:  0.0,        y:  0.0,        vx: -0.93240737, vy: -0.86473146 },
 ];
 
-// Satellites: quasi-circular orbits at r≈1.55 (v_circ≈1.39)
+// Satellites: r=1.0, v_circ=sqrt(3/1)=1.73 — well within canvas bounds
 const SAT_IC = [
-  { x:  0.0,  y:  1.55, vx:  1.30, vy:  0.0  },
-  { x:  0.0,  y: -1.55, vx: -1.30, vy:  0.0  },
+  { x:  0.0,  y:  1.00, vx:  1.62, vy:  0.0  },
+  { x:  0.0,  y: -1.00, vx: -1.62, vy:  0.0  },
 ];
 
 // amber / teal / violet / emerald / rose  — matches DisplayCards
@@ -142,7 +142,8 @@ export default function ThreeBodyBackground() {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function sc() { return Math.min(cssW * 0.21, cssH * 0.39); }
+    // Zoom out enough that r=1.45 satellites stay within the canvas vertically
+    function sc() { return Math.min(cssW * 0.17, cssH * 0.30); }
     function toScreen(x: number, y: number): [number, number] {
       const s = sc();
       return [cssW / 2 + x * s, cssH / 2 + y * s];
@@ -274,8 +275,8 @@ export default function ThreeBodyBackground() {
 
           // Gradient arc between the two bodies
           const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-          grad.addColorStop(0, `rgba(${r1},${g1},${b1},${t * 0.55})`);
-          grad.addColorStop(1, `rgba(${r2},${g2},${b2},${t * 0.55})`);
+          grad.addColorStop(0, `rgba(${r1},${g1},${b1},${t * 0.40})`);
+          grad.addColorStop(1, `rgba(${r2},${g2},${b2},${t * 0.40})`);
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
@@ -286,7 +287,7 @@ export default function ThreeBodyBackground() {
           // White flash at midpoint
           const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
           const gr = ctx.createRadialGradient(mx, my, 0, mx, my, 18 * t);
-          gr.addColorStop(0, `rgba(255,255,255,${t * 0.45})`);
+          gr.addColorStop(0, `rgba(255,255,255,${t * 0.30})`);
           gr.addColorStop(1, "rgba(255,255,255,0)");
           ctx.beginPath();
           ctx.arc(mx, my, 18 * t, 0, Math.PI * 2);
@@ -303,8 +304,8 @@ export default function ThreeBodyBackground() {
         const [r, g, b] = BODY_RGB[i];
         for (let t = 0; t < trail.length - 1; t += SEG) {
           const depth = (t + SEG) / trail.length;
-          const op  = 0.12 + depth * 0.55;
-          const lw  = 0.6  + depth * 2.6;
+          const op  = 0.08 + depth * 0.42;
+          const lw  = 0.5  + depth * 2.0;
           ctx.beginPath();
           ctx.strokeStyle = `rgba(${r},${g},${b},${op})`;
           ctx.lineWidth   = lw;
@@ -325,19 +326,19 @@ export default function ThreeBodyBackground() {
         const trail = p.trail;
         if (trail.length < 2) continue;
         for (let k = 1; k < trail.length; k++) {
-          const alpha = (k / trail.length) * 0.38;
+          const alpha = (k / trail.length) * 0.28;
           const [x0, y0] = toScreen(trail[k-1].x, trail[k-1].y);
           const [x1, y1] = toScreen(trail[k].x, trail[k].y);
           ctx.beginPath();
           ctx.moveTo(x0, y0); ctx.lineTo(x1, y1);
           ctx.strokeStyle = `rgba(200,215,255,${alpha})`;
-          ctx.lineWidth = 0.7;
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
         const [px2, py2] = toScreen(p.x, p.y);
         ctx.beginPath();
-        ctx.arc(px2, py2, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(200,215,255,0.65)";
+        ctx.arc(px2, py2, 1.1, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(200,215,255,0.50)";
         ctx.fill();
       }
     }
@@ -356,17 +357,17 @@ export default function ThreeBodyBackground() {
         const ex = bx + vx, ey = by + vy;
         ctx.beginPath();
         ctx.moveTo(bx, by); ctx.lineTo(ex, ey);
-        ctx.strokeStyle = `rgba(${r},${g},${b},0.45)`;
-        ctx.lineWidth   = 1.1;
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.30)`;
+        ctx.lineWidth   = 0.9;
         ctx.stroke();
         const angle = Math.atan2(vy, vx);
         ctx.beginPath();
         ctx.moveTo(ex, ey);
-        ctx.lineTo(ex - 6*Math.cos(angle-0.40), ey - 6*Math.sin(angle-0.40));
+        ctx.lineTo(ex - 5*Math.cos(angle-0.40), ey - 5*Math.sin(angle-0.40));
         ctx.moveTo(ex, ey);
-        ctx.lineTo(ex - 6*Math.cos(angle+0.40), ey - 6*Math.sin(angle+0.40));
-        ctx.strokeStyle = `rgba(${r},${g},${b},0.35)`;
-        ctx.lineWidth = 0.9;
+        ctx.lineTo(ex - 5*Math.cos(angle+0.40), ey - 5*Math.sin(angle+0.40));
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.22)`;
+        ctx.lineWidth = 0.8;
         ctx.stroke();
       }
     }
@@ -378,34 +379,52 @@ export default function ThreeBodyBackground() {
         const [bx, by] = toScreen(bod.x, bod.y);
         const [r, g, b] = BODY_RGB[i];
 
-        // Glow
-        const glow = ctx.createRadialGradient(bx, by, 0, bx, by, 44);
-        glow.addColorStop(0,    `rgba(${r},${g},${b},0.52)`);
-        glow.addColorStop(0.3,  `rgba(${r},${g},${b},0.20)`);
-        glow.addColorStop(0.7,  `rgba(${r},${g},${b},0.06)`);
+        // Speed-reactive pulse: figure-8 bodies reach ~2–3 during close passes
+        const spd = Math.sqrt(bod.vx * bod.vx + bod.vy * bod.vy);
+        const pulse = Math.min(spd / 2.8, 1); // 0=slow, 1=fast
+        const glowR   = 30 + pulse * 18;       // 30–48 px
+        const glowOp  = 0.28 + pulse * 0.18;   // 0.28–0.46
+
+        // Ambient glow
+        const glow = ctx.createRadialGradient(bx, by, 0, bx, by, glowR);
+        glow.addColorStop(0,    `rgba(${r},${g},${b},${glowOp})`);
+        glow.addColorStop(0.35, `rgba(${r},${g},${b},${glowOp * 0.4})`);
         glow.addColorStop(1,    `rgba(${r},${g},${b},0)`);
         ctx.beginPath();
-        ctx.arc(bx, by, 44, 0, Math.PI * 2);
+        ctx.arc(bx, by, glowR, 0, Math.PI * 2);
         ctx.fillStyle = glow;
         ctx.fill();
 
+        // Diffraction spikes — 4 thin radial lines (telescope-star effect)
+        const spikeLen = 12 + pulse * 10;
+        const spikeOp  = 0.14 + pulse * 0.10;
+        for (let sp = 0; sp < 4; sp++) {
+          const angle = sp * Math.PI / 2;
+          ctx.beginPath();
+          ctx.moveTo(bx + Math.cos(angle) * 5, by + Math.sin(angle) * 5);
+          ctx.lineTo(bx + Math.cos(angle) * spikeLen, by + Math.sin(angle) * spikeLen);
+          ctx.strokeStyle = `rgba(${r},${g},${b},${spikeOp})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+
         // Ring
         ctx.beginPath();
-        ctx.arc(bx, by, 8, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${r},${g},${b},0.80)`;
-        ctx.lineWidth   = 1.6;
+        ctx.arc(bx, by, 7, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.65)`;
+        ctx.lineWidth   = 1.4;
         ctx.stroke();
 
         // Core
         ctx.beginPath();
-        ctx.arc(bx, by, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r},${g},${b},1.0)`;
+        ctx.arc(bx, by, 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},0.95)`;
         ctx.fill();
 
-        // White centre
+        // White-hot centre
         ctx.beginPath();
-        ctx.arc(bx, by, 2.0, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.75 + pulse * 0.20})`;
         ctx.fill();
       }
     }
