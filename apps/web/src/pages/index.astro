@@ -26,7 +26,6 @@ import AtomOrbit3D from "@components/islands/AtomOrbit3D";
 import HeroSpectrum from "@components/islands/HeroSpectrum";
 import PipelineFlow from "@components/islands/PipelineFlow";
 import MastHeadReveal from "@components/islands/MastHeadReveal";
-import ContributionGrid from "@components/islands/ContributionGrid";
 import NavTerminalPath from "@components/islands/NavTerminalPath";
 import SpectrumHero from "@components/islands/SpectrumHero";
 import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
@@ -369,33 +368,25 @@ import DisplayCards from "@components/islands/DisplayCards";
         />
         <p class="text-sm text-text-secondary mb-6">{PUBLICATION.tagline}</p>
 
-        <!-- 2-column layout: blog posts left | ContributionGrid right -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 min-h-0">
-          <!-- Left: stacked blog post cards -->
-          <div class="flex flex-col posts-left-col">
-            <DisplayCards
-              client:visible
-              cards={posts.slice(0, 3).map((post, i) => ({
-                title: post.data.title,
-                description: post.data.description,
-                date: formatDate(post.data.date),
-                href: `/blog/${post.id}`,
-                accentColor: i === 0 ? "#C9A04A" : i === 1 ? "#4ECDC4" : "#A78BFA",
-              }))}
-            />
+        <!-- Full-width spread display cards -->
+        <DisplayCards
+          client:visible
+          cards={posts.slice(0, 3).map((post, i) => ({
+            title: post.data.title,
+            description: post.data.description,
+            date: formatDate(post.data.date),
+            href: `/blog/${post.id}`,
+            accentColor: i === 0 ? "#C9A04A" : i === 1 ? "#4ECDC4" : "#A78BFA",
+          }))}
+        />
 
-            <div class="flex items-center gap-4 mt-24">
-              <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
-                Enter the archive →
-              </a>
-              <NewsletterSubscribe client:visible />
-            </div>
-          </div>
-
-          <!-- Right: ContributionGrid -->
-          <div class="flex flex-col gap-2 justify-start grid-right-col">
-            <ContributionGrid client:visible />
-            <p class="text-[9px] font-mono text-text-muted/40">Activity log</p>
+        <!-- Archive link + compact subscribe row -->
+        <div class="flex items-center gap-6 mt-20">
+          <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors shrink-0">
+            Enter the archive →
+          </a>
+          <div class="flex-1 max-w-sm">
+            <NewsletterSubscribe client:visible />
           </div>
         </div>
       </div>
