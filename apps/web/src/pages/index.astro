@@ -19,22 +19,20 @@ const recentPosts = posts.slice(1, 3);
 import ScrollProgress from "@components/islands/ScrollProgress";
 import ScrollSetup from "@components/islands/ScrollSetup";
 import DecryptedText from "@components/islands/DecryptedText";
-import MetricCards from "@components/islands/MetricCards";
 import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 import TextScramble from "@components/islands/TextScramble";
 import GradientText from "@components/islands/GradientText";
 import AtomOrbit3D from "@components/islands/AtomOrbit3D";
 import HeroSpectrum from "@components/islands/HeroSpectrum";
 import PipelineFlow from "@components/islands/PipelineFlow";
-import SpotlightCard from "@components/islands/SpotlightCard";
 import MastHeadReveal from "@components/islands/MastHeadReveal";
 import ContributionGrid from "@components/islands/ContributionGrid";
-import VibeScopePreview from "@components/islands/VibeScopePreview";
 import NavTerminalPath from "@components/islands/NavTerminalPath";
 import SpectrumHero from "@components/islands/SpectrumHero";
-import BentoMiniViz from "@components/islands/BentoMiniViz";
 import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
 import ArchRace from "@components/islands/ArchRace";
+import ProjectShowcase from "@components/islands/ProjectShowcase";
+import SimConsole from "@components/islands/SimConsole";
 import CrossSpectralLens from "@components/islands/CrossSpectralLens";
 import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 ---
@@ -158,7 +156,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 
           <!-- Tagline: GradientText flowing amber -->
           <p class="mt-5 text-base font-light max-w-sm leading-relaxed hidden sm:block">
-            <GradientText client:load>Decoding molecular structure from the spectra they leave behind.</GradientText>
+            <GradientText client:load>Deep learning for the chemical sciences.</GradientText>
           </p>
 
           <!-- CTA buttons -->
@@ -316,96 +314,11 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
     >
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="02 / Build"></p>
-        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-6">
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1">
           Open-source tools for chemical science
         </h2>
-
-        <!-- Bento grid — each card wrapped in SpotlightCard -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="bento-grid">
-          <!-- SpectraKit — large (spans 2 cols) -->
-          <SpotlightCard client:idle className="col-span-2 row-span-1 group">
-            <a href="/projects/spectrakit" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">001</p>
-                  <p class="text-xs font-mono text-accent mb-1">v1.8.0</p>
-                  <h3 class="text-base font-heading font-semibold text-text-primary">SpectraKit</h3>
-                </div>
-                <Badge variant="outline">stable</Badge>
-              </div>
-              <p class="text-xs text-text-muted leading-relaxed mb-4">
-                Python library for vibrational spectroscopy preprocessing and analysis.
-              </p>
-              <div class="flex items-center gap-3 text-[10px] font-mono text-text-muted">
-                <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>699 tests</span>
-                <span>97% coverage</span>
-              </div>
-              <p class="mt-2 text-[10px] font-mono text-text-muted/60">pip install spectrakit</p>
-              <div class="mt-3 -mx-5 border-t border-border/40">
-                <BentoMiniViz client:idle kind="spectrakit" />
-              </div>
-            </a>
-          </SpotlightCard>
-
-          <!-- Spektron -->
-          <SpotlightCard client:idle className="group" spotlightColor="rgba(78,205,196,0.15)">
-            <a href="/projects/spektron" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
-              <div class="mb-2">
-                <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">002</p>
-                <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
-                <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
-              </div>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-3">5-arch spectral inversion benchmark</p>
-              <div class="flex items-center gap-1 text-[10px] font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
-                <span class="text-text-muted">building</span>
-              </div>
-              <div class="mt-3 -mx-5 border-t border-border/40">
-                <BentoMiniViz client:idle kind="spektron" />
-              </div>
-            </a>
-          </SpotlightCard>
-
-          <!-- ReactorTwin -->
-          <SpotlightCard client:idle className="group" spotlightColor="rgba(78,205,196,0.15)">
-            <a href="/projects/reactortwin" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
-              <div class="mb-2">
-                <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">003</p>
-                <p class="text-xs font-mono text-text-muted mb-1">v1.0.0</p>
-                <h3 class="text-sm font-heading font-semibold text-text-primary">ReactorTwin</h3>
-              </div>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-3">Neural ODE surrogate — 1500× faster</p>
-              <div class="flex items-center gap-1 text-[10px] font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
-                <span class="text-text-muted">stable</span>
-              </div>
-              <div class="mt-3 -mx-5 border-t border-border/40">
-                <BentoMiniViz client:idle kind="reactortwin" />
-              </div>
-            </a>
-          </SpotlightCard>
-
-          <!-- SpectraView — spans 2 cols -->
-          <SpotlightCard client:idle className="col-span-2 group" spotlightColor="rgba(167,139,250,0.15)">
-            <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">004</p>
-                  <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
-                  <h3 class="text-sm font-heading font-semibold text-text-primary">SpectraView</h3>
-                </div>
-                <Badge variant="outline">beta</Badge>
-              </div>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-3">React spectrum visualization library — 15 components, 266 tests</p>
-              <div class="-mx-5 border-t border-border/40">
-                <BentoMiniViz client:idle kind="spectraview" />
-              </div>
-            </a>
-          </SpotlightCard>
-        </div>
-
-        <!-- MetricCards strip -->
-        <MetricCards client:visible />
+        <p class="text-sm text-text-secondary mb-5">Four libraries. One goal: make chemistry programmable.</p>
+        <ProjectShowcase client:visible />
       </div>
     </section>
 
@@ -419,74 +332,11 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
     >
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="03 / Explore"></p>
-        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-2">
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1">
           Interactive Chemistry Simulations
         </h2>
-        <p class="text-sm text-text-secondary mb-5">Physics-accurate molecular simulations, running entirely in the browser.</p>
-
-        <!-- 2-column layout: VibScope left (60%), 4 compact cards right (40%) -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 flex-1 min-h-0">
-          <!-- Left: VibScope featured -->
-          <div class="lg:col-span-3 sim-card flex flex-col min-h-0">
-            <div class="flex items-center gap-2 mb-3 flex-shrink-0">
-              <Badge>Featured</Badge>
-              <h3 class="text-sm font-heading font-semibold text-text-primary">VibScope</h3>
-              <span class="text-[10px] font-mono text-text-muted ml-auto">17 molecules · 3D · 60fps</span>
-            </div>
-            <div class="flex-1 min-h-0 overflow-hidden">
-              <VibeScopePreview client:visible />
-            </div>
-            <div class="mt-3 flex items-center justify-between flex-shrink-0">
-              <p class="text-[10px] font-mono text-text-muted">Three.js + WebGL · GIF export</p>
-              <a href="/simulations/vibescope" class="text-[10px] font-mono text-text-muted hover:text-accent transition-colors">
-                Launch full app →
-              </a>
-            </div>
-          </div>
-
-          <!-- Right: 4 compact simulation cards -->
-          <div class="lg:col-span-2 flex flex-col gap-3">
-            <a href="/simulations/normal-mode-explorer" class="compact-sim-card group">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Normal Mode Explorer</h4>
-                  <p class="text-[10px] font-mono text-text-muted">45 molecules · 583 modes</p>
-                </div>
-                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
-              </div>
-            </a>
-
-            <a href="https://orbital.tubhyam.dev" target="_blank" rel="noopener noreferrer" class="compact-sim-card group">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Orbital Architect</h4>
-                  <p class="text-[10px] font-mono text-text-muted">Aufbau · Pauli · Hund's rules</p>
-                </div>
-                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
-              </div>
-            </a>
-
-            <a href="/simulations/symmetry-explorer" class="compact-sim-card group">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Symmetry Explorer</h4>
-                  <p class="text-[10px] font-mono text-text-muted">15 point groups · character tables</p>
-                </div>
-                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
-              </div>
-            </a>
-
-            <a href="/simulations/spectrum-to-structure" class="compact-sim-card group">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-xs font-heading font-semibold text-text-primary mb-0.5">Spectrum-to-Structure</h4>
-                  <p class="text-[10px] font-mono text-text-muted">ML-powered structure prediction</p>
-                </div>
-                <span class="text-[10px] font-mono text-text-muted group-hover:text-accent transition-colors flex-shrink-0">Launch →</span>
-              </div>
-            </a>
-          </div>
-        </div>
+        <p class="text-sm text-text-secondary mb-5">Physics-accurate simulations, running entirely in your browser.</p>
+        <SimConsole client:visible />
       </div>
     </section>
 
