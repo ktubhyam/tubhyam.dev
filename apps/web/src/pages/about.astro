@@ -53,7 +53,7 @@ import BlurReveal from "@components/islands/BlurReveal";
         <div>
           <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">ML & Deep Learning</p>
           <div class="flex flex-wrap gap-1.5">
-            {["PyTorch", "JAX", "CUDA", "Hugging Face", "torchdiffeq", "einops", "W&B", "PyTorch Lightning", "scikit-learn", "ONNX"].map((skill) => (
+            {["PyTorch", "PyTorch Geometric", "JAX", "CUDA", "TensorFlow", "Hugging Face", "DeepChem", "e3nn", "torchdiffeq", "einops", "BoTorch", "W&B", "PyTorch Lightning", "scikit-learn", "Conformal Prediction", "ONNX"].map((skill) => (
               <span class="skill-tag skill-amber">{skill}</span>
             ))}
           </div>
@@ -63,7 +63,7 @@ import BlurReveal from "@components/islands/BlurReveal";
         <div>
           <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Architectures & Theory</p>
           <div class="flex flex-wrap gap-1.5">
-            {["State Space Models", "Transformers", "Graph Neural Networks", "Neural ODEs", "PINNs", "Variational Inference", "Information Theory", "Diffusion Models"].map((skill) => (
+            {["State Space Models", "Transformers", "Graph Neural Networks", "Neural ODEs", "PINNs", "Variational Inference", "Information Theory", "Diffusion Models", "Equivariant NNs", "Bayesian Optimization"].map((skill) => (
               <span class="skill-tag skill-amber">{skill}</span>
             ))}
           </div>
@@ -73,7 +73,7 @@ import BlurReveal from "@components/islands/BlurReveal";
         <div>
           <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Chemistry & Simulation</p>
           <div class="flex flex-wrap gap-1.5">
-            {["Vibrational Spectroscopy", "DFT", "Group Theory", "RDKit", "GROMACS", "OpenMM", "Chemometrics", "Molecular Dynamics", "Quantum Chemistry", "Cheminformatics"].map((skill) => (
+            {["Vibrational Spectroscopy", "DFT", "Group Theory", "RDKit", "Schrödinger Suite", "COSMO-RS", "Gaussian", "VASP", "LAMMPS", "GROMACS", "OpenMM", "Open Catalyst", "Chemometrics", "Molecular Dynamics", "Quantum Chemistry", "Cheminformatics"].map((skill) => (
               <span class="skill-tag skill-teal">{skill}</span>
             ))}
           </div>
@@ -83,7 +83,7 @@ import BlurReveal from "@components/islands/BlurReveal";
         <div>
           <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Scientific Computing</p>
           <div class="flex flex-wrap gap-1.5">
-            {["NumPy", "SciPy", "pandas", "matplotlib", "Jupyter", "ASE", "h5py", "LaTeX", "Zotero"].map((skill) => (
+            {["NumPy", "SciPy", "pandas", "matplotlib", "Plotly", "COMSOL Multiphysics", "Jupyter", "ASE", "h5py", "LaTeX", "Zotero"].map((skill) => (
               <span class="skill-tag skill-green">{skill}</span>
             ))}
           </div>
@@ -93,11 +93,31 @@ import BlurReveal from "@components/islands/BlurReveal";
         <div>
           <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Web & Infrastructure</p>
           <div class="flex flex-wrap gap-1.5">
-            {["TypeScript", "React", "Astro", "Three.js", "Docker", "Linux", "GitHub Actions", "Vercel", "Vast.ai"].map((skill) => (
+            {["TypeScript", "React", "Astro", "Three.js", "Docker", "Kubernetes", "Linux", "AWS", "GCP", "SQL", "GitHub Actions", "Vercel", "Vast.ai"].map((skill) => (
               <span class="skill-tag skill-neutral">{skill}</span>
             ))}
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Certifications -->
+    <div class="mt-12">
+      <p class="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-6">Target Certifications</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {[
+          { name: "AWS Machine Learning — Specialty", issuer: "Amazon Web Services" },
+          { name: "Google Cloud Professional ML Engineer", issuer: "Google Cloud" },
+          { name: "TensorFlow Developer Certificate", issuer: "Google" },
+          { name: "Certified Kubernetes Administrator (CKA)", issuer: "CNCF" },
+          { name: "Schrödinger Drug Discovery Suite", issuer: "Schrödinger" },
+          { name: "COMSOL Multiphysics Certified Specialist", issuer: "COMSOL" },
+        ].map((cert) => (
+          <div class="cert-item">
+            <span class="text-xs text-text-primary font-medium">{cert.name}</span>
+            <span class="text-[11px] text-text-muted font-mono mt-0.5">{cert.issuer}</span>
+          </div>
+        ))}
       </div>
     </div>
 
@@ -178,5 +198,14 @@ import BlurReveal from "@components/islands/BlurReveal";
   .skill-neutral:hover {
     border-color: var(--color-border-hover);
     background: var(--color-surface-hover);
+  }
+
+  .cert-item {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
   }
 </style>

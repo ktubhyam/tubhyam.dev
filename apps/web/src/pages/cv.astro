@@ -25,12 +25,12 @@ const education = [
 ];
 
 const skills = {
-  "Languages": ["Python", "TypeScript", "Rust", "C++", "MATLAB", "Julia", "Bash"],
-  "ML / DL": ["PyTorch", "JAX", "CUDA", "Hugging Face", "torchdiffeq", "einops", "W&B", "PyTorch Lightning", "scikit-learn", "ONNX"],
-  "Architectures": ["State Space Models", "Transformers", "Graph Neural Networks", "Neural ODEs", "PINNs", "Variational Inference"],
-  "Chemistry": ["DFT", "Vibrational Spectroscopy", "Group Theory", "RDKit", "GROMACS", "OpenMM", "Chemometrics", "Molecular Dynamics", "Cheminformatics"],
-  "Scientific Python": ["NumPy", "SciPy", "pandas", "matplotlib", "Jupyter", "ASE", "h5py"],
-  "Tools": ["Git", "Docker", "Linux", "LaTeX", "GitHub Actions", "Vercel", "Vast.ai", "Astro", "React"],
+  "Languages": ["Python", "TypeScript", "Rust", "C++", "MATLAB", "Julia", "SQL", "Bash"],
+  "ML / DL": ["PyTorch", "PyTorch Geometric", "JAX", "CUDA", "TensorFlow", "Hugging Face", "DeepChem", "e3nn", "torchdiffeq", "BoTorch", "einops", "W&B", "PyTorch Lightning", "scikit-learn", "Conformal Prediction", "ONNX"],
+  "Architectures": ["State Space Models", "Transformers", "Graph Neural Networks", "Neural ODEs", "PINNs", "Equivariant NNs", "Variational Inference", "Bayesian Optimization", "Diffusion Models"],
+  "Chemistry": ["Vibrational Spectroscopy", "DFT", "Group Theory", "RDKit", "Schrödinger Suite", "COSMO-RS", "Gaussian", "VASP", "LAMMPS", "GROMACS", "OpenMM", "Open Catalyst", "Chemometrics", "Molecular Dynamics", "Cheminformatics"],
+  "Scientific Python": ["NumPy", "SciPy", "pandas", "matplotlib", "Plotly", "COMSOL Multiphysics", "Jupyter", "ASE", "h5py", "LaTeX"],
+  "Tools": ["Git", "Docker", "Kubernetes", "Linux", "AWS", "GCP", "GitHub Actions", "Vercel", "Vast.ai", "Astro", "React"],
 };
 
 const skillColors: Record<string, { accent: string; bg: string; border: string }> = {
@@ -39,8 +39,17 @@ const skillColors: Record<string, { accent: string; bg: string; border: string }
   "Architectures": { accent: "#C9A04A", bg: "#C9A04A", border: "#C9A04A" },
   "Chemistry": { accent: "#4ECDC4", bg: "#4ECDC4", border: "#4ECDC4" },
   "Scientific Python": { accent: "#34D399", bg: "#34D399", border: "#34D399" },
-  "Tools": { accent: "#34D399", bg: "#34D399", border: "#34D399" },
+  "Tools": { accent: "#94A3B8", bg: "#94A3B8", border: "#94A3B8" },
 };
+
+const certifications = [
+  { name: "AWS Machine Learning — Specialty", issuer: "Amazon Web Services", year: "2027" },
+  { name: "Google Cloud Professional ML Engineer", issuer: "Google Cloud", year: "2027" },
+  { name: "TensorFlow Developer Certificate", issuer: "Google", year: "2027" },
+  { name: "Certified Kubernetes Administrator (CKA)", issuer: "CNCF", year: "2028" },
+  { name: "Schrödinger Drug Discovery Suite — Certified User", issuer: "Schrödinger", year: "2028" },
+  { name: "COMSOL Multiphysics — Certified Simulation Specialist", issuer: "COMSOL", year: "2029" },
+];
 
 const projects = [
   {
@@ -167,6 +176,29 @@ const projectColors = ["#A78BFA", "#4ECDC4", "#4ECDC4", "#C9A04A"];
               );
             });
           })()}
+        </div>
+      </TerminalWindow>
+
+      <!-- Certifications -->
+      <TerminalWindow title="certifications" status="target">
+        <div class="space-y-1.5">
+          <div class="flex">
+            <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">1</span>
+            <span class="text-[#34D399]">$</span>
+            <span class="ml-2 text-text-secondary">cat certifications.log</span>
+          </div>
+          <div class="flex">
+            <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+            <span class="text-text-secondary">&nbsp;</span>
+          </div>
+          {certifications.map((cert, i) => (
+            <div class="flex items-baseline gap-2">
+              <span class="w-6 text-right mr-3 select-none flex-shrink-0 text-[#333]">{3 + i}</span>
+              <span class="text-text-primary text-xs font-medium flex-1">{cert.name}</span>
+              <span class="text-text-muted text-xs font-mono">{cert.issuer}</span>
+              <span class="text-[#60A5FA] text-xs font-mono">{cert.year}</span>
+            </div>
+          ))}
         </div>
       </TerminalWindow>
 
