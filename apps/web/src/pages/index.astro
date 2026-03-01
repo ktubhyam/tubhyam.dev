@@ -35,6 +35,7 @@ import ProjectShowcase from "@components/islands/ProjectShowcase";
 import SimConsole from "@components/islands/SimConsole";
 import CrossSpectralLens from "@components/islands/CrossSpectralLens";
 import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
+import DisplayCards from "@components/islands/DisplayCards";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -370,46 +371,20 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 
         <!-- 2-column layout: blog posts left | ContributionGrid right -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 min-h-0">
-          <!-- Left: blog post cards -->
+          <!-- Left: stacked blog post cards -->
           <div class="flex flex-col posts-left-col">
-            {featuredPost && (
-              <a href={`/blog/${featuredPost.id}`} class="block mb-4 featured-post-card group">
-                <div class="flex items-center gap-3 mb-2">
-                  <Badge>Latest</Badge>
-                  <span class="text-[10px] font-mono text-text-muted">
-                    {formatDate(featuredPost.data.date)} · {readingTime(featuredPost.body ?? "")} min read
-                  </span>
-                </div>
-                <h3 class="text-base sm:text-lg font-heading font-semibold text-text-primary leading-snug group-hover:text-accent transition-colors">
-                  {featuredPost.data.title}
-                </h3>
-                <div class="mt-2 flex flex-wrap gap-1.5">
-                  {featuredPost.data.tags.slice(0, 3).map((tag: string) => (
-                    <span class="text-[10px] font-mono text-accent/60 bg-accent/5 rounded-full px-2 py-0.5">{tag}</span>
-                  ))}
-                </div>
-              </a>
-            )}
+            <DisplayCards
+              client:visible
+              cards={posts.slice(0, 3).map((post, i) => ({
+                title: post.data.title,
+                description: post.data.description,
+                date: formatDate(post.data.date),
+                href: `/blog/${post.id}`,
+                accentColor: i === 0 ? "#C9A04A" : i === 1 ? "#4ECDC4" : "#A78BFA",
+              }))}
+            />
 
-            {recentPosts.length > 0 && (
-              <div class="grid grid-cols-2 gap-2 mb-5">
-                {recentPosts.map((post) => (
-                  <a href={`/blog/${post.id}`} class="post-card group">
-                    <p class="text-[10px] font-mono text-text-muted mb-1">{formatDate(post.data.date)}</p>
-                    <h4 class="text-xs font-heading font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug line-clamp-2">
-                      {post.data.title}
-                    </h4>
-                    <div class="mt-2 flex flex-wrap gap-1">
-                      {post.data.tags.slice(0, 2).map((tag: string) => (
-                        <span class="text-[9px] font-mono text-text-muted/60 bg-surface rounded-full px-1.5 py-0.5">{tag}</span>
-                      ))}
-                    </div>
-                  </a>
-                ))}
-              </div>
-            )}
-
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 mt-24">
               <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
                 Enter the archive →
               </a>
