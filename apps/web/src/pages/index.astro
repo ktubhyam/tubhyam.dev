@@ -135,8 +135,8 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 
 
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-8 lg:pt-0 lg:pb-0 lg:h-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <!-- Text column -->
-        <div class="hero-content">
+        <!-- Text column: z-[2] so it renders above orbit bleed -->
+        <div class="hero-content relative z-[2]">
           <!-- Name: TextScramble decode on mount -->
           <h1
             class="text-[clamp(3.5rem,10vw,7.5rem)] font-extrabold tracking-[-0.055em] leading-[0.88] text-text-primary"
@@ -198,16 +198,25 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
           </div>
         </div>
 
-        <!-- Right column: AtomOrbit3D -->
-        <div class="flex items-center justify-center h-[420px] sm:h-[520px] lg:h-[min(680px,calc(100svh-180px))]">
-          <AtomOrbit3D
-            client:load
-            nodes={[
-              { label: "Inverse Problem",    icon: "M22 12h-4l-3 9L9 3l-3 9H2",                                                                                                                        description: "Recovering molecular structure directly from vibrational spectra.",         color: "#C9A04A" },
-              { label: "State Space Models", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",                               description: "Mamba and S4D architectures for long-range spectral sequence modeling.",    color: "#C9A04A" },
-              { label: "Spectroscopy",       icon: "M12 3L2 21h20L12 3zm0 4l7.5 13h-15L12 7z",                                                                                                         description: "IR and Raman selection rules, normal modes, and group-theoretic analysis.", color: "#C9A04A" },
-            ]}
-          />
+        <!-- Right column: orbit bleeds left behind text on desktop -->
+        <div class="relative z-[1] h-[420px] sm:h-[520px] lg:h-[min(680px,calc(100svh-180px))]">
+          <!-- lg:-ml-[20%] lg:w-[120%]: orbit canvas starts 20% into the left column,
+               rings visually pass behind "Tubhyam Karthikeyan" (text is z-[2]) -->
+          <div class="h-full w-full lg:-ml-[20%] lg:w-[120%]">
+            <AtomOrbit3D
+              client:load
+              nodes={[
+                { label: "Inverse Problem",    icon: "M22 12h-4l-3 9L9 3l-3 9H2",                                                                                                                                                                                                                    description: "Recovering molecular structure directly from vibrational spectra.",                      color: "#C9A04A" },
+                { label: "State Space Models", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",                                                                                                                              description: "Mamba and S4D architectures for long-range spectral sequence modeling.",                 color: "#C9A04A" },
+                { label: "Spectroscopy",       icon: "M12 3L2 21h20L12 3zm0 4l7.5 13h-15L12 7z",                                                                                                                                                                                                     description: "IR and Raman selection rules, normal modes, and group-theoretic analysis.",              color: "#C9A04A" },
+                { label: "Neural ODEs",        icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",                                                                                                                                                                                                        description: "*Continuous-depth* networks for reactor dynamics and kinetic surrogate modeling.",        color: "#4ECDC4" },
+                { label: "Graph NNs",          icon: "M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z",   description: "3D fragment-aware graph encoders for bidirectional IR\u2194structure prediction.",        color: "#4ECDC4" },
+                { label: "Quantum Chemistry",  icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",                                                                                                                                                                                                  description: "DFT at B3LYP/def2-TZVP — computational backbone of the QM9S training dataset.",         color: "#A78BFA" },
+                { label: "Chemical Eng.",      icon: "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z", description: "Reactor design, process control, and surrogate digital twin development.",              color: "#4ECDC4" },
+                { label: "Deep Learning",      icon: "M13 10V3L4 14h7v7l9-11h-7z",                                                                                                                                                                                                                   description: "PyTorch, CUDA, and distributed training for large-scale molecular learning.",            color: "#A78BFA" },
+              ]}
+            />
+          </div>
         </div>
       </div>
 

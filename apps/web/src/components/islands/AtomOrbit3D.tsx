@@ -23,7 +23,7 @@ interface Props {
 
 // ─── Color helpers ────────────────────────────────────────
 
-const RING_COLORS = ["#C9A04A", "#4ECDC4", "#FF6B6B", "#A78BFA", "#34D399", "#F59E0B"];
+const RING_COLORS = ["#C9A04A", "#4ECDC4", "#A78BFA", "#C9A04A", "#34D399", "#4ECDC4", "#A78BFA", "#C9A04A"];
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
@@ -73,10 +73,10 @@ function fibonacciSphere(count: number, radius: number): Vec3[] {
 // ─── Constants ────────────────────────────────────────────
 
 const FOV = 500;
-const RING_TILTS = [0, Math.PI / 2.8, -Math.PI / 2.8, Math.PI / 5, -Math.PI / 4.5, Math.PI / 3.5];
+const RING_TILTS = [0, Math.PI / 2.8, -Math.PI / 2.8, Math.PI / 5, -Math.PI / 4.5, Math.PI / 3.5, Math.PI / 7, -Math.PI / 6];
 const RING_SEG_COUNT = 60;
-const ELECTRON_SPEEDS = [0.3, 0.45, 0.22, 0.38, 0.28, 0.35];
-const ELECTRON_OFFSETS = [0, 2.1, 4.2, 1.0, 3.5, 5.2];
+const ELECTRON_SPEEDS = [0.3, 0.45, 0.22, 0.38, 0.28, 0.35, 0.42, 0.26];
+const ELECTRON_OFFSETS = [0, 2.1, 4.2, 1.0, 3.5, 5.2, 0.7, 3.0];
 
 // ─── Component ───────────────────────────────────────────
 
