@@ -162,8 +162,8 @@ export default function AtomOrbit3D({
         const proj2 = project(p2, FOV, cx, cy);
         const avgZ = (p1.z + p2.z) / 2;
         const depth = Math.max(0, Math.min(1, (avgZ + radius) / depthRange));
-        const opacity = 0.03 + depth * 0.18;
-        const lineWidth = 0.3 + depth * 1.0;
+        const opacity = 0.08 + depth * 0.42;
+        const lineWidth = 0.5 + depth * 1.8;
 
         ctx.beginPath();
         ctx.moveTo(proj1.x, proj1.y);
@@ -185,8 +185,8 @@ export default function AtomOrbit3D({
       p = rotateX(p, xAngle);
       const proj = project(p, FOV, cx, cy);
       const depth01 = (p.z + radius) / depthRange;
-      const opacity = 0.03 + depth01 * 0.15;
-      const lineWidth = 0.3 + depth01 * 0.8;
+      const opacity = 0.10 + depth01 * 0.32;
+      const lineWidth = 0.5 + depth01 * 1.4;
       const [r, g, b] = nodeColorsRgb.current[i];
 
       ctx.beginPath();
@@ -208,8 +208,8 @@ export default function AtomOrbit3D({
       const depth01 = Math.max(0, Math.min(1, (p.z + radius) / depthRange));
       const proj = project(p, FOV, cx, cy);
       const [r, g, b] = RING_RGBS[ri % RING_RGBS.length];
-      const er = 1.5 + depth01 * 2.5;
-      const opacity = 0.2 + depth01 * 0.7;
+      const er = 2.0 + depth01 * 3.0;
+      const opacity = 0.35 + depth01 * 0.65;
 
       ctx.beginPath();
       ctx.arc(proj.x, proj.y, er, 0, Math.PI * 2);
@@ -220,14 +220,14 @@ export default function AtomOrbit3D({
     // ─── Draw center glow ───
     if (showCenter) {
       ctx.beginPath();
-      ctx.arc(centerProj.x, centerProj.y, radius * 0.18, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(201,160,74,0.02)";
+      ctx.arc(centerProj.x, centerProj.y, radius * 0.22, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(201,160,74,0.05)";
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(centerProj.x, centerProj.y, radius * 0.08, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(201,160,74,0.1)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(201,160,74,0.28)";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
 
@@ -361,7 +361,7 @@ export default function AtomOrbit3D({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-[640px] md:h-[720px] select-none ${className}`}
+      className={`relative w-full h-full min-h-[400px] select-none ${className}`}
       style={{ cursor: dragRef.current ? "grabbing" : "grab", touchAction: "pan-y" }}
       onPointerDown={onDown}
       onPointerMove={onMove}
