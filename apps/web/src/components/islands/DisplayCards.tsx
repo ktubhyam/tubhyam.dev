@@ -26,15 +26,15 @@ function DisplayCard({
       className={cn(
         "relative flex flex-col justify-between rounded-xl border",
         "flex-1 min-w-0 h-56 -skew-y-[8deg] select-none",
-        "bg-[#111111]/80 backdrop-blur-sm px-5 py-5 transition-all duration-500",
-        "hover:-translate-y-4 hover:border-white/20 hover:bg-[#141414]",
+        "bg-black/20 backdrop-blur-md px-5 py-5 transition-all duration-500",
+        "hover:-translate-y-4 hover:border-white/15 hover:bg-black/30",
         "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[35%]",
         "after:bg-gradient-to-l after:from-[#000000] after:to-transparent",
         "after:content-[''] after:pointer-events-none after:rounded-r-xl",
         "no-underline cursor-pointer",
         className,
       )}
-      style={{ borderColor: "#1F1F1F" }}
+      style={{ borderColor: "rgba(255,255,255,0.07)" }}
     >
       {/* Icon + title */}
       <div className="flex items-start gap-2">
