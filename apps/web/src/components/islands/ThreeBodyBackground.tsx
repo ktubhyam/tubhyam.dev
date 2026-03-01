@@ -123,8 +123,10 @@ export default function ThreeBodyBackground() {
     const fieldMag = new Float32Array(GRID_W * GRID_H);
 
     function resize() {
-      cssW = wrap!.offsetWidth  || window.innerWidth;
-      cssH = wrap!.offsetHeight || window.innerHeight;
+      const w = wrap!.getBoundingClientRect().width  || wrap!.offsetWidth  || window.innerWidth;
+      const h = wrap!.getBoundingClientRect().height || wrap!.offsetHeight || window.innerHeight;
+      if (!w || !h) { requestAnimationFrame(resize); return; }
+      cssW = w; cssH = h;
       const dpr = window.devicePixelRatio || 1;
       canvas!.width  = cssW * dpr;
       canvas!.height = cssH * dpr;
