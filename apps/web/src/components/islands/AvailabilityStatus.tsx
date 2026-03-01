@@ -20,7 +20,7 @@ const STATUS_LINES: StatusLine[] = [
   { label: "location", value: "Mumbai, India", color: "teal" },
   { label: "timezone", value: "IST (UTC+5:30)", color: "blue" },
   { label: "response", value: "< 24 hours", color: "amber" },
-  { label: "interests", value: "spectroscopy, ML, scientific computing", color: "purple" },
+  { label: "interests", value: "spectral inversion, SSMs, neural ODEs, open-source tools", color: "purple" },
 ];
 
 const COLOR_MAP: Record<string, string> = {
@@ -119,7 +119,7 @@ export default function AvailabilityStatus({ className = "" }: Props) {
             className="mt-3 pt-3 border-t border-border text-text-muted/60"
           >
             <span className="text-text-muted/70">$</span> echo{" "}
-            <span className="text-[#34D399]">"Let's build something together"</span>
+            <span className="text-[#34D399]">"Open to research collaboration and fellowship programs."</span>
             <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-1 translate-y-[1px]" />
           </motion.div>
         )}

@@ -21,20 +21,14 @@ import BlurReveal from "@components/islands/BlurReveal";
     <!-- Bio -->
     <div class="about-section mb-10">
       <p class="text-text-secondary leading-relaxed mb-4">
-        I'm <span class="text-text-primary font-medium">Tubhyam Karthikeyan</span>, a computational chemist and machine learning
-        researcher at <span class="text-text-primary font-medium">ICT Mumbai</span>. I work at the intersection of chemistry,
-        mathematics, and AI — building tools that help scientists understand molecular behavior.
+        I'm <span class="text-text-primary font-medium">Tubhyam Karthikeyan</span>, a chemical engineering student and ML researcher at <span class="text-text-primary font-medium">ICT Mumbai</span>. I work at the intersection of chemistry, mathematics, and machine learning — specifically on the spectral inverse problem: recovering molecular structure from vibrational spectra.
       </p>
       <p class="text-text-secondary leading-relaxed mb-4">
-        My current research focuses on the <em class="text-accent not-italic">spectral inverse problem</em>: can you
-        determine a molecule's structure from its vibrational spectrum? I'm
-        developing the <a href="/research/spectral-identifiability" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">theoretical framework</a> (group-theoretic identifiability)
-        and the ML models (<a href="/projects/spektron" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">Spektron</a>, a hybrid SSM-attention architecture)
-        to answer this question.
+        My research runs along two tracks. <a href="/projects/spektron" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">Spektron</a> is a five-architecture benchmark (D-LinOSS, Mamba, S4D, Transformer, CNN) for spectral inversion on QM9S — testing whether state space models outperform classical architectures on long-range spectral sequences. <a href="https://github.com/ktubhyam/invyr-ai" target="_blank" rel="noopener noreferrer" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">invyr-ai</a> takes a complementary approach: bidirectional IR↔structure prediction via 3D fragment-aware graph encoders.
       </p>
       <p class="text-text-secondary leading-relaxed">
-        When I'm not doing research, I build open-source Python libraries like
-        <a href="/projects/spectrakit" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">SpectraKit</a> for spectroscopy,
+        Outside research, I build open-source Python libraries like
+        <a href="/projects/spectrakit" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">SpectraKit</a> for spectral preprocessing,
         create <a href="/simulations" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">interactive browser-based simulations</a>,
         and <a href="/blog" class="text-text-primary hover:text-accent transition-colors underline underline-offset-2">write about what I learn</a>.
       </p>
@@ -45,41 +39,61 @@ import BlurReveal from "@components/islands/BlurReveal";
       <p class="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-6">Skills & Stack</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- ML & Scientific Python -->
+        <!-- Programming Languages -->
         <div>
-          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">ML / Scientific Python</p>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Languages</p>
           <div class="flex flex-wrap gap-1.5">
-            {["Python", "PyTorch", "JAX", "CUDA", "scikit-learn", "RDKit", "NumPy", "SciPy"].map((skill) => (
+            {["Python", "TypeScript", "Rust", "C++", "MATLAB", "Julia", "Bash"].map((skill) => (
+              <span class="skill-tag skill-violet">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- ML & Deep Learning -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">ML & Deep Learning</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["PyTorch", "JAX", "CUDA", "Hugging Face", "torchdiffeq", "einops", "W&B", "PyTorch Lightning", "scikit-learn", "ONNX"].map((skill) => (
               <span class="skill-tag skill-amber">{skill}</span>
             ))}
           </div>
         </div>
 
-        <!-- Domain -->
+        <!-- Architectures & Theory -->
         <div>
-          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Chemistry & Research</p>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Architectures & Theory</p>
           <div class="flex flex-wrap gap-1.5">
-            {["Spectroscopy", "Computational Chemistry", "Group Theory", "Information Theory", "Molecular Modeling"].map((skill) => (
-              <span class="skill-tag skill-neutral">{skill}</span>
+            {["State Space Models", "Transformers", "Graph Neural Networks", "Neural ODEs", "PINNs", "Variational Inference", "Information Theory", "Diffusion Models"].map((skill) => (
+              <span class="skill-tag skill-amber">{skill}</span>
             ))}
           </div>
         </div>
 
-        <!-- Web -->
+        <!-- Chemistry & Simulation -->
         <div>
-          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Web</p>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Chemistry & Simulation</p>
           <div class="flex flex-wrap gap-1.5">
-            {["TypeScript", "React", "Astro", "Tailwind CSS"].map((skill) => (
-              <span class="skill-tag skill-neutral">{skill}</span>
+            {["Vibrational Spectroscopy", "DFT", "Group Theory", "RDKit", "GROMACS", "OpenMM", "Chemometrics", "Molecular Dynamics", "Quantum Chemistry", "Cheminformatics"].map((skill) => (
+              <span class="skill-tag skill-teal">{skill}</span>
             ))}
           </div>
         </div>
 
-        <!-- Infra -->
+        <!-- Scientific Computing -->
         <div>
-          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Infrastructure</p>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Scientific Computing</p>
           <div class="flex flex-wrap gap-1.5">
-            {["Docker", "Linux", "Vast.ai", "Vercel", "GitHub Actions"].map((skill) => (
+            {["NumPy", "SciPy", "pandas", "matplotlib", "Jupyter", "ASE", "h5py", "LaTeX", "Zotero"].map((skill) => (
+              <span class="skill-tag skill-green">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        <!-- Web & Infrastructure -->
+        <div>
+          <p class="text-xs font-mono text-text-muted uppercase tracking-wider mb-3">Web & Infrastructure</p>
+          <div class="flex flex-wrap gap-1.5">
+            {["TypeScript", "React", "Astro", "Three.js", "Docker", "Linux", "GitHub Actions", "Vercel", "Vast.ai"].map((skill) => (
               <span class="skill-tag skill-neutral">{skill}</span>
             ))}
           </div>
@@ -91,7 +105,7 @@ import BlurReveal from "@components/islands/BlurReveal";
     <div class="mt-12 pt-8 border-t border-border">
       <p class="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-4">Contact</p>
       <p class="text-text-secondary text-sm mb-3">
-        I'm open to research collaborations, interesting conversations about computational chemistry, and fellowship/internship opportunities.
+        Open to research collaborations, fellowship and internship opportunities, and conversations at the intersection of ML and chemistry.
       </p>
       <a href={`mailto:${SITE.email}`} class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
         {SITE.email} →
@@ -121,18 +135,46 @@ import BlurReveal from "@components/islands/BlurReveal";
     border-color: rgba(201, 160, 74, 0.25);
     background: rgba(201, 160, 74, 0.06);
   }
+  .skill-amber:hover {
+    border-color: rgba(201, 160, 74, 0.5);
+    background: rgba(201, 160, 74, 0.1);
+  }
+
+  .skill-violet {
+    color: #A78BFA;
+    border-color: rgba(167, 139, 250, 0.25);
+    background: rgba(167, 139, 250, 0.06);
+  }
+  .skill-violet:hover {
+    border-color: rgba(167, 139, 250, 0.5);
+    background: rgba(167, 139, 250, 0.1);
+  }
+
+  .skill-teal {
+    color: #4ECDC4;
+    border-color: rgba(78, 205, 196, 0.25);
+    background: rgba(78, 205, 196, 0.06);
+  }
+  .skill-teal:hover {
+    border-color: rgba(78, 205, 196, 0.5);
+    background: rgba(78, 205, 196, 0.1);
+  }
+
+  .skill-green {
+    color: #34D399;
+    border-color: rgba(52, 211, 153, 0.25);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .skill-green:hover {
+    border-color: rgba(52, 211, 153, 0.5);
+    background: rgba(52, 211, 153, 0.1);
+  }
 
   .skill-neutral {
     color: var(--color-text-secondary);
     border-color: var(--color-border);
     background: var(--color-surface);
   }
-
-  .skill-amber:hover {
-    border-color: rgba(201, 160, 74, 0.5);
-    background: rgba(201, 160, 74, 0.1);
-  }
-
   .skill-neutral:hover {
     border-color: var(--color-border-hover);
     background: var(--color-surface-hover);

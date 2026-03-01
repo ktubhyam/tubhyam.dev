@@ -146,18 +146,19 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
             <TextScramble client:load text="Tubhyam Karthikeyan" speed={25} mono={false} className="font-heading font-extrabold" />
           </h1>
 
-          <!-- Rotating subtitle — CSS keyframe cycle, 3 spans -->
+          <!-- Rotating subtitle — CSS keyframe cycle, 4 spans -->
           <div class="mt-6 h-7 overflow-hidden">
             <div class="rotating-subtitle text-base font-body font-light text-text-secondary tracking-tight">
               <span class="rotating-item rotating-item-0">Computational Chemist</span>
-              <span class="rotating-item rotating-item-1">ML Researcher</span>
-              <span class="rotating-item rotating-item-2">Open Source Builder</span>
+              <span class="rotating-item rotating-item-1">Chemical Engineer</span>
+              <span class="rotating-item rotating-item-2">ML Researcher</span>
+              <span class="rotating-item rotating-item-3">Scientific Programmer</span>
             </div>
           </div>
 
           <!-- Tagline: GradientText flowing amber -->
           <p class="mt-5 text-base font-light max-w-sm leading-relaxed hidden sm:block">
-            <GradientText client:load>Building neural networks that understand molecules.</GradientText>
+            <GradientText client:load>Decoding molecular structure from the spectra they leave behind.</GradientText>
           </p>
 
           <!-- CTA buttons -->
@@ -232,24 +233,38 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
               Solving the Spectral<br />Inverse Problem
             </h2>
             <p class="text-sm text-text-secondary leading-relaxed mb-5">
-              I'm building <span class="text-text-primary font-medium">Spektron</span> — an SSM+attention hybrid architecture — to recover molecular structure directly from vibrational spectra. Training on QM9S (130K molecules), targeting R²&nbsp;=&nbsp;0.95 across IR and Raman.
+              Two active threads attack the spectral inverse problem. <span class="text-text-primary font-medium">Spektron</span> benchmarks five architectures at parameter parity (~1M) on QM9S (130K molecules) — targeting R²&nbsp;=&nbsp;0.95 across IR and Raman. <span class="text-text-primary font-medium">invyr-ai</span> takes a complementary direction: bidirectional IR↔structure via 3D fragment-aware graph encoders.
             </p>
 
-            <!-- Spektron callout -->
-            <a
-              href="/projects/spektron"
-              class="flex items-center gap-3 p-3 rounded-lg border border-accent/20 bg-accent/5 mb-6 hover:border-accent/40 hover:bg-accent/8 transition-all group"
-            >
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-0.5">
+            <!-- Project callouts — Spektron + invyr-ai -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
+              <a
+                href="/projects/spektron"
+                class="flex flex-col p-3 rounded-lg border border-accent/20 bg-accent/5 hover:border-accent/40 hover:bg-accent/8 transition-all group"
+              >
+                <div class="flex items-center gap-2 mb-1">
                   <span class="text-[10px] font-mono text-accent font-semibold">Spektron</span>
                   <span class="text-[9px] font-mono text-accent/50">v0.1.0</span>
-                  <span class="text-[9px] font-mono text-text-muted ml-auto">SSM + attention</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A] ml-auto flex-shrink-0"></span>
                 </div>
-                <p class="text-[11px] font-mono text-text-muted truncate">~1M parameters · 5 architectures · QM9S training</p>
-              </div>
-              <span class="text-accent/60 group-hover:text-accent text-sm transition-colors flex-shrink-0">→</span>
-            </a>
+                <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">5-architecture spectral inversion benchmark</p>
+                <p class="text-[10px] font-mono text-text-muted/55">D-LinOSS · Mamba · S4D · Transformer · CNN</p>
+              </a>
+              <a
+                href="https://github.com/ktubhyam/invyr-ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex flex-col p-3 rounded-lg border border-[rgba(78,205,196,0.2)] bg-[rgba(78,205,196,0.04)] hover:border-[rgba(78,205,196,0.4)] hover:bg-[rgba(78,205,196,0.08)] transition-all group"
+              >
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-mono text-[#4ECDC4] font-semibold">invyr-ai</span>
+                  <span class="text-[9px] font-mono text-[#4ECDC4]/50">private · MIT</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] ml-auto flex-shrink-0"></span>
+                </div>
+                <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">Bidirectional IR↔structure prediction</p>
+                <p class="text-[10px] font-mono text-text-muted/55">3D fragment-aware graph encoders · MIT</p>
+              </a>
+            </div>
 
             <!-- Architecture R² comparison -->
             <ArchRace client:visible className="mb-6" />
@@ -279,7 +294,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 
         <!-- Floating tags -->
         <div class="mt-5 flex flex-wrap gap-2">
-          {["spectroscopy", "state space models", "graph networks", "neural ODEs", "QM9S", "IR/Raman"].map((tag) => (
+          {["spectroscopy", "state space models", "graph networks", "spectral inversion", "QM9S", "IR/Raman"].map((tag) => (
             <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-border-hover transition-colors">
               {tag}
             </span>
@@ -340,7 +355,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
                 <p class="text-xs font-mono text-text-muted mb-1">v0.1.0</p>
                 <h3 class="text-sm font-heading font-semibold text-text-primary">Spektron</h3>
               </div>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-3">SSM+attention for IR/Raman prediction</p>
+              <p class="text-[11px] text-text-muted leading-relaxed mb-3">5-arch spectral inversion benchmark</p>
               <div class="flex items-center gap-1 text-[10px] font-mono">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A]"></span>
                 <span class="text-text-muted">building</span>
@@ -381,7 +396,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
                 </div>
                 <Badge variant="outline">beta</Badge>
               </div>
-              <p class="text-[11px] text-text-muted leading-relaxed mb-3">TypeScript React library — 15 components, Canvas+SVG renderer for spectra</p>
+              <p class="text-[11px] text-text-muted leading-relaxed mb-3">React spectrum visualization library — 15 components, 266 tests</p>
               <div class="-mx-5 border-t border-border/40">
                 <BentoMiniViz client:idle kind="spectraview" />
               </div>
@@ -407,7 +422,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
         <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-2">
           Interactive Chemistry Simulations
         </h2>
-        <p class="text-sm text-text-secondary mb-5">Explore molecular physics in your browser.</p>
+        <p class="text-sm text-text-secondary mb-5">Physics-accurate molecular simulations, running entirely in the browser.</p>
 
         <!-- 2-column layout: VibScope left (60%), 4 compact cards right (40%) -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 flex-1 min-h-0">
@@ -546,7 +561,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
           <!-- Right: ContributionGrid -->
           <div class="flex flex-col gap-2 justify-start grid-right-col">
             <ContributionGrid client:visible />
-            <p class="text-[9px] font-mono text-text-muted/40">26 weeks of writing</p>
+            <p class="text-[9px] font-mono text-text-muted/40">Activity log</p>
           </div>
         </div>
       </div>
@@ -747,18 +762,19 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
     position: absolute;
     top: 0; left: 0;
     opacity: 0;
-    animation: rotating-fade 9s ease-in-out infinite;
+    animation: rotating-fade 12s ease-in-out infinite;
   }
 
   .rotating-item-0 { animation-delay: 0s; }
   .rotating-item-1 { animation-delay: 3s; }
   .rotating-item-2 { animation-delay: 6s; }
+  .rotating-item-3 { animation-delay: 9s; }
 
   @keyframes rotating-fade {
     0%   { opacity: 0; transform: translateY(6px); }
-    8%   { opacity: 1; transform: translateY(0); }
-    30%  { opacity: 1; transform: translateY(0); }
-    38%  { opacity: 0; transform: translateY(-6px); }
+    4%   { opacity: 1; transform: translateY(0); }
+    25%  { opacity: 1; transform: translateY(0); }
+    33%  { opacity: 0; transform: translateY(-6px); }
     100% { opacity: 0; transform: translateY(-6px); }
   }
 
