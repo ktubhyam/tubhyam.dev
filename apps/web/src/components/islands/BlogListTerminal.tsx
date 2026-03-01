@@ -80,7 +80,7 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
           }, 120);
         }, 350);
       }
-    }, 35);
+    }, 20);
 
     return () => clearInterval(typeId);
   }, [started, posts.length]);
@@ -202,8 +202,8 @@ export default function BlogListTerminal({ posts, className = "" }: Props) {
               <div className="flex items-baseline">
                 <LineNum n={ln + 2} />
                 <span className="text-[#555] leading-relaxed">
-                  {post.description.length > 120
-                    ? post.description.slice(0, 120) + "\u2026"
+                  {post.description.length > 160
+                    ? post.description.slice(0, 160) + "\u2026"
                     : post.description}
                 </span>
               </div>

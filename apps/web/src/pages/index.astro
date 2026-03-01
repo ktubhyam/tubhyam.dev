@@ -2,6 +2,7 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import StarBorder from "@components/ui/StarBorder.astro";
 import Badge from "@components/ui/Badge.astro";
+import MorseSeparator from "@components/ui/MorseSeparator.astro";
 import { SITE, PUBLICATION } from "@lib/constants";
 import { getCollection } from "astro:content";
 import { formatDate, readingTime } from "@lib/utils";
@@ -15,32 +16,27 @@ const featuredPost = posts[0];
 const recentPosts = posts.slice(1, 3);
 
 // React island components
-import SideNav from "@components/islands/SideNav";
 import ScrollProgress from "@components/islands/ScrollProgress";
-import FullPageScroller from "@components/islands/FullPageScroller";
-import RotatingText from "@components/islands/RotatingText";
+import ScrollSetup from "@components/islands/ScrollSetup";
 import DecryptedText from "@components/islands/DecryptedText";
-import SpectrumViz from "@components/islands/SpectrumViz";
 import MetricCards from "@components/islands/MetricCards";
 import AvailabilityStatus from "@components/islands/AvailabilityStatus";
 import TextScramble from "@components/islands/TextScramble";
 import GradientText from "@components/islands/GradientText";
 import AtomOrbit3D from "@components/islands/AtomOrbit3D";
 import HeroSpectrum from "@components/islands/HeroSpectrum";
-import InverseProblemFlow from "@components/islands/InverseProblemFlow";
 import PipelineFlow from "@components/islands/PipelineFlow";
 import SpotlightCard from "@components/islands/SpotlightCard";
-import LogStream from "@components/islands/LogStream";
 import MastHeadReveal from "@components/islands/MastHeadReveal";
 import ContributionGrid from "@components/islands/ContributionGrid";
 import VibeScopePreview from "@components/islands/VibeScopePreview";
-import MoleculeCard from "@components/islands/MoleculeCard";
-import OrbitalDiagram from "@components/islands/OrbitalDiagram";
 import NavTerminalPath from "@components/islands/NavTerminalPath";
 import SpectrumHero from "@components/islands/SpectrumHero";
 import BentoMiniViz from "@components/islands/BentoMiniViz";
-import NeuralLandscape from "@components/islands/NeuralLandscape";
 import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
+import ArchRace from "@components/islands/ArchRace";
+import CrossSpectralLens from "@components/islands/CrossSpectralLens";
+import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -75,8 +71,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
 
   <!-- Scroll infra islands (no DOM output) -->
   <ScrollProgress client:load />
-  <FullPageScroller client:load />
-  <SideNav client:idle />
+  <ScrollSetup client:load />
 
   <!-- Fixed header with terminal pill -->
   <header class="fixed top-0 left-0 right-0 z-50 px-6 flex items-center justify-between" id="home-nav" style="height:48px; background: rgba(0,0,0,0.88); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255,255,255,0.06);">
@@ -140,57 +135,33 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       <!-- Live IR spectrum background -->
       <SpectrumHero client:load />
 
-      <span class="section-number">00</span>
 
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
         <!-- Text column -->
         <div class="hero-content">
           <!-- Name: TextScramble decode on mount -->
           <h1
-            class="text-[clamp(3.25rem,9vw,6.75rem)] font-extrabold tracking-[-0.05em] leading-[0.88] text-text-primary"
-            style="opacity: 0; animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;"
+            class="text-[clamp(3.5rem,10vw,7.5rem)] font-extrabold tracking-[-0.055em] leading-[0.88] text-text-primary"
           >
             <TextScramble client:load text="Tubhyam Karthikeyan" speed={25} mono={false} className="font-heading font-extrabold" />
           </h1>
 
-          <!-- Rotating subtitle -->
-          <div
-            class="mt-6 h-7 overflow-hidden"
-            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;"
-          >
-            <RotatingText
-              client:load
-              texts={[
-                "Computational Chemist",
-                "ML Researcher",
-                "Open Source Builder",
-                "ICT Mumbai '30",
-              ]}
-              rotationInterval={3000}
-              staggerDuration={0.02}
-              staggerFrom="first"
-              mainClassName="text-base font-body font-light text-text-secondary tracking-tight"
-              elementLevelClassName="text-text-secondary"
-              transition={{ type: "spring", damping: 30, stiffness: 200 }}
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "-100%", opacity: 0 }}
-            />
+          <!-- Rotating subtitle — CSS keyframe cycle, 3 spans -->
+          <div class="mt-6 h-7 overflow-hidden">
+            <div class="rotating-subtitle text-base font-body font-light text-text-secondary tracking-tight">
+              <span class="rotating-item rotating-item-0">Computational Chemist</span>
+              <span class="rotating-item rotating-item-1">ML Researcher</span>
+              <span class="rotating-item rotating-item-2">Open Source Builder</span>
+            </div>
           </div>
 
           <!-- Tagline: GradientText flowing amber -->
-          <p
-            class="mt-5 text-base font-light max-w-sm leading-relaxed hidden sm:block"
-            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s forwards;"
-          >
+          <p class="mt-5 text-base font-light max-w-sm leading-relaxed hidden sm:block">
             <GradientText client:load>Building neural networks that understand molecules.</GradientText>
           </p>
 
           <!-- CTA buttons -->
-          <div
-            class="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-3"
-            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.7s forwards;"
-          >
+          <div class="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <StarBorder as="a" href="#research-section" color="#C9A04A" speed="4s">
               View Research
             </StarBorder>
@@ -203,10 +174,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
           </div>
 
           <!-- Social icons -->
-          <div
-            class="mt-8 flex items-center gap-3"
-            style="opacity: 0; animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s forwards;"
-          >
+          <div class="mt-8 flex items-center gap-3">
             <a href={SITE.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-icon">
               <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="currentColor">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
@@ -232,37 +200,18 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
         </div>
 
         <!-- Right column: AtomOrbit3D (desktop only) -->
-        <div
-          class="hidden lg:flex items-center justify-center overflow-hidden"
-          style="opacity: 0; animation: fade-up 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s forwards;"
-        >
+        <div class="hidden lg:flex items-center justify-center overflow-hidden">
           <AtomOrbit3D
             client:load
             nodes={[
-              { label: "Inverse Problem",    icon: "M22 12h-4l-3 9L9 3l-3 9H2",                                                                                                                                                                             description: "Recovering molecular structure directly from vibrational spectra.",                           color: "#C9A04A" },
-              { label: "State Space Models", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",                                                                                      description: "Mamba and S4D architectures for long-range spectral sequence modeling.",                     color: "#C9A04A" },
-              { label: "Spectroscopy",       icon: "M12 3L2 21h20L12 3zm0 4l7.5 13h-15L12 7z",                                                                                                                                                              description: "IR and Raman selection rules, normal modes, and group-theoretic analysis.",                  color: "#C9A04A" },
-              { label: "Graph Networks",     icon: "M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 0-6 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 6 9a3 3 0 0 0 0 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 0 0 6 0 3 3 0 0 0-3-3z", description: "Fragment-aware molecular graph encoders for structure-spectrum mapping.",                    color: "#888888" },
-              { label: "Neural ODEs",        icon: "M12 6V4m0 2a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m-6 8a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4",                                              description: "Continuous dynamics for reactor simulation — 1500× faster than numerical solvers.",           color: "#888888" },
-              { label: "Quantum Chemistry",  icon: "M9 3h6m-6 0v6l-4 9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l-4-9V3",                                                                                                                                             description: "DFT ground truth: B3LYP/def2-TZVP across QM9S — 130K molecules.",                          color: "#888888" },
+              { label: "Inverse Problem",    icon: "M22 12h-4l-3 9L9 3l-3 9H2",                                                                                                                        description: "Recovering molecular structure directly from vibrational spectra.",         color: "#C9A04A" },
+              { label: "State Space Models", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15",                               description: "Mamba and S4D architectures for long-range spectral sequence modeling.",    color: "#C9A04A" },
+              { label: "Spectroscopy",       icon: "M12 3L2 21h20L12 3zm0 4l7.5 13h-15L12 7z",                                                                                                         description: "IR and Raman selection rules, normal modes, and group-theoretic analysis.", color: "#C9A04A" },
             ]}
           />
         </div>
       </div>
 
-      <!-- Scroll chevron -->
-      <div class="absolute bottom-[52px] left-1/2 -translate-x-1/2 scroll-chevron" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-text-muted">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </div>
-      <!-- Stats marquee pinned to bottom of hero -->
-      <div class="absolute bottom-0 left-0 right-0 overflow-hidden border-t border-white/[0.04]" style="height:32px;" aria-hidden="true">
-        <div class="marquee-track">
-          <span class="marquee-content">130K molecules &nbsp;·&nbsp; 699 tests &nbsp;·&nbsp; 97% coverage &nbsp;·&nbsp; v1.8.0 &nbsp;·&nbsp; Neural ODEs &nbsp;·&nbsp; B3LYP/def2-TZVP &nbsp;·&nbsp; Target R² 0.95 &nbsp;·&nbsp; QM9S dataset &nbsp;·&nbsp;</span>
-          <span class="marquee-content" aria-hidden="true">130K molecules &nbsp;·&nbsp; 699 tests &nbsp;·&nbsp; 97% coverage &nbsp;·&nbsp; v1.8.0 &nbsp;·&nbsp; Neural ODEs &nbsp;·&nbsp; B3LYP/def2-TZVP &nbsp;·&nbsp; Target R² 0.95 &nbsp;·&nbsp; QM9S dataset &nbsp;·&nbsp;</span>
-        </div>
-      </div>
     </section>
 
     <!-- ══════════════════════════════
@@ -274,13 +223,11 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       data-nav-section="research"
       class="full-page-section"
     >
-      <span class="section-number">01</span>
-
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <!-- Text column -->
-          <div>
-            <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="01 / Research"></p>
+          <div class="research-col-left">
+            <p class="section-label-type text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="01 / Research"></p>
             <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-4">
               Solving the Spectral<br />Inverse Problem
             </h2>
@@ -304,23 +251,8 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
               <span class="text-accent/60 group-hover:text-accent text-sm transition-colors flex-shrink-0">→</span>
             </a>
 
-            <!-- Stats row -->
-            <div class="flex items-center gap-5 mb-6">
-              <div>
-                <p class="text-xl font-heading font-bold text-accent">130K</p>
-                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">molecules</p>
-              </div>
-              <div class="w-px h-7 bg-border"></div>
-              <div>
-                <p class="text-xl font-heading font-bold text-text-primary">2</p>
-                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">papers WIP</p>
-              </div>
-              <div class="w-px h-7 bg-border"></div>
-              <div>
-                <p class="text-xl font-heading font-bold text-accent-2">0.95</p>
-                <p class="text-[10px] font-mono text-text-muted uppercase tracking-wider">target R²</p>
-              </div>
-            </div>
+            <!-- Architecture R² comparison -->
+            <ArchRace client:visible className="mb-6" />
 
             <!-- PipelineFlow below stats -->
             <PipelineFlow client:visible className="mb-5" />
@@ -330,19 +262,17 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
             </a>
           </div>
 
-          <!-- Visual column: HeroSpectrum + InverseSpectrumFlow + NeuralLandscape -->
-          <div class="flex flex-col gap-3">
-            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary">
+          <!-- Visual column: HeroSpectrum + InverseSpectrumFlow -->
+          <div class="flex flex-col gap-3 research-col-right">
+            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary relative">
               <HeroSpectrum client:visible />
+              <CrossSpectralLens client:load />
               <p class="pb-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
                 IR spectrum — benzaldehyde · B3LYP/def2-TZVP
               </p>
             </div>
             <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary p-1">
               <InverseSpectrumFlow client:visible />
-            </div>
-            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary" style="height:160px;">
-              <NeuralLandscape client:visible className="w-full h-full" />
             </div>
           </div>
         </div>
@@ -358,6 +288,8 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       </div>
     </section>
 
+    <MorseSeparator />
+
     <!-- ══════════════════════════════
          SECTION 2 — BUILD
          ══════════════════════════════ -->
@@ -367,8 +299,6 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       data-nav-section="build"
       class="full-page-section"
     >
-      <span class="section-number">02</span>
-
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="02 / Build"></p>
         <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-6">
@@ -403,7 +333,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
           </SpotlightCard>
 
           <!-- Spektron -->
-          <SpotlightCard client:idle className="group">
+          <SpotlightCard client:idle className="group" spotlightColor="rgba(78,205,196,0.15)">
             <a href="/projects/spektron" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="mb-2">
                 <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">002</p>
@@ -422,7 +352,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
           </SpotlightCard>
 
           <!-- ReactorTwin -->
-          <SpotlightCard client:idle className="group">
+          <SpotlightCard client:idle className="group" spotlightColor="rgba(78,205,196,0.15)">
             <a href="/projects/reactortwin" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="mb-2">
                 <p class="text-[9px] font-mono text-text-muted/30 mb-0.5 tracking-[0.15em]">003</p>
@@ -441,7 +371,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
           </SpotlightCard>
 
           <!-- SpectraView — spans 2 cols -->
-          <SpotlightCard client:idle className="col-span-2 group">
+          <SpotlightCard client:idle className="col-span-2 group" spotlightColor="rgba(167,139,250,0.15)">
             <a href="https://github.com/ktubhyam/spectraview" target="_blank" rel="noopener noreferrer" class="-m-6 p-5 flex flex-col min-h-full focus:outline-none">
               <div class="flex items-start justify-between mb-2">
                 <div>
@@ -461,11 +391,6 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
 
         <!-- MetricCards strip -->
         <MetricCards client:visible />
-
-        <!-- LogStream: training log -->
-        <div class="mt-4">
-          <LogStream client:visible />
-        </div>
       </div>
     </section>
 
@@ -477,8 +402,6 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       data-nav-section="explore"
       class="full-page-section"
     >
-      <span class="section-number">03</span>
-
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center pt-20">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="03 / Explore"></p>
         <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-2">
@@ -560,8 +483,6 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       data-nav-section="writing"
       class="full-page-section"
     >
-      <span class="section-number">04</span>
-
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="04 / Writing"></p>
 
@@ -576,7 +497,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
         <!-- 2-column layout: blog posts left | ContributionGrid right -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 min-h-0">
           <!-- Left: blog post cards -->
-          <div class="flex flex-col">
+          <div class="flex flex-col posts-left-col">
             {featuredPost && (
               <a href={`/blog/${featuredPost.id}`} class="block mb-4 featured-post-card group">
                 <div class="flex items-center gap-3 mb-2">
@@ -618,14 +539,12 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
               <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors">
                 Enter the archive →
               </a>
-              <a href="https://buttondown.com/latentchemistry" target="_blank" rel="noopener noreferrer" class="text-sm font-mono text-text-muted hover:text-text-secondary transition-colors border border-border hover:border-border-hover px-4 py-2 rounded-sm">
-                Subscribe
-              </a>
+              <NewsletterSubscribe client:visible />
             </div>
           </div>
 
           <!-- Right: ContributionGrid -->
-          <div class="flex flex-col gap-2 justify-start">
+          <div class="flex flex-col gap-2 justify-start grid-right-col">
             <ContributionGrid client:visible />
             <p class="text-[9px] font-mono text-text-muted/40">26 weeks of writing</p>
           </div>
@@ -642,8 +561,6 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
       data-nav-section="connect"
       class="full-page-section"
     >
-      <span class="section-number">05</span>
-
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="05 / Connect"></p>
 
@@ -662,7 +579,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
           <!-- Contact form -->
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-4 contact-left-col">
             <form class="flex flex-col gap-3" action="https://formsubmit.co/tubhyamkt@gmail.com" method="POST">
               <input type="hidden" name="_subject" value="New contact from tubhyam.dev" />
               <input type="hidden" name="_captcha" value="true" />
@@ -707,7 +624,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
           </div>
 
           <!-- Info column -->
-          <div class="flex flex-col gap-5">
+          <div class="flex flex-col gap-5 contact-right-col">
             <!-- Availability status terminal -->
             <AvailabilityStatus client:visible />
 
@@ -819,15 +736,30 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
     background: var(--color-surface);
   }
 
-  /* ── Scroll chevron pulse ── */
-  .scroll-chevron {
-    opacity: 0;
-    animation: fade-up 0.5s ease-out 1.4s forwards, chevron-pulse 2s ease-in-out 1.4s infinite;
+  /* ── Rotating subtitle ── */
+  .rotating-subtitle {
+    position: relative;
+    height: 1.5rem;
   }
 
-  @keyframes chevron-pulse {
-    0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
-    50% { opacity: 0.7; transform: translateX(-50%) translateY(4px); }
+  .rotating-item {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    opacity: 0;
+    animation: rotating-fade 9s ease-in-out infinite;
+  }
+
+  .rotating-item-0 { animation-delay: 0s; }
+  .rotating-item-1 { animation-delay: 3s; }
+  .rotating-item-2 { animation-delay: 6s; }
+
+  @keyframes rotating-fade {
+    0%   { opacity: 0; transform: translateY(6px); }
+    8%   { opacity: 1; transform: translateY(0); }
+    30%  { opacity: 1; transform: translateY(0); }
+    38%  { opacity: 0; transform: translateY(-6px); }
+    100% { opacity: 0; transform: translateY(-6px); }
   }
 
   /* ── Compact sim cards (S3 Explore) ── */
@@ -890,7 +822,7 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
   }
 
   .post-card:hover {
-    border-color: var(--color-border-hover);
+    border-color: rgba(201,160,74,0.25);
     background: var(--color-surface-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(201,160,74,0.06);
@@ -924,41 +856,19 @@ import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Stats marquee ── */
-  .marquee-track {
-    display: flex;
-    width: max-content;
-    height: 100%;
-    align-items: center;
-    animation: marquee-scroll 50s linear infinite;
-    will-change: transform;
-  }
-
-  .marquee-content {
-    white-space: nowrap;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    padding-right: 0;
-    color: var(--color-text-muted);
-    opacity: 0.45;
-  }
-
-  @keyframes marquee-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .scroll-chevron,
     .aurora-bg,
     [style*="animation"] {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
     }
-    .marquee-track {
-      animation: none;
+    .rotating-item {
+      animation: none !important;
+    }
+    .rotating-item-0 {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 </style>

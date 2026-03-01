@@ -39,12 +39,19 @@ export default function HeroSpectrum({ className = "" }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
     const dpr = window.devicePixelRatio || 1;
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    ctx.scale(dpr, dpr);
 
     const PL = 36, PR = 10, PT = 10, PB = 28;
     const pw = W - PL - PR;
@@ -158,7 +165,10 @@ export default function HeroSpectrum({ className = "" }: Props) {
 
     startRef.current = performance.now();
     rafRef.current = requestAnimationFrame(drawFrame);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
   }, [isInView]);
 
   return (

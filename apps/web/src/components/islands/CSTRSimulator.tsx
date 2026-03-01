@@ -192,7 +192,7 @@ export default function CSTRSimulator({ className = "" }: Props) {
               : "border-border text-text-muted hover:text-text-secondary"
           }`}
         >
-          {showNeural ? "neural ODE" : "classical"}
+          {showNeural ? "neural ODE (illustrative)" : "classical"}
         </button>
       </div>
 

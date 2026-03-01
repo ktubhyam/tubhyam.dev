@@ -68,10 +68,12 @@ const DEFAULT_TREE: TreeNode[] = [
 ];
 
 // Flatten tree for sequential reveal
-function flattenTree(nodes: TreeNode[], depth = 0): { node: TreeNode; depth: number }[] {
-  const result: { node: TreeNode; depth: number }[] = [];
-  for (const node of nodes) {
-    result.push({ node, depth });
+function flattenTree(nodes: TreeNode[], depth = 0): { node: TreeNode; depth: number; isLast: boolean }[] {
+  const result: { node: TreeNode; depth: number; isLast: boolean }[] = [];
+  for (let k = 0; k < nodes.length; k++) {
+    const node = nodes[k];
+    const isLast = k === nodes.length - 1;
+    result.push({ node, depth, isLast });
     if (node.children) {
       result.push(...flattenTree(node.children, depth + 1));
     }
@@ -124,7 +126,7 @@ export default function FileTree({
 
       {/* Tree */}
       <div className="p-4 font-mono text-[11px] leading-[1.7]">
-        {flatNodes.slice(0, visibleCount).map(({ node, depth }, i) => {
+        {flatNodes.slice(0, visibleCount).map(({ node, depth, isLast }, i) => {
           const isFolder = node.type === "folder";
           const color = isFolder ? "#C9A04A" : getFileColor(node.name);
 
@@ -140,7 +142,7 @@ export default function FileTree({
               {/* Tree lines */}
               {depth > 0 && (
                 <span className="text-[#333] select-none">
-                  {i === flatNodes.slice(0, visibleCount).length - 1 ? "└─" : "├─"}
+                  {isLast ? "└─" : "├─"}
                 </span>
               )}
 

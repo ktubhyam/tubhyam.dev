@@ -1,0 +1,87 @@
+---
+/**
+ * MorseSeparator — 12px decorative Morse-code strip between sections.
+ * Encodes "SPEKTRON" as dots/dashes. Static, no JS, aria-hidden.
+ */
+
+const MORSE: Record<string, string> = {
+  S: "...", P: ".--.", E: ".", K: "-.-", T: "-", R: ".-.", O: "---", N: "-.",
+};
+
+const TEXT = "SPEKTRON";
+
+// Build a flat array of symbols with type info
+type Sym = { kind: "dot" | "dash" | "gap" | "space" };
+const symbols: Sym[] = [];
+for (let li = 0; li < TEXT.length; li++) {
+  if (li > 0) symbols.push({ kind: "space" });
+  const code = MORSE[TEXT[li]] ?? "";
+  for (let ci = 0; ci < code.length; ci++) {
+    if (ci > 0) symbols.push({ kind: "gap" });
+    symbols.push({ kind: code[ci] === "." ? "dot" : "dash" });
+  }
+}
+---
+
+<div
+  class="morse-separator"
+  aria-hidden="true"
+>
+  <div class="morse-line"></div>
+  <div class="morse-track">
+    {symbols.map((s) => (
+      s.kind === "dot"   ? <span class="morse-dot" /> :
+      s.kind === "dash"  ? <span class="morse-dash" /> :
+      s.kind === "gap"   ? <span class="morse-gap" /> :
+                           <span class="morse-space" />
+    ))}
+  </div>
+  <div class="morse-line"></div>
+</div>
+
+<style>
+  .morse-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 0;
+    overflow: hidden;
+  }
+
+  .morse-line {
+    width: 100%;
+    max-width: 40rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,160,74,0.12) 20%, rgba(201,160,74,0.12) 80%, transparent);
+  }
+
+  .morse-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .morse-dot {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(201,160,74,0.25);
+  }
+
+  .morse-dash {
+    display: inline-block;
+    width: 9px;
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(201,160,74,0.20);
+    margin-block: 0.5px;
+  }
+
+  /* intra-letter gap */
+  .morse-gap  { display: inline-block; width: 4px; }
+
+  /* inter-letter gap */
+  .morse-space { display: inline-block; width: 10px; }
+</style>

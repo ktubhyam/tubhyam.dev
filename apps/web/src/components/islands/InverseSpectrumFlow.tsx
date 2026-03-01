@@ -46,8 +46,7 @@ function drawPanel(
 
   // Panel background
   ctx.fillStyle = "rgba(17,17,17,0.6)";
-  ctx.beginPath();
-  ctx.roundRect(x0, y0, pw, ph, 6);
+  roundedRect(ctx, x0, y0, pw, ph, 6);
   ctx.fill();
   ctx.strokeStyle = "rgba(255,255,255,0.05)";
   ctx.lineWidth = 0.5;
@@ -108,7 +107,21 @@ function drawArrow(ctx: CanvasRenderingContext2D, x: number, cy: number, pulse: 
   ctx.globalAlpha = 1;
 }
 
-export default function InverseSpectrumFlow({ className = "" }: { className?: string }) {
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+export default function InverseSpectrumFlow({ className = "", height = 130 }: { className?: string; height?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef    = useRef(0);
 
@@ -201,7 +214,7 @@ export default function InverseSpectrumFlow({ className = "" }: { className?: st
     <canvas
       ref={canvasRef}
       className={`w-full block ${className}`}
-      style={{ height: 130 }}
+      style={{ height }}
       aria-hidden="true"
     />
   );

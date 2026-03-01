@@ -7,12 +7,16 @@ import { useRef, useState, type PropsWithChildren } from "react";
 interface SpotlightCardProps extends PropsWithChildren {
   className?: string;
   spotlightColor?: string;
+  spotlightSize?: number;
+  intensity?: number;
 }
 
 export default function SpotlightCard({
   children,
   className = "",
   spotlightColor = "rgba(201, 160, 74, 0.15)",
+  spotlightSize = 350,
+  intensity = 0.15,
 }: SpotlightCardProps) {
   const divRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -38,8 +42,8 @@ export default function SpotlightCard({
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-500 ease-in-out"
         style={{
-          opacity,
-          background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`,
+          opacity: opacity * (intensity / 0.15),
+          background: `radial-gradient(circle ${spotlightSize}px at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`,
         }}
       />
       <div className="relative z-10">{children}</div>

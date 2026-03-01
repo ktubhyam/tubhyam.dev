@@ -81,7 +81,7 @@ const ELECTRON_OFFSETS = [0, 2.1, 4.2, 1.0, 3.5, 5.2];
 // ─── Component ───────────────────────────────────────────
 
 export default function AtomOrbit3D({
-  centerIcon, nodes, className = "",
+  centerLabel, centerIcon, nodes, className = "",
 }: Props) {
   const showCenter = !!centerIcon;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -142,8 +142,10 @@ export default function AtomOrbit3D({
     const yAngle = rotRef.current.y + autoYRef.current;
     const xAngle = rotRef.current.x;
 
+    const ringCount = Math.min(nodes.length, RING_TILTS.length);
+
     // ─── Draw orbital rings ───
-    for (let ri = 0; ri < RING_TILTS.length; ri++) {
+    for (let ri = 0; ri < ringCount; ri++) {
       const tilt = RING_TILTS[ri];
       const [r, g, b] = RING_RGBS[ri % RING_RGBS.length];
 
@@ -198,7 +200,7 @@ export default function AtomOrbit3D({
     }
 
     // ─── Draw electrons ───
-    for (let ri = 0; ri < RING_TILTS.length; ri++) {
+    for (let ri = 0; ri < ringCount; ri++) {
       const tilt = RING_TILTS[ri];
       const a = (autoYRef.current + rotRef.current.y) * ELECTRON_SPEEDS[ri] * 3 + ELECTRON_OFFSETS[ri];
       let p: Vec3 = { x: radius * Math.cos(a), y: 0, z: radius * Math.sin(a) };
@@ -451,7 +453,7 @@ export default function AtomOrbit3D({
       {showCenter && centerIcon && (
         <div
           ref={centerRef}
-          className="absolute flex items-center justify-center pointer-events-none"
+          className="absolute flex flex-col items-center gap-1 pointer-events-none"
           style={{ transform: "translate(-50%, -50%)", zIndex: 200, opacity: 0, transition: "opacity 0.6s ease" }}
         >
           <div
@@ -465,6 +467,9 @@ export default function AtomOrbit3D({
               <path d={centerIcon} />
             </svg>
           </div>
+          {centerLabel && (
+            <span className="text-[9px] font-mono text-[#C9A04A]/70 whitespace-nowrap">{centerLabel}</span>
+          )}
         </div>
       )}
 

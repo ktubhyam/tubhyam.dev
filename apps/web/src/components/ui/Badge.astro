@@ -1,6 +1,6 @@
 ---
 interface Props {
-  variant?: "default" | "outline" | "green" | "cyan" | "orange";
+  variant?: "default" | "outline" | "green" | "cyan" | "orange" | "amber" | "violet";
   class?: string;
 }
 
@@ -12,6 +12,8 @@ const variantStyles = {
   green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
   orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+  amber: "bg-[rgba(201,160,74,0.10)] text-[#C9A04A] border-[rgba(201,160,74,0.25)]",
+  violet: "bg-[rgba(167,139,250,0.10)] text-[#A78BFA] border-[rgba(167,139,250,0.25)]",
 };
 ---
 

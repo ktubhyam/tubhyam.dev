@@ -13,19 +13,20 @@ interface Props {
 export default function MastHeadReveal({ text, className = "" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   return (
     <div ref={ref} className={className} aria-label={text}>
       {text.split("").map((char, i) => (
         <motion.span
           key={i}
-          initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+          initial={reduced ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 24, filter: "blur(8px)" }}
           animate={
-            isInView
+            reduced || isInView
               ? { opacity: 1, y: 0, filter: "blur(0px)" }
               : { opacity: 0, y: 24, filter: "blur(8px)" }
           }
-          transition={{
+          transition={reduced ? { duration: 0 } : {
             delay: i * 0.034,
             duration: 0.55,
             ease: [0.16, 1, 0.3, 1],

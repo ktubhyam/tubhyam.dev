@@ -76,7 +76,7 @@ export default function PipelineFlow({
         <div className="flex items-center justify-between min-w-[400px] gap-1">
           {stages.map((stage, i) => {
             const isActive = i <= activeStage;
-            const isCurrent = i === activeStage && activeStage < stages.length - 1;
+            const isCurrent = i === activeStage;
 
             return (
               <div key={i} className="flex items-center flex-1">

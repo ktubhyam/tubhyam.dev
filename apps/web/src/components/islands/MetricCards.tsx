@@ -3,7 +3,7 @@
  * Each card shows a metric value that counts up + a mini sparkline.
  * Staggered reveal animation on scroll.
  */
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useId } from "react";
 import { motion, useInView } from "motion/react";
 
 interface Metric {
@@ -38,14 +38,6 @@ const DEFAULT_METRICS: Metric[] = [
     trend: "up",
   },
   {
-    label: "GPU Hours",
-    value: 0,
-    suffix: "",
-    color: "#C9A04A",
-    sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    trend: "stable",
-  },
-  {
     label: "Papers WIP",
     value: 2,
     suffix: "",
@@ -56,6 +48,9 @@ const DEFAULT_METRICS: Metric[] = [
 ];
 
 function Sparkline({ data, color, width = 60, height = 24 }: { data: number[]; color: string; width?: number; height?: number }) {
+  const uid = useId();
+  const gradId = `sparkGrad-${uid.replace(/:/g, "")}`;
+
   const path = useMemo(() => {
     if (data.length < 2) return "";
     const step = width / (data.length - 1);
@@ -73,12 +68,12 @@ function Sparkline({ data, color, width = 60, height = 24 }: { data: number[]; c
   return (
     <svg width={width} height={height} className="flex-shrink-0">
       <defs>
-        <linearGradient id={`sparkGrad-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.2" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={fillPath} fill={`url(#sparkGrad-${color.replace("#", "")})`} />
+      <path d={fillPath} fill={`url(#${gradId})`} />
       <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -117,7 +112,7 @@ export default function MetricCards({
   }, [isInView]);
 
   return (
-    <div ref={ref} className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${className}`}>
+    <div ref={ref} className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${className}`}>
       {metrics.map((metric, i) => {
         const currentValue = metric.value * progress;
         const displayValue = metric.value < 1

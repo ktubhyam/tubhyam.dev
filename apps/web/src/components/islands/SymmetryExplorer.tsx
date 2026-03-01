@@ -3,7 +3,7 @@
  * Shows a rotating 2D molecule with symmetry element overlays,
  * animated bar chart of mode activity, and auto-cycling molecules.
  */
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, useId } from "react";
 import { motion, useInView, AnimatePresence } from "motion/react";
 
 interface Props {
@@ -128,6 +128,8 @@ const CYCLE_MS = 4000;
 export default function SymmetryExplorer({ className = "" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const uid = useId();
+  const gridId = `sym-grid-${uid.replace(/:/g, "")}`;
   const [idx, setIdx] = useState(0);
   const [animPhase, setAnimPhase] = useState(0); // 0 = bars grow, 1 = symmetry appear, 2 = hold
 
@@ -199,11 +201,11 @@ export default function SymmetryExplorer({ className = "" }: Props) {
               >
                 {/* Background grid */}
                 <defs>
-                  <pattern id="sym-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+                  <pattern id={gridId} width="16" height="16" patternUnits="userSpaceOnUse">
                     <path d="M16 0H0V16" fill="none" stroke="#1a1a1a" strokeWidth="0.5" />
                   </pattern>
                 </defs>
-                <rect width="160" height="120" fill="url(#sym-grid)" rx="6" />
+                <rect width="160" height="120" fill={`url(#${gridId})`} rx="6" />
 
                 {/* Symmetry elements (fade in at phase 1) */}
                 {animPhase >= 1 && mol.symmetry.map((sym, i) => {

@@ -261,7 +261,7 @@ export default function SpectraviewDemo({ className = "" }: Props) {
       </div>
 
       {/* SpectraView chart */}
-      <div className="p-3 flex justify-center">
+      <div className="p-3 max-w-full overflow-x-auto">
         <SpectraView
           spectra={spectra}
           peaks={showPeaks ? peaks : []}

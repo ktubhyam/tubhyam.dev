@@ -15,11 +15,13 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const mirrorRef = useRef<HTMLSpanElement>(null);
   const [started, setStarted] = useState(false);
   const [typed, setTyped] = useState("");
   const [cmdDone, setCmdDone] = useState(false);
   const [focused, setFocused] = useState(false);
-  const [emailLen, setEmailLen] = useState(0);
+  const [emailVal, setEmailVal] = useState("");
+  const [cursorLeft, setCursorLeft] = useState(0);
 
   const command = "subscribe --newsletter latent-chemistry";
 
@@ -125,6 +127,11 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
               className="flex-1 flex items-baseline relative cursor-text"
               onClick={() => inputRef.current?.focus()}
             >
+              <span
+                ref={mirrorRef}
+                aria-hidden="true"
+                className="invisible absolute whitespace-pre font-mono text-xs md:text-sm pointer-events-none"
+              >{emailVal}</span>
               <input
                 ref={inputRef}
                 type="email"
@@ -134,15 +141,20 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
                 aria-label="Email address"
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
-                onChange={(e) => setEmailLen(e.target.value.length)}
+                onChange={(e) => {
+                  setEmailVal(e.target.value);
+                  requestAnimationFrame(() => {
+                    if (mirrorRef.current) setCursorLeft(mirrorRef.current.getBoundingClientRect().width);
+                  });
+                }}
                 className="w-full bg-transparent text-[#e0e0e0] outline-none caret-transparent font-mono text-xs md:text-sm peer"
                 style={{ caretColor: "transparent" }}
               />
-              {/* Custom blinking cursor — uses ch units for accurate monospace positioning */}
+              {/* Custom blinking cursor positioned via mirror span measurement */}
               {focused && (
                 <span
                   className="absolute top-0 inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink translate-y-[1px] pointer-events-none"
-                  style={{ left: `${emailLen}ch` }}
+                  style={{ left: `${cursorLeft}px` }}
                 />
               )}
             </div>

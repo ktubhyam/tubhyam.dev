@@ -20,7 +20,7 @@ const currentPath = Astro.url.pathname;
             href={link.href}
             class:list={[
               "glass-nav-link",
-              currentPath.startsWith(link.href) && "glass-nav-link-active",
+              (link.href === "/" ? currentPath === "/" : currentPath.startsWith(link.href)) && "glass-nav-link-active",
             ]}
           >
             {link.label}

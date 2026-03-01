@@ -99,6 +99,11 @@ function fillElectrons(orbitals: OrbitalSlot[], Z: number): { orbIdx: number; sp
   return electrons;
 }
 
+function toSuperscript(n: number): string {
+  const sup = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"];
+  return String(n).split("").map((c) => sup[parseInt(c)] ?? c).join("");
+}
+
 export default function OrbitalDiagram({
   element = "Fe",
   atomicNumber = 26,
@@ -111,6 +116,20 @@ export default function OrbitalDiagram({
 
   const orbitals = useMemo(() => buildOrbitals(), []);
   const allElectrons = useMemo(() => fillElectrons(orbitals, atomicNumber), [orbitals, atomicNumber]);
+
+  const electronConfig = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const e of allElectrons) {
+      const lbl = orbitals[e.orbIdx].label;
+      counts.set(lbl, (counts.get(lbl) ?? 0) + 1);
+    }
+    const ordered: string[] = [];
+    for (const level of AUFBAU_ORDER) {
+      const lbl = `${level.shell}${level.subshell}`;
+      if (!ordered.includes(lbl) && counts.has(lbl)) ordered.push(lbl);
+    }
+    return ordered.map((lbl) => `${lbl}${toSuperscript(counts.get(lbl)!)}`).join(" ");
+  }, [allElectrons, orbitals]);
 
   useEffect(() => {
     if (!isInView) return;
@@ -264,7 +283,7 @@ export default function OrbitalDiagram({
             <span className="text-text-muted/40 ml-1">Z={atomicNumber}</span>
           </span>
           <span className="text-[10px] font-mono text-accent/60">
-            [Ar] 3d⁶ 4s²
+            {electronConfig}
           </span>
         </motion.div>
       </div>

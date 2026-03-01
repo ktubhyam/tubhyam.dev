@@ -29,6 +29,7 @@ export default function SpectrumHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef    = useRef(0);
   const mouseXRef = useRef(-1);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -46,6 +47,20 @@ export default function SpectrumHero() {
     };
     resize();
     window.addEventListener("resize", resize);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting) {
+          cancelAnimationFrame(rafRef.current);
+        } else if (!reduced) {
+          const loop = (t: number) => { draw(t); rafRef.current = requestAnimationFrame(loop); };
+          rafRef.current = requestAnimationFrame(loop);
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
 
     const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -144,13 +159,12 @@ export default function SpectrumHero() {
 
     if (reduced) {
       draw(0);
-    } else {
-      const loop = (t: number) => { draw(t); rafRef.current = requestAnimationFrame(loop); };
-      rafRef.current = requestAnimationFrame(loop);
     }
+    // Non-reduced: IO starts/stops the loop
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      io.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
     };

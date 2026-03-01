@@ -1,7 +1,8 @@
 /**
  * VibeScopePreview — Animated SVG molecular vibration preview.
  * Supports H2O, CO2, NH3 with props-based molecule selection.
- * Shows atoms oscillating along normal mode vectors, auto-cycles through modes.
+ * Shows atoms oscillating along normal mode vectors.
+ * Animation drives SVG element attributes directly — zero 60fps React re-renders.
  */
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "motion/react";
@@ -80,47 +81,102 @@ export default function VibeScopePreview({ className = "", molecule: moleculePro
   const [modeIdx, setModeIdx] = useState(0);
   const animRef = useRef<number>(0);
   const startRef = useRef<number>(0);
+  const currentModeRef = useRef(0);
+  const selectedMolRef = useRef(selectedMol);
 
+  // Refs for direct DOM manipulation of SVG elements
+  const atomCircleRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const atomTextRefs = useRef<(SVGTextElement | null)[]>([]);
+  const bondRefs = useRef<(SVGLineElement | null)[]>([]);
+  const bond2Refs = useRef<(SVGLineElement | null)[]>([]); // CO2 double bond
   const molData = MOLECULES[selectedMol];
-  const [positions, setPositions] = useState(molData.atoms.map((a) => ({ x: a.x, y: a.y })));
 
-  // Reset positions when molecule changes
+  // Update selectedMolRef when state changes
   useEffect(() => {
-    const data = MOLECULES[selectedMol];
-    setPositions(data.atoms.map((a) => ({ x: a.x, y: a.y })));
+    selectedMolRef.current = selectedMol;
+    currentModeRef.current = 0;
     setModeIdx(0);
+    startRef.current = performance.now();
   }, [selectedMol]);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView) {
+      cancelAnimationFrame(animRef.current);
+      return;
+    }
 
-    const data = MOLECULES[selectedMol];
-    let currentMode = 0;
-    setModeIdx(0);
+    currentModeRef.current = 0;
     startRef.current = performance.now();
 
     const animate = (now: number) => {
+      const mol = selectedMolRef.current;
+      const data = MOLECULES[mol];
       const elapsed = now - startRef.current;
+
       if (elapsed > MODE_DURATION) {
-        currentMode = (currentMode + 1) % data.modes.length;
-        setModeIdx(currentMode);
+        const nextMode = (currentModeRef.current + 1) % data.modes.length;
+        currentModeRef.current = nextMode;
+        setModeIdx(nextMode);
         startRef.current = now;
       }
-      const mode = data.modes[currentMode];
+
+      const mode = data.modes[currentModeRef.current];
       const phase = ((elapsed % MODE_DURATION) / MODE_DURATION) * Math.PI * 4;
       const amplitude = Math.sin(phase);
-      setPositions(
-        data.atoms.map((atom, i) => ({
-          x: atom.x + mode.displacements[i][0] * amplitude,
-          y: atom.y + mode.displacements[i][1] * amplitude,
-        }))
-      );
+
+      // Update atom positions directly on SVG elements
+      for (let i = 0; i < data.atoms.length; i++) {
+        const atom = data.atoms[i];
+        const dx = mode.displacements[i][0] * amplitude;
+        const dy = mode.displacements[i][1] * amplitude;
+        const nx = atom.x + dx;
+        const ny = atom.y + dy;
+
+        const circle = atomCircleRefs.current[i];
+        const text = atomTextRefs.current[i];
+        if (circle) {
+          circle.setAttribute("cx", String(nx));
+          circle.setAttribute("cy", String(ny));
+        }
+        if (text) {
+          text.setAttribute("x", String(nx));
+          text.setAttribute("y", String(ny + 4));
+        }
+      }
+
+      // Update bond lines directly
+      for (let bi = 0; bi < data.bonds.length; bi++) {
+        const [a, b] = data.bonds[bi];
+        const atomA = data.atoms[a];
+        const atomB = data.atoms[b];
+        const dxA = mode.displacements[a][0] * amplitude;
+        const dyA = mode.displacements[a][1] * amplitude;
+        const dxB = mode.displacements[b][0] * amplitude;
+        const dyB = mode.displacements[b][1] * amplitude;
+
+        const line = bondRefs.current[bi];
+        if (line) {
+          line.setAttribute("x1", String(atomA.x + dxA));
+          line.setAttribute("y1", String(atomA.y + dyA));
+          line.setAttribute("x2", String(atomB.x + dxB));
+          line.setAttribute("y2", String(atomB.y + dyB));
+        }
+        // CO2 double bond offset (perpendicular = +5px on y since bonds are horizontal)
+        const line2 = bond2Refs.current[bi];
+        if (line2) {
+          line2.setAttribute("x1", String(atomA.x + dxA));
+          line2.setAttribute("y1", String(atomA.y + dyA + 5));
+          line2.setAttribute("x2", String(atomB.x + dxB));
+          line2.setAttribute("y2", String(atomB.y + dyB + 5));
+        }
+      }
+
       animRef.current = requestAnimationFrame(animate);
     };
 
     animRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animRef.current);
-  }, [isInView, selectedMol]);
+  }, [isInView]);
 
   const mode = molData.modes[modeIdx];
 
@@ -167,12 +223,13 @@ export default function VibeScopePreview({ className = "", molecule: moleculePro
           <line key={`gh${y}`} x1={0} y1={y} x2={400} y2={y} stroke="#1a1a1a" strokeWidth="0.5" />
         ))}
 
-        {/* Bonds */}
+        {/* Bonds — refs for direct DOM update */}
         {molData.bonds.map(([a, b], i) => (
           <line
             key={`bond${i}`}
-            x1={positions[a].x} y1={positions[a].y}
-            x2={positions[b].x} y2={positions[b].y}
+            ref={(el) => { bondRefs.current[i] = el; }}
+            x1={molData.atoms[a].x} y1={molData.atoms[a].y}
+            x2={molData.atoms[b].x} y2={molData.atoms[b].y}
             stroke="#3a3a3a"
             strokeWidth={selectedMol === "CO2" ? 4 : 3}
             strokeLinecap="round"
@@ -182,29 +239,32 @@ export default function VibeScopePreview({ className = "", molecule: moleculePro
         {selectedMol === "CO2" && molData.bonds.map(([a, b], i) => (
           <line
             key={`bond2${i}`}
-            x1={positions[a].x}
-            y1={positions[a].y + 5}
-            x2={positions[b].x}
-            y2={positions[b].y + 5}
+            ref={(el) => { bond2Refs.current[i] = el; }}
+            x1={molData.atoms[a].x}
+            y1={molData.atoms[a].y + 5}
+            x2={molData.atoms[b].x}
+            y2={molData.atoms[b].y + 5}
             stroke="#2a2a2a"
             strokeWidth={1.5}
             strokeLinecap="round"
           />
         ))}
 
-        {/* Atoms */}
+        {/* Atoms — refs for direct DOM update */}
         {molData.atoms.map((atom, i) => (
           <g key={`atom${i}`}>
             <circle
-              cx={positions[i].x}
-              cy={positions[i].y}
+              ref={(el) => { atomCircleRefs.current[i] = el; }}
+              cx={atom.x}
+              cy={atom.y}
               r={atom.r}
               fill={atom.color}
               opacity={0.88}
             />
             <text
-              x={positions[i].x}
-              y={positions[i].y + 4}
+              ref={(el) => { atomTextRefs.current[i] = el; }}
+              x={atom.x}
+              y={atom.y + 4}
               textAnchor="middle"
               fill={atom.color === "#dadada" ? "#111" : "#fff"}
               fontSize={atom.r > 12 ? "9" : "7"}
@@ -216,7 +276,7 @@ export default function VibeScopePreview({ className = "", molecule: moleculePro
           </g>
         ))}
 
-        {/* Mode info */}
+        {/* Mode info — updates via React state (only every 3s) */}
         <text x={12} y={192} fill="#C9A04A" fontSize="10" fontFamily="monospace">
           ν = {mode.freq}
         </text>

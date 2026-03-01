@@ -199,6 +199,7 @@ function drawSpectraView(ctx: CanvasRenderingContext2D, W: number, H: number, t:
 export default function BentoMiniViz({ kind }: { kind: BentoKind }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const raf = useRef(0);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -217,6 +218,9 @@ export default function BentoMiniViz({ kind }: { kind: BentoKind }) {
     };
     setup();
 
+    const ro = new ResizeObserver(setup);
+    ro.observe(canvas);
+
     const draw = (t: number) => {
       const W = canvas.offsetWidth;
       const H = canvas.offsetHeight;
@@ -229,13 +233,30 @@ export default function BentoMiniViz({ kind }: { kind: BentoKind }) {
       }
     };
 
-    if (reduced) { draw(0); }
-    else {
-      const loop = (t: number) => { draw(t); raf.current = requestAnimationFrame(loop); };
+    const startLoop = () => {
+      const loop = (t: number) => {
+        if (visibleRef.current) draw(t);
+        raf.current = requestAnimationFrame(loop);
+      };
       raf.current = requestAnimationFrame(loop);
-    }
+    };
 
-    return () => cancelAnimationFrame(raf.current);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
+    if (reduced) { draw(0); }
+    else { startLoop(); }
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      ro.disconnect();
+      io.disconnect();
+    };
   }, [kind]);
 
   return (

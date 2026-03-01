@@ -39,7 +39,7 @@ const tagProps = Tag === "a" ? { href, ...rest } : rest;
     class="absolute w-[300%] h-[50%] opacity-70 top-[-10px] left-[-250%] rounded-full animate-star-movement-top z-0"
     style={`background: radial-gradient(circle, ${color}, transparent 10%); animation-duration: ${speed};`}
   />
-  <div class="relative z-10 bg-[#0a0a0a] border border-[#1a1a1a] text-[#fafafa] text-center text-sm font-heading font-medium py-3 px-6 rounded-full">
+  <div class="relative z-10 bg-[var(--color-bg-secondary)] border border-[#1a1a1a] text-[#fafafa] text-center text-sm font-heading font-medium py-3 px-6 rounded-full">
     <slot />
   </div>
 </Tag>

@@ -19,7 +19,7 @@ const { segments } = Astro.props;
           {seg.label}
         </a>
       ) : (
-        <span class="text-text-secondary">{seg.label}</span>
+        <span class="text-text-secondary" aria-current="page">{seg.label}</span>
       )}
     </>
   ))}

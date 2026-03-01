@@ -117,6 +117,9 @@ export default function SinkhornExplorer({ className = "" }: Props) {
   const [epsilon, setEpsilon] = useState(1.0);
   const [iterations, setIterations] = useState(50);
   const [shift, setShift] = useState(5);
+  const debEps = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debIter = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debShift = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lossMode, setLossMode] = useState<"wasserstein" | "mse">("wasserstein");
 
   const plotW = W - PAD.left - PAD.right;
@@ -218,7 +221,7 @@ export default function SinkhornExplorer({ className = "" }: Props) {
             max={1.6}
             step={0.05}
             value={Math.log10(epsilon)}
-            onChange={(e) => setEpsilon(Math.pow(10, Number(e.target.value)))}
+            onChange={(e) => { const v = Math.pow(10, Number(e.target.value)); if (debEps.current) clearTimeout(debEps.current); debEps.current = setTimeout(() => setEpsilon(v), 150); }}
             className="w-16 accent-[#A78BFA]"
           />
           <span className="text-text-secondary w-10 text-right">{epsilon.toFixed(2)}</span>
@@ -230,7 +233,7 @@ export default function SinkhornExplorer({ className = "" }: Props) {
             min={1}
             max={100}
             value={iterations}
-            onChange={(e) => setIterations(Number(e.target.value))}
+            onChange={(e) => { const v = Number(e.target.value); if (debIter.current) clearTimeout(debIter.current); debIter.current = setTimeout(() => setIterations(v), 150); }}
             className="w-16 accent-[#C9A04A]"
           />
           <span className="text-text-secondary w-10 text-right">{iterations}</span>
@@ -242,7 +245,7 @@ export default function SinkhornExplorer({ className = "" }: Props) {
             min={-50}
             max={50}
             value={shift}
-            onChange={(e) => setShift(Number(e.target.value))}
+            onChange={(e) => { const v = Number(e.target.value); if (debShift.current) clearTimeout(debShift.current); debShift.current = setTimeout(() => setShift(v), 150); }}
             className="w-16 accent-[#4ECDC4]"
           />
           <span className="text-text-secondary w-14 text-right">{shift} cm⁻¹</span>
