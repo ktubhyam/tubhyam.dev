@@ -11,7 +11,7 @@ import { useState, useRef, useEffect } from "react";
 
 const BUTTONDOWN_USERNAME = "latentchemistry";
 
-export default function NewsletterSubscribe({ className = "" }: { className?: string }) {
+export default function NewsletterSubscribe({ className = "", compact = false }: { className?: string; compact?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -93,35 +93,37 @@ export default function NewsletterSubscribe({ className = "" }: { className?: st
           </span>
         </div>
 
-        {/* Lines 2-4: output after command finishes — always rendered, opacity controlled */}
-        <div style={{ opacity: cmdDone ? 1 : 0, transition: "opacity 0.3s ease-out" }}>
-          {/* Line 2: blank */}
-          <div className="flex">
-            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
-          </div>
+        {/* Lines 2-4: description block — hidden in compact mode */}
+        {!compact && (
+          <div style={{ opacity: cmdDone ? 1 : 0, transition: "opacity 0.3s ease-out" }}>
+            {/* Line 2: blank */}
+            <div className="flex">
+              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">2</span>
+            </div>
 
-          {/* Line 3: description */}
-          <div className="flex">
-            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
-            <span className="text-[#555]">
-              Deep learning for spectroscopy — delivered to your inbox.
-            </span>
-          </div>
+            {/* Line 3: description */}
+            <div className="flex">
+              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">3</span>
+              <span className="text-[#555]">
+                Deep learning for spectroscopy — delivered to your inbox.
+              </span>
+            </div>
 
-          {/* Line 4: blank */}
-          <div className="flex">
-            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+            {/* Line 4: blank */}
+            <div className="flex">
+              <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">4</span>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Line 5: email input prompt — always rendered, opacity controlled */}
+        {/* Email input prompt — always rendered, opacity controlled */}
         <div style={{ opacity: cmdDone ? 1 : 0, transition: "opacity 0.3s ease-out 0.15s" }}>
           <form
             action={`https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`}
             method="post"
             className="flex items-baseline"
           >
-            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">5</span>
+            <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]">{compact ? 2 : 5}</span>
             <span className="text-[#C9A04A] mr-1 select-none">email:</span>
             <div
               className="flex-1 flex items-baseline relative cursor-text"

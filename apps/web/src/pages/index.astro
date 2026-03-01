@@ -364,29 +364,29 @@ import DisplayCards from "@components/islands/DisplayCards";
         <MastHeadReveal
           client:visible
           text="LATENT CHEMISTRY"
-          className="text-5xl sm:text-6xl font-heading font-extralight text-text-primary tracking-[-0.02em] mb-2"
+          className="text-4xl sm:text-5xl font-mono font-normal text-text-primary tracking-[0.3em] uppercase mb-2"
         />
-        <p class="text-sm text-text-secondary mb-6">{PUBLICATION.tagline}</p>
+        <p class="text-sm text-text-secondary mb-10">{PUBLICATION.tagline}</p>
 
-        <!-- Full-width spread display cards -->
+        <!-- Full-width spread display cards (5 posts) -->
         <DisplayCards
           client:visible
-          cards={posts.slice(0, 3).map((post, i) => ({
+          cards={posts.slice(0, 5).map((post, i) => ({
             title: post.data.title,
             description: post.data.description,
             date: formatDate(post.data.date),
             href: `/blog/${post.id}`,
-            accentColor: i === 0 ? "#C9A04A" : i === 1 ? "#4ECDC4" : "#A78BFA",
+            accentColor: ["#C9A04A", "#4ECDC4", "#A78BFA", "#34D399", "#C9A04A"][i],
           }))}
         />
 
-        <!-- Archive link + compact subscribe row -->
-        <div class="flex items-center gap-6 mt-20">
+        <!-- Archive link + compact horizontal subscribe -->
+        <div class="flex items-center gap-6 mt-16">
           <a href="/blog" class="text-sm font-mono text-accent hover:text-text-primary transition-colors shrink-0">
             Enter the archive →
           </a>
-          <div class="flex-1 max-w-sm">
-            <NewsletterSubscribe client:visible />
+          <div class="flex-1">
+            <NewsletterSubscribe client:visible compact={true} />
           </div>
         </div>
       </div>

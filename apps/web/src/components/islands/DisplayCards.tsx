@@ -25,10 +25,10 @@ function DisplayCard({
       href={href}
       className={cn(
         "relative flex flex-col justify-between rounded-xl border",
-        "flex-1 min-w-0 h-44 -skew-y-[8deg] select-none",
-        "bg-[#111111]/70 backdrop-blur-sm px-5 py-4 transition-all duration-500",
-        "hover:-translate-y-3 hover:border-white/20 hover:bg-[#141414]",
-        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[40%]",
+        "flex-1 min-w-0 h-48 -skew-y-[8deg] select-none",
+        "bg-[#111111]/80 backdrop-blur-sm px-4 py-4 transition-all duration-500",
+        "hover:-translate-y-4 hover:border-white/20 hover:bg-[#141414]",
+        "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[35%]",
         "after:bg-gradient-to-l after:from-[#000000] after:to-transparent",
         "after:content-[''] after:pointer-events-none after:rounded-r-xl",
         "no-underline cursor-pointer",
@@ -44,7 +44,7 @@ function DisplayCard({
             fill="none"
             stroke="currentColor"
             strokeWidth={1.5}
-            className="size-4"
+            className="size-3.5"
           >
             <path
               strokeLinecap="round"
@@ -54,7 +54,7 @@ function DisplayCard({
           </svg>
         </span>
         <p
-          className="text-xs font-semibold font-mono leading-snug line-clamp-2"
+          className="text-[10px] font-semibold font-mono leading-snug line-clamp-3"
           style={{ color: accentColor }}
         >
           {title}
@@ -62,15 +62,21 @@ function DisplayCard({
       </div>
 
       {/* Description */}
-      <p className="text-[10px] text-[#555555] line-clamp-3 leading-relaxed">
+      <p className="text-[9px] text-[#555555] line-clamp-3 leading-relaxed">
         {description}
       </p>
 
       {/* Date */}
-      <p className="text-[10px] font-mono text-[#555555]/60">{date}</p>
+      <p className="text-[9px] font-mono text-[#555555]/50">{date}</p>
     </a>
   );
 }
+
+// 5-card accent palette: amber → teal → violet → green → amber-soft
+const ACCENT_COLORS = ["#C9A04A", "#4ECDC4", "#A78BFA", "#34D399", "#C9A04A"];
+
+// Diagonal cascade: each card 3 steps lower than the previous
+const STAGGER_CLASS = ["", "mt-3", "mt-6", "mt-9", "mt-12"];
 
 export interface DisplayCardsProps {
   cards: DisplayCardData[];
@@ -78,16 +84,13 @@ export interface DisplayCardsProps {
 
 export default function DisplayCards({ cards }: DisplayCardsProps) {
   return (
-    // Diagonal cascade: each card slightly lower than the previous
-    <div className="flex items-start gap-4 w-full">
-      {cards.slice(0, 3).map((card, i) => (
+    <div className="flex items-start gap-3 w-full">
+      {cards.slice(0, 5).map((card, i) => (
         <DisplayCard
           key={card.href}
           {...card}
-          className={cn(
-            i === 1 && "mt-8",
-            i === 2 && "mt-16",
-          )}
+          accentColor={card.accentColor || ACCENT_COLORS[i]}
+          className={STAGGER_CLASS[i] ?? ""}
         />
       ))}
     </div>
