@@ -31,7 +31,7 @@ export default function ScrollSetup() {
         duration: 0.5,
         ease: "power2.out",
         delay: 0.2,
-        clearProps: "filter",
+        clearProps: "all",
       });
     } else {
       gsap.set(".hero-content > *", { opacity: 1, y: 0 });
