@@ -424,7 +424,7 @@ function SimDetail({ sim, reduced, visible }: SimDetailProps) {
           onClick={handleLaunch}
           className="text-[11px] font-mono text-accent hover:text-accent-bright transition-colors flex items-center gap-1"
         >
-          Launch simulation \u2192
+          Launch simulation →
           {sim.external && (
             <span className="text-[9px] text-text-muted ml-1">(external)</span>
           )}
@@ -442,8 +442,8 @@ export default function SimConsole() {
     SIMS.map(() => false),
   );
   const [panelVisible, setPanelVisible] = useState<boolean>(true);
-  const prevSimRef   = useRef<number>(0);
-  const reducedRef   = useRef<boolean>(false);
+  const reducedRef  = useRef<boolean>(false);
+  const pendingRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -469,18 +469,22 @@ export default function SimConsole() {
 
   const handleSimChange = (idx: number) => {
     if (idx === activeSim) return;
+    // Cancel any in-flight transition before starting a new one
+    if (pendingRef.current !== null) {
+      clearTimeout(pendingRef.current);
+      pendingRef.current = null;
+      setPanelVisible(true);
+    }
     if (reducedRef.current) {
       setActiveSim(idx);
-      prevSimRef.current = idx;
       return;
     }
     setPanelVisible(false);
-    const t = setTimeout(() => {
+    pendingRef.current = setTimeout(() => {
       setActiveSim(idx);
-      prevSimRef.current = idx;
       setPanelVisible(true);
-    }, 150);
-    return () => clearTimeout(t);
+      pendingRef.current = null;
+    }, 130);
   };
 
   const sim = SIMS[activeSim];
@@ -579,7 +583,7 @@ export default function SimConsole() {
                       </span>
                     ) : (
                       <span className="text-[11px] font-mono text-text-muted/40">
-                        \u2192
+                        →
                       </span>
                     )}
                   </div>
