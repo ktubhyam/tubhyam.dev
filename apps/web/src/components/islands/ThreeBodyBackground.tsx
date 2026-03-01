@@ -142,8 +142,8 @@ export default function ThreeBodyBackground() {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    // Zoom out enough that r=1.45 satellites stay within the canvas vertically
-    function sc() { return Math.min(cssW * 0.17, cssH * 0.30); }
+    // r=1.0 satellites; scale gives ±1.56 sim units vertically at 16:9
+    function sc() { return Math.min(cssW * 0.22, cssH * 0.36); }
     function toScreen(x: number, y: number): [number, number] {
       const s = sc();
       return [cssW / 2 + x * s, cssH / 2 + y * s];
@@ -326,7 +326,7 @@ export default function ThreeBodyBackground() {
         const trail = p.trail;
         if (trail.length < 2) continue;
         for (let k = 1; k < trail.length; k++) {
-          const alpha = (k / trail.length) * 0.28;
+          const alpha = (k / trail.length) * 0.16;
           const [x0, y0] = toScreen(trail[k-1].x, trail[k-1].y);
           const [x1, y1] = toScreen(trail[k].x, trail[k].y);
           ctx.beginPath();
@@ -338,7 +338,7 @@ export default function ThreeBodyBackground() {
         const [px2, py2] = toScreen(p.x, p.y);
         ctx.beginPath();
         ctx.arc(px2, py2, 1.1, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(200,215,255,0.50)";
+        ctx.fillStyle = "rgba(200,215,255,0.35)";
         ctx.fill();
       }
     }
@@ -383,7 +383,7 @@ export default function ThreeBodyBackground() {
         const spd = Math.sqrt(bod.vx * bod.vx + bod.vy * bod.vy);
         const pulse = Math.min(spd / 2.8, 1); // 0=slow, 1=fast
         const glowR   = 30 + pulse * 18;       // 30–48 px
-        const glowOp  = 0.28 + pulse * 0.18;   // 0.28–0.46
+        const glowOp  = 0.18 + pulse * 0.14;   // 0.18–0.32
 
         // Ambient glow
         const glow = ctx.createRadialGradient(bx, by, 0, bx, by, glowR);
