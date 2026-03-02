@@ -399,8 +399,8 @@ export default function GradientFlowViz() {
           </button>
         </div>
       </div>
-      <div ref={wrapRef} className="relative">
-        <canvas ref={canvasRef} style={{ display: "block" }} />
+      <div ref={wrapRef} className="relative overflow-hidden" style={{ aspectRatio: "100/46" }}>
+        <canvas ref={canvasRef} className="absolute top-0 left-0" />
       </div>
       <div className="px-4 py-2 border-t border-zinc-800 text-xs font-mono text-zinc-500">
         {phase === "fwd"

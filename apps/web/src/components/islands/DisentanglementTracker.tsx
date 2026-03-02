@@ -334,8 +334,8 @@ export default function DisentanglementTracker() {
           </button>
         </div>
       </div>
-      <div ref={wrapRef} className="relative">
-        <canvas ref={canvasRef} style={{ cursor: "crosshair", display: "block" }} />
+      <div ref={wrapRef} className="relative overflow-hidden" style={{ aspectRatio: "100/48" }}>
+        <canvas ref={canvasRef} className="absolute top-0 left-0" style={{ cursor: "crosshair" }} />
       </div>
       <div className="px-4 py-2 border-t border-zinc-800 text-xs font-mono text-zinc-500">
         z_chem domain acc → chance level (52.1%) · z_inst domain acc ↑ (94.7%) · z_chem mol acc ↑ (87.3%)
