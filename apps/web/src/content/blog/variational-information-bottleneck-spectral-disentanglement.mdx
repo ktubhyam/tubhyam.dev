@@ -12,6 +12,9 @@ import EquationReveal from '@components/islands/EquationReveal';
 import PipelineFlow from '@components/islands/PipelineFlow';
 import MetricCards from '@components/islands/MetricCards';
 import SpectrumViz from '@components/islands/SpectrumViz';
+import LatentScatterViz from '@components/islands/LatentScatterViz';
+import GradientFlowViz from '@components/islands/GradientFlowViz';
+import DisentanglementTracker from '@components/islands/DisentanglementTracker';
 
 A spectrum encodes two things: <span class="highlight">what the molecule is</span> and <span class="highlight-violet">which instrument measured it</span>. A carbonyl C=O stretch always appears near 1720 cm⁻¹, but its exact position, width, and baseline shift depend on the spectrometer — detector response, optical path length, lamp aging, even room temperature. Train a model on one instrument and it fails on another.
 
@@ -41,6 +44,8 @@ Before diving into the theory, consider what the calibration transfer problem lo
 The teal peaks are from Instrument A; the amber peaks are from Instrument B. Same molecule, same functional groups, same bond strengths — but the peaks are shifted by 1-3 cm⁻¹, broadened differently, and sitting on different baselines. A model trained on teal will misidentify amber, not because the chemistry changed, but because the instrument signature is different.
 
 The VIB's job is to learn a representation where the teal and amber embeddings of ethanol land in the <span class="highlight-teal">same region of latent space</span>, while the instrument-specific differences are captured (and later discarded) in a separate subspace.
+
+<LatentScatterViz client:visible />
 
 ## The Information Bottleneck
 
@@ -180,6 +185,8 @@ Instrument variation, by contrast, is low-dimensional. The dominant effects — 
 ## Gradient Reversal: The Right Way
 
 The idea: train a small classifier that takes $z_{\text{chem}}$ and tries to predict which instrument recorded the spectrum. Then <span class="highlight-teal">reverse the gradient</span> — instead of helping $z_{\text{chem}}$ encode instrument information, the reversed gradient forces $z_{\text{chem}}$ to become instrument-invariant.
+
+<GradientFlowViz client:visible />
 
 <CodeComparison
   client:visible
@@ -451,43 +458,7 @@ The key insight: the self-supervised reconstruction loss doesn't need labels —
 
 When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of which instrument recorded the spectrum. When it fails, you see instrument-specific sub-clusters — the same molecule occupies different regions of latent space depending on the source instrument.
 
-<MetricCards
-  client:visible
-  metrics={[
-    {
-      label: "z_chem Domain Acc",
-      value: 52.1,
-      suffix: "%",
-      color: "#34D399",
-      sparkline: [0.85, 0.78, 0.71, 0.65, 0.60, 0.57, 0.55, 0.53, 0.52, 0.521],
-      trend: "down",
-    },
-    {
-      label: "z_inst Domain Acc",
-      value: 94.7,
-      suffix: "%",
-      color: "#C9A04A",
-      sparkline: [0.55, 0.65, 0.72, 0.80, 0.85, 0.88, 0.91, 0.93, 0.94, 0.947],
-      trend: "up",
-    },
-    {
-      label: "z_chem Mol Acc",
-      value: 87.3,
-      suffix: "%",
-      color: "#4ECDC4",
-      sparkline: [0.4, 0.5, 0.58, 0.65, 0.72, 0.77, 0.81, 0.84, 0.86, 0.873],
-      trend: "up",
-    },
-    {
-      label: "Chance Level",
-      value: 50,
-      suffix: "%",
-      color: "#A78BFA",
-      sparkline: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-      trend: "stable",
-    },
-  ]}
-/>
+<DisentanglementTracker client:visible />
 
 <TerminalBlock
   client:visible
