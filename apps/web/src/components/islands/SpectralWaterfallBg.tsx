@@ -12,7 +12,7 @@ import { useRef, useEffect } from "react";
 const XMIN = 500;
 const XMAX = 4000;
 const GRID_W = 300; // horizontal resolution (wavenumber axis)
-const SCROLL_SPEED = 28; // rows per second scrolling upward
+const SCROLL_SPEED = 38; // rows per second scrolling upward (base auto-scroll)
 
 // Benzaldehyde IR peaks: { wn: cm⁻¹, w: half-width, h: peak height 0–1 }
 const IR_PEAKS = [
@@ -116,8 +116,22 @@ export default function SpectralWaterfallBg() {
       rebuildBuffer(Math.ceil(cssH));
     }
 
-    let scrollAccum = 0;
-    let lastTs      = 0;
+    let scrollAccum   = 0;
+    let lastTs        = 0;
+    let scrollVelocity = 0;
+    let lastScrollY   = window.scrollY;
+
+    function onScroll() {
+      const dy = window.scrollY - lastScrollY;
+      lastScrollY = window.scrollY;
+      if (dy > 0) {
+        const rect = wrap!.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          scrollVelocity += dy * 5.5; // amplified: each px of page scroll → 5.5 rows
+        }
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     function loop(ts: number) {
       if (!paused && cssW > 0 && bufH > 1) {
@@ -125,7 +139,8 @@ export default function SpectralWaterfallBg() {
         lastTs = ts;
         const t = ts * 0.001;
 
-        scrollAccum += dt * SCROLL_SPEED;
+        scrollAccum += dt * SCROLL_SPEED + scrollVelocity;
+        scrollVelocity = 0;
         const scrollRows = Math.floor(scrollAccum);
         scrollAccum -= scrollRows;
 
@@ -155,9 +170,9 @@ export default function SpectralWaterfallBg() {
               const ir = irAt(col, rowT);
               const ra = ramanAt(col, rowT) * ramanFade;
 
-              // Map to pixel: amber for IR, teal for Raman
-              const irA  = Math.pow(Math.min(1, ir * 1.5), 1.1);
-              const raA  = Math.pow(Math.min(1, ra * 1.3), 1.2);
+              // Map to pixel — boosted brightness for visibility
+              const irA  = Math.pow(Math.min(1, ir * 1.9), 0.9);
+              const raA  = Math.pow(Math.min(1, ra * 1.6), 1.0);
 
               // Amber: rgb(201,160,74)  Teal: rgb(78,205,196)
               const R = Math.min(255, 201 * irA + 78  * raA);
@@ -194,7 +209,12 @@ export default function SpectralWaterfallBg() {
     resize();
     raf = requestAnimationFrame(loop);
 
-    return () => { cancelAnimationFrame(raf); visObs.disconnect(); resObs.disconnect(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      visObs.disconnect();
+      resObs.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (

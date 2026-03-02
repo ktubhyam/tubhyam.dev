@@ -35,6 +35,7 @@ import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 import DisplayCards from "@components/islands/DisplayCards";
 import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
 import SpectralWaterfallBg from "@components/islands/SpectralWaterfallBg";
+import SpectralFingerprint from "@components/islands/SpectralFingerprint";
 import LennardJonesBg from "@components/islands/LennardJonesBg";
 import ChladniWaveBg from "@components/islands/ChladniWaveBg";
 import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
@@ -257,9 +258,10 @@ import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
           </p>
         </div>
 
-        <!-- Two columns: project callouts + ArchRace -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-          <!-- Project callouts -->
+        <!-- Two columns: (callouts + ArchRace) | SpectralFingerprint -->
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-4 items-start">
+
+          <!-- Left: project callouts + ArchRace stacked -->
           <div class="flex flex-col gap-2">
             <a
               href="/projects/spektron"
@@ -287,10 +289,12 @@ import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
               <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">Bidirectional IR↔structure prediction</p>
               <p class="text-[10px] font-mono text-text-muted/55">3D fragment-aware graph encoders · MIT</p>
             </a>
+            <ArchRace client:visible />
           </div>
 
-          <!-- Architecture R² comparison -->
-          <ArchRace client:visible />
+          <!-- Right: animated molecular fingerprint -->
+          <SpectralFingerprint client:visible />
+
         </div>
 
         <!-- Tags + link -->
