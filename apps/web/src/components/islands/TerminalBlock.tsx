@@ -180,10 +180,10 @@ export default function TerminalBlock({
       initial={{ opacity: 0, y: 16 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`rounded-xl border border-border overflow-hidden bg-bg-secondary relative ${className}`}
+      className={`rounded-xl border border-zinc-800 overflow-hidden bg-zinc-950 relative ${className}`}
     >
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border-b border-border">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-black border-b border-zinc-800">
         <div className="flex items-center gap-1.5">
           <div className="w-[10px] h-[10px] rounded-full bg-[#FF5F57]" />
           <div className="w-[10px] h-[10px] rounded-full bg-[#FEBC2E]" />
