@@ -368,17 +368,37 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
           text="LATENT CHEMISTRY"
           className="text-5xl sm:text-6xl font-heading font-bold text-text-primary tracking-[0.06em] mb-3"
         />
-        <p class="text-sm text-text-secondary mb-20">{PUBLICATION.tagline}</p>
+        <p class="text-sm text-text-secondary mb-5">{PUBLICATION.tagline}</p>
 
-        <!-- Full-width spread display cards (5 posts) -->
+        <!-- Featured latest post — glass card -->
+        {featuredPost && (
+          <a href={`/blog/${featuredPost.id}`} class="featured-glass-card group block mb-6">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+              <span class="text-[10px] font-mono text-accent tracking-[0.15em] uppercase">Latest</span>
+              <span class="text-text-muted/25 font-mono text-[10px]">·</span>
+              <span class="text-[10px] font-mono text-text-muted">{formatDate(featuredPost.data.date)}</span>
+              <span class="text-text-muted/25 font-mono text-[10px]">·</span>
+              <span class="text-[10px] font-mono text-text-muted">{readingTime(featuredPost.body ?? "")} min read</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-2 group-hover:text-accent transition-colors duration-200">
+              {featuredPost.data.title}
+            </h3>
+            <p class="text-sm text-text-secondary leading-relaxed mb-4 max-w-2xl">
+              {featuredPost.data.description}
+            </p>
+            <span class="text-xs font-mono text-accent group-hover:text-text-primary transition-colors duration-200">Read →</span>
+          </a>
+        )}
+
+        <!-- Spread display cards (posts 2–6) -->
         <DisplayCards
           client:visible
-          cards={posts.slice(0, 5).map((post, i) => ({
+          cards={posts.slice(1, 6).map((post, i) => ({
             title: post.data.title,
             description: post.data.description,
             date: formatDate(post.data.date),
             href: `/blog/${post.id}`,
-            accentColor: ["#C9A04A", "#4ECDC4", "#A78BFA", "#34D399", "#C9A04A"][i],
+            accentColor: ["#4ECDC4", "#A78BFA", "#34D399", "#C9A04A", "#4ECDC4"][i],
           }))}
         />
 
@@ -635,6 +655,38 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
   .sim-card:hover {
     border-color: var(--color-border-hover);
     background: var(--color-surface-hover);
+  }
+
+  /* ── Featured latest post glass card ── */
+  .featured-glass-card {
+    text-decoration: none;
+    background: rgba(10, 10, 10, 0.35);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    transition: all 300ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .featured-glass-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #C9A04A, transparent 80%);
+    border-radius: 14px 0 0 14px;
+  }
+
+  .featured-glass-card:hover {
+    border-color: rgba(201, 160, 74, 0.2);
+    background: rgba(201, 160, 74, 0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201, 160, 74, 0.08);
   }
 
   /* ── Blog post cards ── */
