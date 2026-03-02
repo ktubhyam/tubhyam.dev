@@ -158,14 +158,30 @@ export default function ReactionDiffusionBg() {
     const resObs = new ResizeObserver(resize);
     resObs.observe(wrap);
 
+    const TARGET_OPACITY = 0.28;
+    function onScroll() {
+      const rect  = wrap!.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      const progress = Math.max(0, Math.min(1, (viewH * 0.92 - rect.top) / (viewH * 1.5)));
+      const eased = progress * progress * (3 - 2 * progress);
+      wrap!.style.opacity = String(eased * TARGET_OPACITY);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
     resize();
     raf = requestAnimationFrame(loop);
 
-    return () => { cancelAnimationFrame(raf); visObs.disconnect(); resObs.disconnect(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      visObs.disconnect();
+      resObs.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
-    <div ref={wrapRef} aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: 0.22 }}>
+    <div ref={wrapRef} aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: 0 }}>
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
