@@ -11,7 +11,7 @@ Personal research site for Tubhyam Karthikeyan. Astro 5 monorepo.
 - **Commands** (all from monorepo root):
   - `pnpm dev` — start dev server
   - `pnpm build` — production build
-  - `pnpm typecheck` — TypeScript check
+  - `cd apps/web && pnpm exec astro check` — TypeScript check (no root typecheck script)
 
 ## Key Paths
 
@@ -69,7 +69,7 @@ Personal research site for Tubhyam Karthikeyan. Astro 5 monorepo.
 
 ## Before Making Changes
 
-1. Run `pnpm typecheck` after any TypeScript edits
+1. Run `cd apps/web && pnpm exec astro check` after any TypeScript edits
 2. For content changes, confirm the schema allows your field values
 3. Never hardcode a canonical value that differs from the table above
 4. When updating StatusBoard or MetricCards, also update this CLAUDE.md and the memory file at `~/.claude/projects/-Users-admin/memory/tubhyam-dev.md`
