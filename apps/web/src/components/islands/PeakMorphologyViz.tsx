@@ -46,17 +46,17 @@ export default function PeakMorphologyViz() {
     }
 
     function gaussian(x: number, mu: number, sigma: number): number {
-      return Math.exp(-((x - mu) ** 2) / (2 * sigma * sigma));
+      return Math.exp(-Math.pow(x - mu, 2) / (2 * sigma * sigma));
     }
     function lorentzian(x: number, mu: number, gamma: number): number {
-      return 1 / (1 + ((x - mu) / gamma) ** 2);
+      return 1 / (1 + Math.pow((x - mu) / gamma, 2));
     }
     function peakVal(x: number, mu: number, hw: number, shp: number, asym: number): number {
       const base = shp < 0.5
         ? gaussian(x, mu, hw * (1 - shp * 2))
         : lorentzian(x, mu, hw * ((shp - 0.5) * 2 + 0.5));
       const shoulder = asym > 0 && x > mu
-        ? asym * 0.4 * Math.exp(-((x - mu) / (hw * 3)) ** 2)
+        ? asym * 0.4 * Math.exp(-Math.pow((x - mu) / (hw * 3), 2))
         : 0;
       return Math.min(1, base + shoulder);
     }
