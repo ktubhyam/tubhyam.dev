@@ -126,10 +126,11 @@ export default function SpectralWaterfallBg() {
       const rect  = wrap!.getBoundingClientRect();
       const viewH = window.innerHeight;
 
-      // Stay invisible until section is ~8% into view, then fade over 1.5× viewport heights
-      // Full opacity reached only when section has scrolled ~50% past viewport top
-      const progress = Math.max(0, Math.min(1, (viewH * 0.92 - rect.top) / (viewH * 1.5)));
-      const eased = progress * progress * (3 - 2 * progress);
+      // Fade in: invisible until 8% visible, reaches full over 1.5× viewport of scroll
+      const fadeIn  = Math.max(0, Math.min(1, (viewH * 0.92 - rect.top) / (viewH * 1.5)));
+      // Fade out: full while bottom > 40% of viewport, gone when bottom reaches 0
+      const fadeOut = Math.max(0, Math.min(1, rect.bottom / (viewH * 0.40)));
+      const eased   = fadeIn * fadeIn * (3 - 2 * fadeIn) * fadeOut;
       wrap!.style.opacity = String(eased * TARGET_OPACITY);
 
       // Boost waterfall speed proportional to scroll-down delta

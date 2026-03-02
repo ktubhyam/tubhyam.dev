@@ -156,8 +156,9 @@ export default function ChladniWaveBg() {
     function onScroll() {
       const rect  = wrap!.getBoundingClientRect();
       const viewH = window.innerHeight;
-      const progress = Math.max(0, Math.min(1, (viewH * 0.92 - rect.top) / (viewH * 1.5)));
-      const eased = progress * progress * (3 - 2 * progress);
+      const fadeIn  = Math.max(0, Math.min(1, (viewH * 0.92 - rect.top) / (viewH * 1.5)));
+      const fadeOut = Math.max(0, Math.min(1, rect.bottom / (viewH * 0.40)));
+      const eased   = fadeIn * fadeIn * (3 - 2 * fadeIn) * fadeOut;
       wrap!.style.opacity = String(eased * TARGET_OPACITY);
     }
     window.addEventListener("scroll", onScroll, { passive: true });
