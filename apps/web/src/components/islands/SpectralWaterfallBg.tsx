@@ -116,22 +116,32 @@ export default function SpectralWaterfallBg() {
       rebuildBuffer(Math.ceil(cssH));
     }
 
-    let scrollAccum   = 0;
-    let lastTs        = 0;
+    let scrollAccum    = 0;
+    let lastTs         = 0;
     let scrollVelocity = 0;
-    let lastScrollY   = window.scrollY;
+    let lastScrollY    = window.scrollY;
+    const TARGET_OPACITY = 0.44;
 
     function onScroll() {
+      const rect  = wrap!.getBoundingClientRect();
+      const viewH = window.innerHeight;
+
+      // Fade in: 0 when section top at viewport bottom, full when section top crosses 70% of viewport
+      const progress = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH * 0.72)));
+      // Smooth ease-in
+      const eased = progress * progress * (3 - 2 * progress);
+      wrap!.style.opacity = String(eased * TARGET_OPACITY);
+
+      // Boost waterfall speed proportional to scroll-down delta
       const dy = window.scrollY - lastScrollY;
       lastScrollY = window.scrollY;
-      if (dy > 0) {
-        const rect = wrap!.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          scrollVelocity += dy * 5.5; // amplified: each px of page scroll → 5.5 rows
-        }
+      if (dy > 0 && rect.top < viewH && rect.bottom > 0) {
+        scrollVelocity += dy * 5.5;
       }
     }
     window.addEventListener("scroll", onScroll, { passive: true });
+    // Set initial opacity (handles case where page loads already scrolled)
+    onScroll();
 
     function loop(ts: number) {
       if (!paused && cssW > 0 && bufH > 1) {
@@ -218,7 +228,7 @@ export default function SpectralWaterfallBg() {
   }, []);
 
   return (
-    <div ref={wrapRef} aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: 0.44 }}>
+    <div ref={wrapRef} aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ opacity: 0 }}>
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
