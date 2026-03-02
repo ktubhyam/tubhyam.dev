@@ -178,20 +178,20 @@ export default function NetworkPulseBg() {
             ctx!.beginPath();
             ctx!.moveTo(ax, ay);
             ctx!.quadraticCurveTo(cx, cy, bx, by);
-            ctx!.strokeStyle = `rgba(${Ra},${Ga},${Ba},0.28)`;
-            ctx!.lineWidth = 1.0;
+            ctx!.strokeStyle = `rgba(${Ra},${Ga},${Ba},0.18)`;
+            ctx!.lineWidth = 0.8;
             ctx!.stroke();
           } else {
             // Cross-library: gradient along path mid-point
             const grad = ctx!.createLinearGradient(ax, ay, bx, by);
-            grad.addColorStop(0, `rgba(${Ra},${Ga},${Ba},0.20)`);
-            grad.addColorStop(0.5, `rgba(${Math.round((Ra+Rb)/2)},${Math.round((Ga+Gb)/2)},${Math.round((Ba+Bb)/2)},0.30)`);
-            grad.addColorStop(1, `rgba(${Rb},${Gb},${Bb},0.20)`);
+            grad.addColorStop(0, `rgba(${Ra},${Ga},${Ba},0.12)`);
+            grad.addColorStop(0.5, `rgba(${Math.round((Ra+Rb)/2)},${Math.round((Ga+Gb)/2)},${Math.round((Ba+Bb)/2)},0.20)`);
+            grad.addColorStop(1, `rgba(${Rb},${Gb},${Bb},0.12)`);
             ctx!.beginPath();
             ctx!.moveTo(ax, ay);
             ctx!.quadraticCurveTo(cx, cy, bx, by);
             ctx!.strokeStyle = grad;
-            ctx!.lineWidth = 1.2;
+            ctx!.lineWidth = 1.0;
             ctx!.stroke();
           }
 
@@ -209,23 +209,23 @@ export default function NetworkPulseBg() {
             const alpha = edgeFade * 0.90;
 
             // Glow
-            const g = ctx!.createRadialGradient(px, py, 0, px, py, 14);
-            g.addColorStop(0, `rgba(${Rp},${Gp},${Bp},${(alpha * 0.80).toFixed(2)})`);
+            const g = ctx!.createRadialGradient(px, py, 0, px, py, 9);
+            g.addColorStop(0, `rgba(${Rp},${Gp},${Bp},${(alpha * 0.70).toFixed(2)})`);
             g.addColorStop(1, `rgba(${Rp},${Gp},${Bp},0)`);
             ctx!.beginPath();
-            ctx!.arc(px, py, 14, 0, Math.PI * 2);
+            ctx!.arc(px, py, 9, 0, Math.PI * 2);
             ctx!.fillStyle = g;
             ctx!.fill();
 
             // Core dot
             ctx!.beginPath();
-            ctx!.arc(px, py, 3.0, 0, Math.PI * 2);
+            ctx!.arc(px, py, 2.2, 0, Math.PI * 2);
             ctx!.fillStyle = `rgba(${Rp},${Gp},${Bp},${alpha.toFixed(2)})`;
             ctx!.fill();
 
             // White centre
             ctx!.beginPath();
-            ctx!.arc(px, py, 1.4, 0, Math.PI * 2);
+            ctx!.arc(px, py, 1.0, 0, Math.PI * 2);
             ctx!.fillStyle = `rgba(255,255,255,${(alpha * 0.85).toFixed(2)})`;
             ctx!.fill();
           }
@@ -236,27 +236,27 @@ export default function NetworkPulseBg() {
           const nx = n.fx * cssW;
           const ny = n.fy * cssH;
           const [R, G, B] = LIBS[n.lib].color;
-          const breath = 0.45 + 0.35 * Math.sin(t / n.period + n.phase); // 0.10–0.80
+          const breath = 0.38 + 0.28 * Math.sin(t / n.period + n.phase); // 0.10–0.66
 
           // Outer glow
-          const glow = ctx!.createRadialGradient(nx, ny, 0, nx, ny, 18);
-          glow.addColorStop(0, `rgba(${R},${G},${B},${(breath * 0.8).toFixed(2)})`);
+          const glow = ctx!.createRadialGradient(nx, ny, 0, nx, ny, 13);
+          glow.addColorStop(0, `rgba(${R},${G},${B},${(breath * 0.65).toFixed(2)})`);
           glow.addColorStop(1, `rgba(${R},${G},${B},0)`);
           ctx!.beginPath();
-          ctx!.arc(nx, ny, 18, 0, Math.PI * 2);
+          ctx!.arc(nx, ny, 13, 0, Math.PI * 2);
           ctx!.fillStyle = glow;
           ctx!.fill();
 
           // Core dot
           ctx!.beginPath();
-          ctx!.arc(nx, ny, 4.0, 0, Math.PI * 2);
-          ctx!.fillStyle = `rgba(${R},${G},${B},${Math.min(1, breath * 1.6).toFixed(2)})`;
+          ctx!.arc(nx, ny, 3.0, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(${R},${G},${B},${Math.min(1, breath * 1.5).toFixed(2)})`;
           ctx!.fill();
 
           // White inner
           ctx!.beginPath();
-          ctx!.arc(nx, ny, 1.6, 0, Math.PI * 2);
-          ctx!.fillStyle = `rgba(255,255,255,${Math.min(1, breath * 1.2).toFixed(2)})`;
+          ctx!.arc(nx, ny, 1.2, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(255,255,255,${Math.min(1, breath * 1.1).toFixed(2)})`;
           ctx!.fill();
         }
       }
