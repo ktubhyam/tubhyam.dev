@@ -35,13 +35,13 @@ const SAT_IC = [
   { x:  0.0,  y: -1.00, vx: -1.62, vy:  0.0  },
 ];
 
-// amber / teal / violet / emerald / teal  — matches DisplayCards
+// gold / cyan / purple / green / red  — matches DisplayCards
 const BODY_RGB: [number, number, number][] = [
-  [201, 160,  74],
-  [ 78, 205, 196],
-  [167, 139, 250],
-  [ 52, 211, 153],
-  [ 78, 205, 196],
+  [201, 160,  74],  // gold    #C9A04A
+  [ 78, 205, 196],  // cyan    #4ECDC4
+  [167, 139, 250],  // purple  #A78BFA
+  [ 52, 211, 153],  // green   #34D399
+  [251, 113, 133],  // red     #FB7185
 ];
 
 function seededRng(seed: number) {
