@@ -48,11 +48,16 @@ export default function TerminalBlock({
   const totalCharsRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const flatChars = useRef<{ char: string; color: string; lineIdx: number; isPrompt: boolean }[]>([]);
+  type FlatChar = { char: string; color: string; lineIdx: number; isPrompt: boolean };
+  type LineChar = { char: string; color: string; isPrompt: boolean; globalIdx: number };
 
-  // Build flat character array on mount
+  const flatChars = useRef<FlatChar[]>([]);
+  const allLineCharsRef = useRef<Map<number, LineChar[]>>(new Map());
+  const lineStartIdxRef = useRef<number[]>([]);
+
+  // Build flat character array and per-line lookup on mount
   useEffect(() => {
-    const chars: typeof flatChars.current = [];
+    const chars: FlatChar[] = [];
     lines.forEach((line, lineIdx) => {
       if (line.prompt) {
         for (const ch of line.prompt) {
@@ -69,6 +74,18 @@ export default function TerminalBlock({
     });
     flatChars.current = chars;
     totalCharsRef.current = chars.length;
+
+    // Per-line char map (excludes \n) and line start globalIdx
+    const allLC = new Map<number, LineChar[]>();
+    chars.forEach((ch, globalIdx) => {
+      if (ch.char === "\n") return;
+      if (!allLC.has(ch.lineIdx)) allLC.set(ch.lineIdx, []);
+      allLC.get(ch.lineIdx)!.push({ char: ch.char, color: ch.color, isPrompt: ch.isPrompt, globalIdx });
+    });
+    allLineCharsRef.current = allLC;
+    lineStartIdxRef.current = lines.map((_, lineIdx) =>
+      chars.findIndex(c => c.lineIdx === lineIdx)
+    );
   }, [lines]);
 
   // Start typing when in view
@@ -100,26 +117,18 @@ export default function TerminalBlock({
     return lastVisible?.lineIdx ?? 0;
   }, [visibleChars]);
 
-  // Render visible characters
+  // Render all lines; untyped characters are transparent so height is pre-allocated
   const renderLines = useCallback(() => {
-    const chars = flatChars.current;
-    const visible = chars.slice(0, visibleChars);
     const currentLine = getCurrentLineIdx();
+    const allLC = allLineCharsRef.current;
+    const lsi = lineStartIdxRef.current;
 
-    // Group by line
-    const lineGroups: Map<number, typeof chars> = new Map();
-    for (const ch of visible) {
-      if (ch.char === "\n") continue;
-      if (!lineGroups.has(ch.lineIdx)) lineGroups.set(ch.lineIdx, []);
-      lineGroups.get(ch.lineIdx)!.push(ch);
-    }
-
-    return lines.map((line, lineIdx) => {
-      const lineChars = lineGroups.get(lineIdx) ?? [];
-      const firstCharOfLine = chars.findIndex((c) => c.lineIdx === lineIdx);
-      if (firstCharOfLine >= visibleChars) return null;
-
+    return lines.map((_, lineIdx) => {
+      const lineCharsArr = allLC.get(lineIdx) ?? [];
       const isActiveLine = lineIdx === currentLine && !isDone;
+      const isBlank = lineCharsArr.length === 0;
+      // Line number appears when first char of this line starts typing
+      const lineStarted = isBlank || (lsi[lineIdx] !== undefined && lsi[lineIdx] < visibleChars);
 
       return (
         <div
@@ -132,22 +141,29 @@ export default function TerminalBlock({
             marginLeft: "-8px",
           }}
         >
-          {/* Line number */}
-          <span className="w-5 text-right mr-3 select-none flex-shrink-0 text-[#333]" style={{ fontSize: "inherit" }}>
+          {/* Line number — transparent until line starts */}
+          <span
+            className="w-5 text-right mr-3 select-none flex-shrink-0"
+            style={{ fontSize: "inherit", color: lineStarted ? "#333" : "transparent" }}
+          >
             {lineIdx + 1}
           </span>
 
           {/* Content */}
           <span className="flex-1">
-            {lineChars.map((ch, i) => (
-              <span
-                key={i}
-                style={{ color: ch.color }}
-                className={ch.isPrompt ? "select-none" : ""}
-              >
-                {ch.char}
-              </span>
-            ))}
+            {isBlank ? (
+              <span>{'\u00A0'}</span>
+            ) : (
+              lineCharsArr.map((ch, i) => (
+                <span
+                  key={i}
+                  style={{ color: ch.globalIdx < visibleChars ? ch.color : "transparent" }}
+                  className={ch.isPrompt ? "select-none" : ""}
+                >
+                  {ch.char}
+                </span>
+              ))
+            )}
             {/* Cursor on current line */}
             {lineIdx === currentLine && visibleChars < totalCharsRef.current && (
               <span className="inline-block w-[7px] h-[14px] bg-[#C9A04A] animate-blink ml-px translate-y-[1px]" />
