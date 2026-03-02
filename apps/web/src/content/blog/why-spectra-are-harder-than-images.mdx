@@ -11,6 +11,8 @@ import CodeComparison from '@components/islands/CodeComparison';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import EquationReveal from '@components/islands/EquationReveal';
 import MetricCards from '@components/islands/MetricCards';
+import PeakMorphologyViz from '@components/islands/PeakMorphologyViz';
+import AugmentationConstraintViz from '@components/islands/AugmentationConstraintViz';
 
 A vibrational spectrum is a 1D signal — intensity as a function of wavenumber. An image is a 2D signal — pixel intensity as a function of spatial coordinates. Both are arrays of floats. Both feed into neural networks. The resemblance ends there.
 
@@ -158,6 +160,8 @@ The Beer-Lambert law governs the relationship between absorbance and concentrati
 
 Peak shapes are either Gaussian (dominated by Doppler broadening in gas phase), Lorentzian (dominated by collision broadening in condensed phase), or Voigt (a convolution of both). In practice, most liquid and solid-state spectra show Voigt profiles. The key point for ML: these shapes are not arbitrary — the width encodes the molecular environment, and a model that generates peaks with unphysical shapes (e.g., asymmetric when symmetry demands otherwise) is producing nonsense.
 
+<PeakMorphologyViz client:visible />
+
 ## The Scale Problem
 
 Before going deeper into the technical challenges, it helps to see the numbers side by side. The scale disparity between image ML and spectral ML is staggering:
@@ -263,6 +267,8 @@ The key insight is that the wavenumber axis has <span class="highlight-teal">abs
 **Scaling the x-axis** shifts all peak positions. Stretching by 10% moves the O-H stretch from 3300 to 3630 cm⁻¹ — a shift that a chemist would interpret as changing from a hydrogen-bonded alcohol to a free N-H stretch. The model would learn incorrect structure-spectrum correlations.
 
 The only safe augmentations are <span class="highlight-teal">additive noise</span> (simulates detector noise — physically motivated because all real spectrometers have non-zero noise floors), <span class="highlight-teal">small wavenumber shifts</span> (simulates calibration variation between instruments, typically ±2-5 cm⁻¹), and <span class="highlight-teal">baseline perturbation</span> (simulates scattering or fluorescence backgrounds with smooth polynomial offsets). This gives maybe a 2-3x effective dataset expansion — not the 10-100x that vision gets.
+
+<AugmentationConstraintViz client:visible />
 
 ## Instrument Variance
 

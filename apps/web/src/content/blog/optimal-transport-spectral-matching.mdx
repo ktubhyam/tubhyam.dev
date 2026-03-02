@@ -12,6 +12,7 @@ import SinkhornExplorer from '@components/islands/SinkhornExplorer';
 import EquationReveal from '@components/islands/EquationReveal';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import MetricCards from '@components/islands/MetricCards';
+import SinkhornConvergenceViz from '@components/islands/SinkhornConvergenceViz';
 
 When you compare two spectra, the standard loss function has a blind spot. Consider a single Gaussian peak at 1720 cm⁻¹ — the C=O stretch. Shift it by 1 cm⁻¹ (calibration drift) and shift it by 100 cm⁻¹ (a completely different functional group). Under mean squared error, both shifts produce massive pointwise loss. MSE doesn't know that 1 cm⁻¹ and 100 cm⁻¹ are different amounts of "wrong." It sees mismatched bins and penalizes them equally.
 
@@ -258,6 +259,8 @@ Each iteration is a matrix-vector product — fully parallelizable on GPU. Conve
 **Computational complexity.** Each Sinkhorn iteration is $O(N^2)$: one matrix-vector product with the $N \times N$ kernel $K$. With $L$ iterations, total cost is $O(LN^2)$. For a 64-bin coarse spectrum and $L = 100$, this is ~400K FLOPs — trivial. For the full 3501-bin spectrum, it is ~1.2 billion FLOPs — comparable to a single Transformer self-attention layer. The computation is fully batched and differentiable through the iterations via implicit differentiation.
 
 </div>
+
+<SinkhornConvergenceViz client:visible />
 
 ## The Epsilon Problem
 

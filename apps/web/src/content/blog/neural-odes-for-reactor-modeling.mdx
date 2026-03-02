@@ -12,6 +12,8 @@ import CSTRSimulator from '@components/islands/CSTRSimulator';
 import EquationReveal from '@components/islands/EquationReveal';
 import PipelineFlow from '@components/islands/PipelineFlow';
 import MetricCards from '@components/islands/MetricCards';
+import PhasePortraitViz from '@components/islands/PhasePortraitViz';
+import ResidualDecompositionViz from '@components/islands/ResidualDecompositionViz';
 
 A chemical reactor is a dynamical system. Raw materials flow in, chemical reactions transform them, and products flow out. The state of the reactor — temperatures, concentrations, pressures — evolves continuously in time according to coupled differential equations. If you know the rate laws, the heat transfer coefficients, and the flow patterns, you can write down these equations and solve them numerically.
 
@@ -265,6 +267,8 @@ The neural network should learn the *residual* between the first-principles mode
 
 </div>
 
+<PhasePortraitViz client:visible />
+
 ## The Full Mathematical Specification
 
 To make the hybrid approach concrete, here are the complete CSTR balance equations with the neural correction terms written out explicitly. A real reactor model involves more terms than the simplified version above.
@@ -488,6 +492,8 @@ The real value of a neural ODE reactor model is <span class="highlight">continuo
   { label: "Hybrid (6mo)", value: 1.5, suffix: "K RMSE", color: "#34D399", sparkline: [0.7, 0.75, 0.8, 0.85, 0.9, 0.93, 0.88, 0.85, 0.9, 1.0], trend: "stable" },
   { label: "Recalibration", value: 0, suffix: " needed", color: "#4ECDC4", sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], trend: "stable" },
 ]} />
+
+<ResidualDecompositionViz client:visible />
 
 The neural ODE maintains &lt;1.5 K accuracy over 6 months with no manual recalibration. The classical model degrades to 11.7 K — nearly 10x worse. The key is that only the neural network parameters ($r_\theta$, $q_\theta$) are updated online; the physics structure (mass balances, energy balances) is fixed. This prevents the model from learning spurious dynamics during transients.
 

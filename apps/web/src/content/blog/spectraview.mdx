@@ -12,6 +12,7 @@ import PipelineFlow from '@components/islands/PipelineFlow';
 import FileTree from '@components/islands/FileTree';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import MetricCards from '@components/islands/MetricCards';
+import SpectraviewDemo from '@components/islands/SpectraviewDemo';
 
 Most spectrum viewers on the web use Plotly, Chart.js, or an SVG-based charting library. These work fine for 50-point bar charts. They do not work for vibrational spectra — 2,048 to 8,192 data points, sub-wavenumber precision, users who zoom in to inspect individual peak shoulders. The DOM chokes. Interactions lag. Scientists go back to Origin.
 
@@ -170,6 +171,8 @@ Even Canvas has limits. Drawing 50,000 `lineTo` calls per frame during a zoom an
 LTTB divides the data into equal-sized buckets and selects the point in each bucket that forms the largest triangle with its neighbors. Unlike simple min-max decimation, it preserves the visual shape of peaks and shoulders. The downsampling happens per frame on the zoomed window, so you never lose resolution — zoom in and the algorithm selects more detail.
 
 The implementation is adapted from Sveinn Steinarsson's original paper. A key optimization: SpectraView pre-sorts the data by x-coordinate and uses a sliding-window approach rather than re-partitioning the entire dataset on every zoom change. For a 50,000-point spectrum, LTTB downsampling to 1,000 display points takes 0.8ms — fast enough to run every frame during a smooth zoom animation.
+
+<SpectraviewDemo client:visible />
 
 ## Composable Architecture
 

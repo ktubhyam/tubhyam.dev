@@ -11,6 +11,7 @@ import SymmetryExplorer from '@components/islands/SymmetryExplorer';
 import EquationReveal from '@components/islands/EquationReveal';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import MetricCards from '@components/islands/MetricCards';
+import IdentifiabilityHeatmap from '@components/islands/IdentifiabilityHeatmap';
 
 In 1966, Mark Kac posed a question that became one of the most cited in spectral theory: *"Can one hear the shape of a drum?"* He wanted to know whether a drum's resonant frequencies uniquely determine its geometry. Gordon, Webb, and Wolpert answered **no** in 1992 — they constructed non-isometric planar domains with identical Dirichlet spectra.
 
@@ -300,6 +301,8 @@ The QM9 dataset — <span class="highlight">130,831 small organic molecules</spa
 />
 
 Explore different molecules to see how symmetry determines spectral observability — pick a molecule and see which modes are IR-active, Raman-active, or silent:
+
+<IdentifiabilityHeatmap client:visible />
 
 <SymmetryExplorer client:visible />
 

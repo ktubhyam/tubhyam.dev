@@ -12,6 +12,8 @@ import MaskingDemo from '@components/islands/MaskingDemo';
 import PipelineFlow from '@components/islands/PipelineFlow';
 import EquationReveal from '@components/islands/EquationReveal';
 import MetricCards from '@components/islands/MetricCards';
+import MaskRatioExplorer from '@components/islands/MaskRatioExplorer';
+import OvertoneFlowViz from '@components/islands/OvertoneFlowViz';
 
 The fundamental challenge of spectral machine learning is the data asymmetry. ImageNet has 1,200 labeled images per class. Spectroscopy has approximately one labeled spectrum per molecule — sometimes zero if the compound has never been synthesized. You cannot train a foundation model on a dataset where every class has a single example.
 
@@ -155,6 +157,8 @@ where $\mathcal{M}$ is the random set of masked patch indices. This operation co
   ]}
 />
 
+<MaskRatioExplorer client:visible />
+
 ## The Architecture
 
 The full pretraining pipeline:
@@ -288,6 +292,8 @@ Molecular vibrations are not perfectly harmonic. A bond modeled as a Morse poten
 When the model masks the fundamental at 2900 cm$^{-1}$, the overtone at 5800 cm$^{-1}$ and the combination band at 4300 cm$^{-1}$ remain visible. To reconstruct the masked fundamental, the model must learn the anharmonicity relationship — that the overtone frequency is related to the fundamental by a factor slightly less than 2, with the deviation encoding the shape of the potential energy surface. This is not a statistical correlation learned from data. It is a hard physical constraint that the model discovers through masked reconstruction.
 
 The same logic works in reverse: masking the overtone region forces reconstruction from the fundamental. And masking both simultaneously (which happens with ~12% probability at 35% masking ratio when the two regions fall in separate patches) forces the model to use the combination band — learning a three-way relationship. After 50K pretraining steps, we observe that the model's internal representations at the fundamental, overtone, and combination band positions become linearly correlated, confirming that the encoder has learned the anharmonic coupling.
+
+<OvertoneFlowViz client:visible />
 
 ### Functional Group Patterns
 

@@ -12,6 +12,8 @@ import EquationReveal from '@components/islands/EquationReveal';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import PipelineFlow from '@components/islands/PipelineFlow';
 import MetricCards from '@components/islands/MetricCards';
+import SpectralInversionViz from '@components/islands/SpectralInversionViz';
+import InverseSpectrumFlow from '@components/islands/InverseSpectrumFlow';
 
 Vibrational spectroscopy — IR and Raman — is one of the most widely deployed analytical techniques in chemistry. You shine light on a molecule, measure what comes back, and try to figure out what the molecule looks like. The <span class="highlight">forward direction</span> of this problem is solved: given a structure, compute its spectrum. The <span class="highlight">inverse direction</span> — given a spectrum, recover the structure — is fundamentally harder, and the reason is group theory.
 
@@ -33,6 +35,8 @@ Vibrational spectroscopy — IR and Raman — is one of the most widely deployed
 />
 
 The spectrum above is unambiguous — each peak maps to a specific bond vibration, and the pattern uniquely fingerprints the molecule. But the *inverse* arrow asks: given only these peaks and their intensities, can we reconstruct the molecular structure that produced them? The forward map is a smooth function. The inverse map is a nightmare.
+
+<SpectralInversionViz client:visible />
 
 ## The Forward Map
 
@@ -294,6 +298,8 @@ This is a conjecture, not a theorem. The obstruction to proving it is that the f
 />
 
 A <span class="highlight">4:1 overdetermination ratio</span> means the combined spectra contain roughly four times more equations than unknowns. The inverse problem is not just solvable — it is well-conditioned.
+
+<InverseSpectrumFlow client:visible />
 
 ## The Architecture: Spektron
 

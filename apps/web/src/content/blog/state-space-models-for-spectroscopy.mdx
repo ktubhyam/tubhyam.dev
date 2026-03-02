@@ -12,6 +12,8 @@ import ReceptiveFieldDemo from '@components/islands/ReceptiveFieldDemo';
 import EquationReveal from '@components/islands/EquationReveal';
 import PipelineFlow from '@components/islands/PipelineFlow';
 import MetricCards from '@components/islands/MetricCards';
+import OscillatorStateViz from '@components/islands/OscillatorStateViz';
+import SSMLongRangeViz from '@components/islands/SSMLongRangeViz';
 
 A vibrational spectrum is conventionally treated as a fixed-length vector — 3501 intensity values spanning 500 to 4000 cm⁻¹. You feed it into a 1D CNN, extract features, and classify. This works. It also misses something fundamental.
 
@@ -293,6 +295,8 @@ This is the exact solution to a damped harmonic oscillator with frequency $\omeg
 
 The discretization step $\Delta t$ is input-dependent (computed by a linear projection of each token), giving D-LinOSS the selectivity of Mamba while preserving the parallelizable structure of S4. When the model encounters a strong peak, it can increase $\Delta t$ to "take a bigger step" through state space, effectively allocating more representational capacity. When it encounters baseline, it can decrease $\Delta t$ to coast through.
 
+<OscillatorStateViz client:visible />
+
 ### CFL Stability: The Training Killer
 
 The damped oscillator formulation introduces a subtle but critical numerical constraint. The state transition matrix $\mathbf{M}$ is stable only when its eigenvalues remain inside the unit circle. For the discretized system, this requires:
@@ -327,6 +331,8 @@ When Mamba or D-LinOSS processes an IR spectrum, the input-dependent gating lear
 </div>
 
 **4. Sequence length is moderate.** At 3501 points, a spectrum is long enough that Transformers become expensive but short enough that SSMs are extremely efficient. The sweet spot for SSMs is sequences of length 1K-100K — exactly where spectral data lives.
+
+<SSMLongRangeViz client:visible />
 
 ## The Hybrid Architecture in Spektron
 

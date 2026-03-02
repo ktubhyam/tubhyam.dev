@@ -12,6 +12,7 @@ import PipelineFlow from '@components/islands/PipelineFlow';
 import FileTree from '@components/islands/FileTree';
 import SpectrumViz from '@components/islands/SpectrumViz';
 import MetricCards from '@components/islands/MetricCards';
+import PreprocessingPipelineViz from '@components/islands/PreprocessingPipelineViz';
 
 Spectral preprocessing is the unglamorous part of spectroscopy. Before you can identify a compound, quantify a concentration, or train a model, you need to remove baselines, smooth noise, normalize intensities, and correct for scatter. Every spectroscopist does this. Most write their own scripts. The scripts are never reusable.
 
@@ -91,6 +92,8 @@ Every spectral analysis follows the same general flow: load raw data from whatev
     { label: "Export", icon: "M5 12h14M12 5l7 7-7 7", color: "#34D399", detail: "JCAMP, CSV, HDF5, NumPy" },
   ]}
 />
+
+<PreprocessingPipelineViz client:visible />
 
 ## Why Functional
 
