@@ -36,6 +36,10 @@ import CrossSpectralLens from "@components/islands/CrossSpectralLens";
 import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 import DisplayCards from "@components/islands/DisplayCards";
 import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
+import SpectralRibbonBg from "@components/islands/SpectralRibbonBg";
+import LennardJonesBg from "@components/islands/LennardJonesBg";
+import ChladniWaveBg from "@components/islands/ChladniWaveBg";
+import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
 ---
 
 <BaseLayout title={SITE.title} hideNav>
@@ -230,17 +234,18 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
       id="research-section"
       aria-label="Research"
       data-nav-section="research"
-      class="full-page-section"
+      class="full-page-section relative overflow-hidden"
     >
+      <SpectralRibbonBg client:load />
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <!-- Text column -->
           <div class="research-col-left">
             <p class="section-label-type text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="01 / Research"></p>
-            <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-4">
+            <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-4" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
               Solving the Spectral<br />Inverse Problem
             </h2>
-            <p class="text-sm text-text-secondary leading-relaxed mb-5">
+            <p class="text-sm text-text-secondary leading-relaxed mb-5" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.80)">
               Two active threads attack the spectral inverse problem. <span class="text-text-primary font-medium">Spektron</span> benchmarks five architectures at parameter parity (~1M) on QM9S (130K molecules) — targeting R²&nbsp;=&nbsp;0.95 across IR and Raman. <span class="text-text-primary font-medium">invyr-ai</span> takes a complementary direction: bidirectional IR↔structure via 3D fragment-aware graph encoders.
             </p>
 
@@ -248,7 +253,7 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
               <a
                 href="/projects/spektron"
-                class="flex flex-col p-3 rounded-lg border border-accent/20 bg-accent/5 hover:border-accent/40 hover:bg-accent/8 transition-all group"
+                class="flex flex-col p-3 rounded-lg border border-accent/20 bg-transparent hover:border-accent/40 transition-all group"
               >
                 <div class="flex items-center gap-2 mb-1">
                   <span class="text-[10px] font-mono text-accent font-semibold">Spektron</span>
@@ -262,7 +267,7 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
                 href="https://github.com/ktubhyam/invyr-ai"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="flex flex-col p-3 rounded-lg border border-[rgba(78,205,196,0.2)] bg-[rgba(78,205,196,0.04)] hover:border-[rgba(78,205,196,0.4)] hover:bg-[rgba(78,205,196,0.08)] transition-all group"
+                class="flex flex-col p-3 rounded-lg border border-[rgba(78,205,196,0.2)] bg-transparent hover:border-[rgba(78,205,196,0.4)] transition-all group"
               >
                 <div class="flex items-center gap-2 mb-1">
                   <span class="text-[10px] font-mono text-[#4ECDC4] font-semibold">invyr-ai</span>
@@ -287,14 +292,14 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
 
           <!-- Visual column: HeroSpectrum + InverseSpectrumFlow -->
           <div class="flex flex-col gap-3 research-col-right">
-            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary relative">
+            <div class="rounded-xl overflow-hidden border border-border bg-transparent relative">
               <HeroSpectrum client:visible />
               <CrossSpectralLens client:visible />
               <p class="pb-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
                 IR spectrum — benzaldehyde · B3LYP/def2-TZVP
               </p>
             </div>
-            <div class="rounded-xl overflow-hidden border border-border bg-bg-secondary p-1">
+            <div class="rounded-xl overflow-hidden border border-border bg-transparent p-1">
               <InverseSpectrumFlow client:visible />
             </div>
           </div>
@@ -320,14 +325,15 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
       id="build-section"
       aria-label="Projects"
       data-nav-section="build"
-      class="full-page-section"
+      class="full-page-section relative overflow-hidden"
     >
+      <LennardJonesBg client:load />
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="02 / Build"></p>
-        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1">
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
           Open-source tools for chemical science
         </h2>
-        <p class="text-sm text-text-secondary mb-5">Four libraries. One goal: make chemistry programmable.</p>
+        <p class="text-sm text-text-secondary mb-5" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.80)">Four libraries. One goal: make chemistry programmable.</p>
         <ProjectShowcase client:visible />
       </div>
     </section>
@@ -338,14 +344,15 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
     <section
       aria-label="Simulations"
       data-nav-section="explore"
-      class="full-page-section"
+      class="full-page-section relative overflow-hidden"
     >
+      <ChladniWaveBg client:load />
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="03 / Explore"></p>
-        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1">
+        <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight mb-1" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
           Interactive Chemistry Simulations
         </h2>
-        <p class="text-sm text-text-secondary mb-5">Physics-accurate simulations, running entirely in your browser.</p>
+        <p class="text-sm text-text-secondary mb-5" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.80)">Physics-accurate simulations, running entirely in your browser.</p>
         <SimConsole client:visible />
       </div>
     </section>
@@ -421,8 +428,9 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
       aria-label="Contact"
       id="contact"
       data-nav-section="connect"
-      class="full-page-section"
+      class="full-page-section relative overflow-hidden"
     >
+      <ReactionDiffusionBg client:load />
       <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
         <p class="text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="05 / Connect"></p>
 
@@ -433,7 +441,7 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
             speed={30}
             sequential={true}
             revealDirection="start"
-            className="text-3xl sm:text-4xl font-heading font-bold text-text-primary leading-tight"
+            className="text-3xl sm:text-4xl font-heading font-bold text-text-primary leading-tight" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)"
             encryptedClassName="text-accent/30"
             animateOn="view"
           />
@@ -441,7 +449,7 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
           <!-- Contact form -->
-          <div class="flex flex-col gap-4 contact-left-col">
+          <div class="flex flex-col gap-4 contact-left-col s5-glass-col">
             <form class="flex flex-col gap-3" action="https://formsubmit.co/tubhyamkt@gmail.com" method="POST">
               <input type="hidden" name="_subject" value="New contact from tubhyam.dev" />
               <input type="hidden" name="_captcha" value="true" />
@@ -486,7 +494,7 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
           </div>
 
           <!-- Info column -->
-          <div class="flex flex-col gap-5 contact-right-col">
+          <div class="flex flex-col gap-5 contact-right-col s5-glass-col">
             <!-- Availability status terminal -->
             <AvailabilityStatus client:visible />
 
@@ -717,6 +725,16 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
     background: var(--color-surface-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(201,160,74,0.06);
+  }
+
+  /* ── S5 glass columns ── */
+  .s5-glass-col {
+    background: rgba(8, 8, 8, 0.58);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 1.5rem;
   }
 
   /* ── Contact form inputs ── */
