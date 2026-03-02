@@ -3,7 +3,7 @@ title: "The Variational Information Bottleneck for Spectral Disentanglement"
 date: 2026-03-05
 description: "Splitting spectral latent space into chemistry and instrument with VIB, gradient reversal, and beta annealing. Plus: the bug that fooled us."
 tags: ["spectroscopy", "deep-learning", "information-theory", "research"]
-draft: true
+draft: false
 ---
 
 import TerminalBlock from '@components/islands/TerminalBlock';
@@ -58,7 +58,7 @@ In practice, we can't compute mutual information directly. The variational appro
   equations={[
     {
       label: "VIB Objective",
-      annotation: "Reconstruction quality minus information cost — the fundamental trade-off",
+      annotation: "Classification log-likelihood minus information cost — the standard formulation (Alemi et al. 2017). Here −log p(y|z) is cross-entropy, not reconstruction.",
       segments: [
         { text: "L", color: "function" },
         { text: "VIB", color: "subscript" },
@@ -116,7 +116,7 @@ In practice, we can't compute mutual information directly. The variational appro
   ]}
 />
 
-The first term is reconstruction loss — how well can the model recover the original spectrum from $z$. The second is a KL divergence that regularizes the latent space toward a standard Gaussian prior. This is the same objective as a VAE, but with a different motivation: we're not trying to generate spectra, we're trying to <span class="highlight">forget instrument-specific information</span>.
+In the standard VIB formulation (Alemi et al. 2017), the first term is a classification log-likelihood — $-\log p(y \mid z)$ is cross-entropy measuring how well $z$ predicts the target $Y$ (e.g. molecule identity). Spektron uses a VAE-VIB hybrid where that classification term is replaced with a <span class="highlight">masked reconstruction loss</span> $\mathcal{L}_\text{MAE}$: instead of predicting molecule labels, the bottleneck must preserve enough information to reconstruct masked spectral patches. The second term is a KL divergence that regularizes the posterior toward a standard Gaussian prior — the same as a VAE, but the motivation differs. We're not trying to generate spectra; we're trying to <span class="highlight">forget instrument-specific information</span> while keeping chemistry.
 
 The third term is the adversarial loss from gradient reversal — the mechanism that actually enforces disentanglement between chemistry and instrument. Without it, the KL term compresses indiscriminately, discarding useful chemistry alongside instrument noise.
 
@@ -318,7 +318,9 @@ The intuition: in early training, a high $\beta$ prevents the model from collaps
 
 Without annealing, fixed $\beta$ presents a dilemma. High $\beta$ (0.1) early training produces well-spread latent codes but prevents the encoder from forming tight molecular clusters — chemistry resolution plateaus. Low $\beta$ (0.001) allows tight clusters but risks posterior collapse: the encoder discovers a few high-density modes early and never explores the rest of the latent space, leaving most of the 128 dimensions unused.
 
-The cosine schedule resolves this: explore first (high $\beta$), then exploit (low $\beta$). The 60% annealing window was determined empirically — shorter windows don't allow enough exploration, while longer windows delay the tightening phase and reduce final discriminability.
+Posterior collapse is worth taking seriously at 128 dimensions. With $\beta_\text{start} = 0.1$ and 128 latent dims, the KL penalty is strong enough to push many dimensions to the prior ($\mu \approx 0$, $\sigma \approx 1$, contributing zero information). The per-dimension KL diagnostic catches this early: if more than 30% of $z_\text{chem}$ dimensions have $D_\text{KL}(\mathcal{N}(\mu_i, \sigma_i^2) \| \mathcal{N}(0,1)) < 0.01$ at step 5K, you're collapsing. An alternative that avoids this entirely is <span class="highlight">cyclical annealing</span> (Fu et al. 2019): instead of monotonically decreasing $\beta$, it cycles it — rise, high plateau, fall — multiple times. Each cycle gives the model a chance to activate new latent dimensions that collapsed in the previous cycle. For 128-dim bottlenecks on large datasets, cyclical annealing tends to activate 20-30% more latent dimensions than monotone annealing.
+
+The cosine schedule resolves the fixed-$\beta$ dilemma: explore first (high $\beta$), then exploit (low $\beta$). The 60% annealing window was determined empirically — shorter windows don't allow enough exploration, while longer windows delay the tightening phase and reduce final discriminability.
 
 ## Why Not Just Use Domain Adaptation?
 
@@ -333,6 +335,8 @@ The differences between VIB and standard domain adaptation approaches are worth 
 **Correlation Alignment (CORAL)** goes further: it matches both the mean and covariance of the source and target feature distributions. This is more robust than MMD for spectral data because it preserves the correlational structure (which peaks co-vary). But CORAL treats all dimensions equally — it aligns the entire 256-dimensional backbone output, including dimensions that encode genuinely instrument-specific information. For calibration transfer, this over-alignment is counterproductive: CORAL tries to make a spectrum from Instrument A "look like" one from Instrument B in every dimension, rather than extracting the instrument-independent chemistry.
 
 **Domain-Adversarial Neural Networks (DANN)** are the closest relative of the VIB approach. DANN also uses gradient reversal to learn domain-invariant features. The key difference is where the reversal is applied: DANN applies it to the *entire* representation, while VIB applies it only to $z_{\text{chem}}$. The separate $z_{\text{inst}}$ subspace in VIB acts as a "pressure release valve" — it gives the encoder somewhere to put instrument information without contaminating the chemistry representation. Without this valve (as in DANN), the encoder faces a harder optimization: it must encode instrument information nowhere, which means the reconstruction head loses access to useful instrument-specific features during pretraining.
+
+One recent baseline worth tracking: **LoRA-CT** (Lai et al. 2025) adapts a pretrained spectral encoder to a new instrument via low-rank weight updates, achieving R² = 0.952 on Raman calibration transfer. That matches our target exactly, using a different paradigm — no explicit disentanglement, just parameter-efficient fine-tuning. The advantage of the VIB approach over LoRA-CT is the 10-sample regime: LoRA-CT requires ~50 paired samples to estimate low-rank updates reliably, while the VIB + TTT pipeline targets ≤10 unlabeled samples. Whether that advantage holds on real NIR benchmarks is what the corn moisture evaluation will determine.
 
 <div class="callout callout-theorem">
   <div class="callout-label">Key Insight</div>
@@ -522,6 +526,8 @@ When disentanglement works, $z_{\text{chem}}$ clusters by molecule regardless of
 
 The key metric: <span class="highlight-teal">domain classification accuracy on $z_{\text{chem}}$ should be at chance level</span> (50% for two instruments). If a classifier can predict the instrument from $z_{\text{chem}}$, disentanglement has failed. On $z_{\text{inst}}$, high domain accuracy is expected — that subspace is supposed to capture instrument variation.
 
+A word of caution: chance-level domain accuracy is a <span class="highlight">necessary but not sufficient</span> condition for disentanglement. A model that maps all inputs to the same point achieves 50% domain accuracy trivially — but it also encodes zero chemistry. Locatello et al. (2019) proved that fully unsupervised disentanglement is impossible without inductive biases; gradient reversal provides exactly that bias (instrument labels during training), so this is weakly-supervised disentanglement, not unsupervised. Always check molecule accuracy on $z_{\text{chem}}$ alongside domain accuracy. If molecule accuracy is below 80% at chance-level domain accuracy, the model has collapsed — not disentangled.
+
 The sparklines in the metric cards tell the training story. The $z_{\text{chem}}$ domain accuracy starts high (~85% early in training, when the encoder hasn't learned to hide instrument information) and drops toward chance as the gradient reversal takes effect. The $z_{\text{inst}}$ accuracy rises in the opposite direction — as $z_{\text{chem}}$ stops encoding instrument information, $z_{\text{inst}}$ takes on more of that burden. The molecule accuracy on $z_{\text{chem}}$ rises steadily throughout, confirming that chemistry information is being preserved even as instrument information is removed.
 
 ## Practical Lessons
@@ -532,7 +538,11 @@ Five hard-won lessons from getting VIB to work in Spektron.
 
 **2. The VIB loss weight matters more than you'd expect.** The total loss has at least four terms: reconstruction, VIB KL, adversarial domain classification, and optionally OT. If the VIB KL weight is too low ($< 10^{-4}$), the bottleneck is effectively absent and $z_{\text{chem}}$ encodes everything including instrument noise. If it's too high ($> 10^{-1}$), the bottleneck over-compresses and $z_{\text{chem}}$ collapses to the prior — a spherical Gaussian carrying zero information. The sweet spot is narrow, and it interacts with the beta annealing schedule. In practice, we sweep the VIB weight on a log scale $\{10^{-4}, 10^{-3}, 10^{-2}, 10^{-1}\}$ and select based on cross-instrument retrieval accuracy, not training loss.
 
-**3. Gradient reversal strength needs warmup.** Setting the reversal coefficient $\alpha$ to 1.0 from step 0 destabilizes training — the adversarial signal overwhelms the reconstruction gradient before the encoder has learned any useful features. We warm up $\alpha$ linearly from 0 to 1.0 over the first 5K steps. This lets the encoder establish basic spectral representations first, then gradually introduces the adversarial pressure. Without warmup, training loss oscillates wildly and the encoder learns degenerate constant-output features.
+**3. Gradient reversal strength needs warmup.** Setting the reversal coefficient $\alpha$ to 1.0 from step 0 destabilizes training — the adversarial signal overwhelms the reconstruction gradient before the encoder has learned any useful features. The schedule from Ganin et al. (2016) is more principled than linear warmup:
+
+$$\alpha(p) = \frac{2}{1 + \exp(-\gamma \cdot p)} - 1, \quad p = \frac{\text{step}}{\text{total steps}}, \quad \gamma = 10$$
+
+This sigmoid schedule rises slowly from 0, accelerates through midtraining, and saturates at 1.0 — front-loading the easy learning and gradually introducing adversarial pressure as the encoder matures. We use $\gamma = 10$ as in the original paper, which produces near-linear warmup over the first 20% of training. Without warmup (any schedule), training loss oscillates wildly and the encoder learns degenerate constant-output features.
 
 **4. Simulate instruments during pretraining.** QM9S contains computed (not measured) spectra — there is no real instrument variation. To train the VIB's disentanglement during pretraining, we simulate instrument effects via augmentation: random wavenumber shifts ($\pm$3 cm$^{-1}$), Gaussian noise (SNR 30-60 dB), polynomial baseline drift (order 2-4), and resolution broadening (Gaussian convolution, $\sigma$ = 2-8 cm$^{-1}$). Each spectrum is randomly assigned to one of 4 simulated "instruments" with consistent augmentation parameters per instrument. This gives the domain classifier something to learn and the gradient reversal something to reverse.
 
