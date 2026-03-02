@@ -374,19 +374,19 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
         {featuredPost && (
           <a href={`/blog/${featuredPost.id}`} class="featured-glass-card group block mb-6">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
-              <span class="text-[10px] font-mono text-accent tracking-[0.15em] uppercase">Latest</span>
+              <span class="text-[10px] font-mono text-accent tracking-[0.15em] uppercase" style="text-shadow: 0 1px 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.85)">Latest</span>
               <span class="text-text-muted/25 font-mono text-[10px]">·</span>
-              <span class="text-[10px] font-mono text-text-muted">{formatDate(featuredPost.data.date)}</span>
+              <span class="text-[10px] font-mono text-text-muted" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.80)">{formatDate(featuredPost.data.date)}</span>
               <span class="text-text-muted/25 font-mono text-[10px]">·</span>
-              <span class="text-[10px] font-mono text-text-muted">{readingTime(featuredPost.body ?? "")} min read</span>
+              <span class="text-[10px] font-mono text-text-muted" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.80)">{readingTime(featuredPost.body ?? "")} min read</span>
             </div>
-            <h3 class="text-xl sm:text-2xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-2 group-hover:text-accent transition-colors duration-200">
+            <h3 class="text-xl sm:text-2xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-2 group-hover:text-accent transition-colors duration-200" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
               {featuredPost.data.title}
             </h3>
-            <p class="text-sm text-text-secondary leading-relaxed mb-4 max-w-2xl">
+            <p class="text-sm text-text-secondary leading-relaxed mb-4 max-w-2xl" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.80)">
               {featuredPost.data.description}
             </p>
-            <span class="text-xs font-mono text-accent group-hover:text-text-primary transition-colors duration-200">Read →</span>
+            <span class="text-xs font-mono text-accent group-hover:text-text-primary transition-colors duration-200" style="text-shadow: 0 1px 6px rgba(0,0,0,0.95)">Read →</span>
           </a>
         )}
 
@@ -660,13 +660,11 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
   /* ── Featured latest post glass card ── */
   .featured-glass-card {
     text-decoration: none;
-    background: rgba(10, 10, 10, 0.35);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 14px;
     padding: 1.5rem 1.75rem;
-    transition: all 300ms ease;
+    transition: border-color 300ms ease, transform 300ms ease;
     position: relative;
     overflow: hidden;
   }
@@ -683,10 +681,8 @@ import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
   }
 
   .featured-glass-card:hover {
-    border-color: rgba(201, 160, 74, 0.2);
-    background: rgba(201, 160, 74, 0.04);
+    border-color: rgba(201, 160, 74, 0.22);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(201, 160, 74, 0.08);
   }
 
   /* ── Blog post cards ── */
