@@ -24,11 +24,9 @@ import TextScramble from "@components/islands/TextScramble";
 import GradientText from "@components/islands/GradientText";
 import AtomOrbit3D from "@components/islands/AtomOrbit3D";
 import HeroSpectrum from "@components/islands/HeroSpectrum";
-import PipelineFlow from "@components/islands/PipelineFlow";
 import MastHeadReveal from "@components/islands/MastHeadReveal";
 import NavTerminalPath from "@components/islands/NavTerminalPath";
 import SpectrumHero from "@components/islands/SpectrumHero";
-import InverseSpectrumFlow from "@components/islands/InverseSpectrumFlow";
 import ArchRace from "@components/islands/ArchRace";
 import ProjectShowcase from "@components/islands/ProjectShowcase";
 import SimConsole from "@components/islands/SimConsole";
@@ -36,7 +34,7 @@ import CrossSpectralLens from "@components/islands/CrossSpectralLens";
 import NewsletterSubscribe from "@components/islands/NewsletterSubscribe";
 import DisplayCards from "@components/islands/DisplayCards";
 import ThreeBodyBackground from "@components/islands/ThreeBodyBackground";
-import SpectralRibbonBg from "@components/islands/SpectralRibbonBg";
+import SpectralWaterfallBg from "@components/islands/SpectralWaterfallBg";
 import LennardJonesBg from "@components/islands/LennardJonesBg";
 import ChladniWaveBg from "@components/islands/ChladniWaveBg";
 import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
@@ -236,83 +234,79 @@ import ReactionDiffusionBg from "@components/islands/ReactionDiffusionBg";
       data-nav-section="research"
       class="full-page-section relative overflow-hidden"
     >
-      <SpectralRibbonBg client:load />
-      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-12 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <!-- Text column -->
-          <div class="research-col-left">
-            <p class="section-label-type text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-4" data-type-label="01 / Research"></p>
-            <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-4" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
-              Solving the Spectral<br />Inverse Problem
-            </h2>
-            <p class="text-sm text-text-secondary leading-relaxed mb-5" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.80)">
-              Two active threads attack the spectral inverse problem. <span class="text-text-primary font-medium">Spektron</span> benchmarks five architectures at parameter parity (~1M) on QM9S (130K molecules) — targeting R²&nbsp;=&nbsp;0.95 across IR and Raman. <span class="text-text-primary font-medium">invyr-ai</span> takes a complementary direction: bidirectional IR↔structure via 3D fragment-aware graph encoders.
-            </p>
+      <SpectralWaterfallBg client:load />
+      <div class="relative z-10 mx-auto max-w-5xl w-full px-6 pt-16 pb-10 lg:pt-0 lg:pb-0 lg:h-full flex flex-col justify-center gap-5">
 
-            <!-- Project callouts — Spektron + invyr-ai -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
-              <a
-                href="/projects/spektron"
-                class="flex flex-col p-3 rounded-lg border border-accent/20 bg-transparent hover:border-accent/40 transition-all group"
-              >
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-[10px] font-mono text-accent font-semibold">Spektron</span>
-                  <span class="text-[9px] font-mono text-accent/50">v0.1.0</span>
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A] ml-auto flex-shrink-0"></span>
-                </div>
-                <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">5-architecture spectral inversion benchmark</p>
-                <p class="text-[10px] font-mono text-text-muted/55">D-LinOSS · Mamba · S4D · Transformer · CNN</p>
-              </a>
-              <a
-                href="https://github.com/ktubhyam/invyr-ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex flex-col p-3 rounded-lg border border-[rgba(78,205,196,0.2)] bg-transparent hover:border-[rgba(78,205,196,0.4)] transition-all group"
-              >
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-[10px] font-mono text-[#4ECDC4] font-semibold">invyr-ai</span>
-                  <span class="text-[9px] font-mono text-[#4ECDC4]/50">private · MIT</span>
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] ml-auto flex-shrink-0"></span>
-                </div>
-                <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">Bidirectional IR↔structure prediction</p>
-                <p class="text-[10px] font-mono text-text-muted/55">3D fragment-aware graph encoders · MIT</p>
-              </a>
-            </div>
+        <!-- Header -->
+        <div>
+          <p class="section-label-type text-[10px] font-mono text-accent tracking-[0.2em] uppercase mb-3" data-type-label="01 / Research"></p>
+          <h2 class="text-3xl sm:text-4xl font-heading font-bold text-text-primary tracking-tight leading-tight mb-3" style="text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.85)">
+            Solving the Spectral<br />Inverse Problem
+          </h2>
+          <p class="text-sm text-text-secondary leading-relaxed max-w-2xl" style="text-shadow: 0 1px 5px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.80)">
+            Two active threads. <span class="text-text-primary font-medium">Spektron</span> benchmarks five architectures at parameter parity on 130K molecules — targeting R²&nbsp;=&nbsp;0.95. <span class="text-text-primary font-medium">invyr-ai</span>: bidirectional IR↔structure via 3D fragment-aware graph encoders.
+          </p>
+        </div>
 
-            <!-- Architecture R² comparison -->
-            <ArchRace client:visible className="mb-6" />
+        <!-- Full-width HeroSpectrum — the research visualization as hero -->
+        <div class="rounded-xl overflow-hidden border border-border/40 relative">
+          <HeroSpectrum client:visible />
+          <CrossSpectralLens client:visible />
+          <p class="pb-2 text-[9px] font-mono text-text-muted/35 text-center tracking-wider" style="text-shadow: 0 1px 4px rgba(0,0,0,0.95)">
+            IR spectrum — benzaldehyde · B3LYP/def2-TZVP
+          </p>
+        </div>
 
-            <!-- PipelineFlow below stats -->
-            <PipelineFlow client:visible className="mb-5" />
-
-            <a href="/research" class="inline-flex items-center gap-2 text-sm font-mono text-accent hover:text-text-primary transition-colors">
-              View all research →
+        <!-- Two columns: project callouts + ArchRace -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <!-- Project callouts -->
+          <div class="flex flex-col gap-2">
+            <a
+              href="/projects/spektron"
+              class="flex flex-col p-3 rounded-lg border border-accent/20 bg-transparent hover:border-accent/40 transition-all group"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-mono text-accent font-semibold">Spektron</span>
+                <span class="text-[9px] font-mono text-accent/50">v0.1.0</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[#C9A04A] ml-auto flex-shrink-0"></span>
+              </div>
+              <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">5-architecture spectral inversion benchmark</p>
+              <p class="text-[10px] font-mono text-text-muted/55">D-LinOSS · Mamba · S4D · Transformer · CNN</p>
+            </a>
+            <a
+              href="https://github.com/ktubhyam/invyr-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col p-3 rounded-lg border border-[rgba(78,205,196,0.2)] bg-transparent hover:border-[rgba(78,205,196,0.4)] transition-all group"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-mono text-[#4ECDC4] font-semibold">invyr-ai</span>
+                <span class="text-[9px] font-mono text-[#4ECDC4]/50">private · MIT</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] ml-auto flex-shrink-0"></span>
+              </div>
+              <p class="text-[11px] font-mono text-text-muted leading-relaxed mb-1">Bidirectional IR↔structure prediction</p>
+              <p class="text-[10px] font-mono text-text-muted/55">3D fragment-aware graph encoders · MIT</p>
             </a>
           </div>
 
-          <!-- Visual column: HeroSpectrum + InverseSpectrumFlow -->
-          <div class="flex flex-col gap-3 research-col-right">
-            <div class="rounded-xl overflow-hidden border border-border bg-transparent relative">
-              <HeroSpectrum client:visible />
-              <CrossSpectralLens client:visible />
-              <p class="pb-2 text-[9px] font-mono text-text-muted/40 text-center tracking-wider">
-                IR spectrum — benzaldehyde · B3LYP/def2-TZVP
-              </p>
-            </div>
-            <div class="rounded-xl overflow-hidden border border-border bg-transparent p-1">
-              <InverseSpectrumFlow client:visible />
-            </div>
-          </div>
+          <!-- Architecture R² comparison -->
+          <ArchRace client:visible />
         </div>
 
-        <!-- Floating tags -->
-        <div class="mt-5 flex flex-wrap gap-2">
-          {["spectroscopy", "state space models", "graph networks", "spectral inversion", "QM9S", "IR/Raman"].map((tag) => (
-            <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-border-hover transition-colors">
-              {tag}
-            </span>
-          ))}
+        <!-- Tags + link -->
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div class="flex flex-wrap gap-1.5">
+            {["spectroscopy", "state space models", "graph networks", "spectral inversion", "QM9S", "IR/Raman"].map((tag) => (
+              <span class="text-[10px] font-mono text-text-muted border border-border rounded-full px-3 py-1 hover:border-border-hover transition-colors">
+                {tag}
+              </span>
+            ))}
+          </div>
+          <a href="/research" class="text-sm font-mono text-accent hover:text-text-primary transition-colors shrink-0 ml-auto">
+            View all research →
+          </a>
         </div>
+
       </div>
     </section>
 
